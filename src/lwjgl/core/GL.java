@@ -10,6 +10,7 @@ import org.lwjgl.util.glu.GLU;
 public class GL {
 
 	public volatile static boolean logFPS = false;
+	public volatile static boolean debug = true;
 
 	public volatile static long renderTime = 0;
 	public volatile static int fps = 60;
@@ -71,7 +72,8 @@ public class GL {
 					current.render();
 					int err = GL11.glGetError();
 					while (err != GL11.GL_NO_ERROR) {
-						System.err.println(GLU.gluErrorString(err));
+						if (debug)
+							System.err.println(GLU.gluErrorString(err));
 						err = GL11.glGetError();
 					}
 					Display.update();

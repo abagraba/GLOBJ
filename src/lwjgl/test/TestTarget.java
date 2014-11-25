@@ -3,6 +3,7 @@ package lwjgl.test;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.glu.GLU;
 
 import lwjgl.core.GL;
 import lwjgl.core.RenderTarget;
@@ -63,8 +64,12 @@ public class TestTarget extends RenderTarget {
 			case Keyboard.KEY_RIGHT:
 				r = Keyboard.getEventKeyState();
 				break;
+			case Keyboard.KEY_ESCAPE:
+				GL.close();
+				break;
 			}
 		}
+		
 		if (l)
 			theta += rps * 0.001f * GL.deltaTime();
 		if (r)
