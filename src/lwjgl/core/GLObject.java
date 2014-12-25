@@ -1,7 +1,13 @@
 package lwjgl.core;
 
-public interface GLObject {
+public abstract class GLObject {
 
-	public String status();
+	protected final String name;
+	
+	public GLObject(String name) {
+		this.name = name;
+	}
+	
+	public abstract String status();
 	
 }

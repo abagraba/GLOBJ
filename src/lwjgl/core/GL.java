@@ -31,6 +31,10 @@ public class GL {
 			GL.target = target;
 		}
 	}
+	
+	public static void waitForStart(){
+		while(!display);
+	}
 
 	public static void startGL() throws LWJGLException {
 		startGL(new PixelFormat(), new ContextAttribs());
@@ -70,12 +74,7 @@ public class GL {
 					current = next;
 					current.input();
 					current.render();
-					int err = GL11.glGetError();
-					while (err != GL11.GL_NO_ERROR) {
-						if (debug)
-							System.err.println(GLU.gluErrorString(err));
-						err = GL11.glGetError();
-					}
+					flushErrors();
 					Display.update();
 					renderTime = System.nanoTime() - currentRender;
 					if (logFPS)
@@ -88,6 +87,31 @@ public class GL {
 				}
 			}
 		}.start();
+	}
+	
+	public static void flushErrors(){
+		int err = GL11.glGetError();
+		while (err != GL11.GL_NO_ERROR) {
+			if (debug)
+				System.err.println(GLU.gluErrorString(err));
+			err = GL11.glGetError();
+		}
+	}
+	
+	public static String readErrors(){
+		int err = GL11.glGetError();
+		if (err == GL11.GL_NO_ERROR)
+			return null;
+		String s = "";
+		while (err != GL11.GL_NO_ERROR) {
+			s += GLU.gluErrorString(err) + '\n';
+			err = GL11.glGetError();
+		}
+		return s;
+	}
+	
+	public static int nextError(){
+		return GL11.glGetError();
 	}
 	
 	public static float deltaTime(){
