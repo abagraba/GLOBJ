@@ -1,5 +1,8 @@
 package lwjgl.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.ContextAttribs;
 import org.lwjgl.opengl.Display;
@@ -108,6 +111,18 @@ public class GL {
 			err = GL11.glGetError();
 		}
 		return s;
+	}
+	
+	public static List<String> readErrorsToList(){
+		ArrayList<String> errors = new ArrayList<String>();
+		int err = GL11.glGetError();
+		if (err == GL11.GL_NO_ERROR)
+			return errors;
+		while (err != GL11.GL_NO_ERROR) {
+			errors.add(GLU.gluErrorString(err));
+			err = GL11.glGetError();
+		}
+		return errors;
 	}
 	
 	public static int nextError(){

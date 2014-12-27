@@ -8,6 +8,6 @@ public abstract class GLObject {
 		this.name = name;
 	}
 	
-	public abstract String status();
+	public abstract String[] status();
 	
 }
