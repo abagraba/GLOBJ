@@ -31,38 +31,30 @@ import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL43;
 
-public class Texture2D extends GLObject {
+public class Texture3D extends GLObject {
 	
-	protected static final HashMap<String, Texture2D> texname = new HashMap<String, Texture2D>();
-	protected static final HashMap<Integer, Texture2D> texid = new HashMap<Integer, Texture2D>();
-	protected static final HashMap<Texture2DTarget, Integer> current = new HashMap<Texture2DTarget, Integer>();
-	protected static final HashMap<Texture2DTarget, Integer> last = new HashMap<Texture2DTarget, Integer>();
+	protected static final HashMap<String, Texture3D> texname = new HashMap<String, Texture3D>();
+	protected static final HashMap<Integer, Texture3D> texid = new HashMap<Integer, Texture3D>();
+	protected static final HashMap<Texture3DTarget, Integer> current = new HashMap<Texture3DTarget, Integer>();
+	protected static final HashMap<Texture3DTarget, Integer> last = new HashMap<Texture3DTarget, Integer>();
 	
 	private final int tex;
-	private final Texture2DTarget target;
+	private final Texture3DTarget target;
 	
-	private static Color clear = new Color(0f, 0f, 0f, 0f);
-	@SuppressWarnings("unused")
-	private static ColorModel model = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB), new int[] {
-			8, 8, 8, 0 }, false, false, ComponentColorModel.OPAQUE, DataBuffer.TYPE_BYTE);
-	
-	private static ColorModel modelA = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB), new int[] {
-			8, 8, 8, 8 }, true, false, ComponentColorModel.TRANSLUCENT, DataBuffer.TYPE_BYTE);
-	
-	private Texture2D(String name, Texture2DTarget target) {
+	private Texture3D(String name, Texture3DTarget target) {
 		super(name);
 		tex = GL11.glGenTextures();
 		this.target = target;
 	}
 	
-	public static Texture2D create(String name, Texture2DTarget target) {
+	public static Texture3D create(String name, Texture3DTarget target) {
 		if (texname.containsKey(name)) {
-			Logging.glError("Cannot create Texture2D. Texture2D [" + name + "] already exists.", null);
+			Logging.glError("Cannot create Texture3D. Texture3D [" + name + "] already exists.", null);
 			return null;
 		}
-		Texture2D tex = new Texture2D(name, target);
+		Texture3D tex = new Texture3D(name, target);
 		if (tex.tex == 0) {
-			Logging.glError("Cannot create Texture2D. No ID could be allocated for Texture2D [" + name + "].", null);
+			Logging.glError("Cannot create Texture3D. No ID could be allocated for Texture3D [" + name + "].", null);
 			return null;
 		}
 		texname.put(tex.name, tex);
@@ -70,15 +62,15 @@ public class Texture2D extends GLObject {
 		return tex;
 	}
 	
-	public static Texture2D get(String name) {
+	public static Texture3D get(String name) {
 		return texname.get(name);
 	}
 	
-	protected static Texture2D get(int id) {
+	protected static Texture3D get(int id) {
 		return texid.get(id);
 	}
 	
-	protected static void bind(int tex, Texture2DTarget target) {
+	protected static void bind(int tex, Texture3DTarget target) {
 		int c = current.containsKey(target) ? current.get(target) : 0;
 		if (tex == c) {
 			last.put(target, c);
@@ -90,9 +82,9 @@ public class Texture2D extends GLObject {
 	}
 	
 	public static void bind(String name) {
-		Texture2D t = get(name);
+		Texture3D t = get(name);
 		if (t == null) {
-			Logging.glError("Cannot bind Texture2D [" + name + "]. Does not exist.", null);
+			Logging.glError("Cannot bind Texture3D [" + name + "]. Does not exist.", null);
 			return;
 		}
 		t.bind();
@@ -102,17 +94,17 @@ public class Texture2D extends GLObject {
 		bind(tex, target);
 	}
 	
-	private static void bindLast(Texture2DTarget target) {
+	private static void bindLast(Texture3DTarget target) {
 		int l = last.containsKey(target) ? last.get(target) : 0;
 		bind(l, target);
 	}
 	
 	public static void destroy(String name) {
 		if (!texname.containsKey(name)) {
-			Logging.glWarning("Cannot delete Texture2D. Texture2D [" + name + "] does not exist.");
+			Logging.glWarning("Cannot delete Texture3D. Texture3D [" + name + "] does not exist.");
 			return;
 		}
-		Texture2D tex = get(name);
+		Texture3D tex = get(name);
 		if (current.get(tex.target) == tex.tex)
 			bind(0, tex.target);
 		GL11.glDeleteTextures(tex.tex);
@@ -150,10 +142,11 @@ public class Texture2D extends GLObject {
 		bindLast(target);
 	}
 	
-	public void setWrap(TextureWrap s, TextureWrap t) {
+	public void setWrap(TextureWrap s, TextureWrap t, TextureWrap r) {
 		bind();
 		GL11.glTexParameteri(target.value, GL11.GL_TEXTURE_WRAP_S, s.value);
 		GL11.glTexParameteri(target.value, GL11.GL_TEXTURE_WRAP_T, t.value);
+		GL11.glTexParameteri(target.value, GL12.GL_TEXTURE_WRAP_R, r.value);
 		bindLast(target);
 	}
 	
@@ -167,16 +160,16 @@ public class Texture2D extends GLObject {
 	
 	// TODO: Texture Views
 	
-	public void setData(Texture2DDataTarget dataTarget, int w, int h, int lod, TextureFormat texformat,
+	public void setData(Texture3DDataTarget dataTarget, int w, int h, int d, int lod, TextureFormat texformat,
 			ImageFormat format, ImageDataType type, ByteBuffer data) {
 		if (w < 0 || h < 0) {
-			Logging.glError("Cannot set data of Texture2D [" + name + "] with dimensions (" + w + "," + h
+			Logging.glError("Cannot set data of Texture3D [" + name + "] with dimensions (" + w + "," + h
 					+ "). Dimensions must be non-negative.", this);
 			return;
 		}
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
 		if (w > max || h > max) {
-			Logging.glError("Cannot set data of Texture2D [" + name + "] with dimensions (" + w + "," + h
+			Logging.glError("Cannot set data of Texture3D [" + name + "] with dimensions (" + w + "," + h
 					+ "). Device only supports textures up to (" + max + "," + max + ").", this);
 			return;
 		}
@@ -186,37 +179,14 @@ public class Texture2D extends GLObject {
 			return;
 		}
 		bind();
-		GL11.glTexImage2D(dataTarget.value, lod, texformat.value, w, h, 0, format.value, type.value, data);
+		GL12.glTexImage3D(dataTarget.value, lod, texformat.value, w, h, d, 0, format.value, type.value, data);
 		bindLast(target);
-	}
-	
-	public void setData(Texture2DDataTarget dataTarget, BufferedImage src, int lod, TextureFormat texformat) {
-		setData(dataTarget, src.getWidth(), src.getHeight(), lod, texformat, ImageFormat.RGBA, ImageDataType.UBYTE,
-				imageDataTransparent(src));
-	}
-	
-	public static ByteBuffer imageDataTransparent(BufferedImage image) {
-		WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, image.getWidth(),
-				image.getHeight(), 4, null);
-		@SuppressWarnings("rawtypes")
-		BufferedImage formatted = new BufferedImage(modelA, raster, false, new Hashtable());
-		
-		Graphics g = formatted.getGraphics();
-		g.setColor(clear);
-		g.fillRect(0, 0, image.getWidth(), image.getHeight());
-		g.drawImage(image, 0, 0, null);
-		
-		byte[] data = ((DataBufferByte) formatted.getRaster().getDataBuffer()).getData();
-		ByteBuffer buffer = ByteBuffer.allocateDirect(data.length);
-		buffer.order(ByteOrder.nativeOrder());
-		buffer.put(data, 0, data.length).flip();
-		return buffer;
 	}
 	
 	@Override
 	public String[] status() {
 		if (tex == 0)
-			return new String[] { Logging.logText("Texture2D:", "Texture does not exist.", 0) };
+			return new String[] { Logging.logText("Texture3D:", "Texture does not exist.", 0) };
 		GL.flushErrors();
 		
 		bind();
@@ -233,11 +203,13 @@ public class Texture2D extends GLObject {
 		Swizzle a = Swizzle.get(GL11.glGetTexParameteri(target.value, GL33.GL_TEXTURE_SWIZZLE_A));
 		TextureWrap swrap = TextureWrap.get(GL11.glGetTexParameteri(target.value, GL11.GL_TEXTURE_WRAP_S));
 		TextureWrap twrap = TextureWrap.get(GL11.glGetTexParameteri(target.value, GL11.GL_TEXTURE_WRAP_T));
+		TextureWrap rwrap = TextureWrap.get(GL11.glGetTexParameteri(target.value, GL12.GL_TEXTURE_WRAP_R));
 		FloatBuffer borderColor = BufferUtils.createFloatBuffer(4);
 		DepthStencilMode dsmode = DepthStencilMode.get(GL11.glGetTexParameteri(target.value,
 				GL43.GL_DEPTH_STENCIL_TEXTURE_MODE));
 		int w = GL11.glGetTexLevelParameteri(target.value, mipmin, GL11.GL_TEXTURE_WIDTH);
 		int h = GL11.glGetTexLevelParameteri(target.value, mipmin, GL11.GL_TEXTURE_HEIGHT);
+		int d = GL11.glGetTexLevelParameteri(target.value, mipmin, GL12.GL_TEXTURE_DEPTH);
 		TextureFormat format = TextureFormat.get(GL11.glGetTexLevelParameteri(target.value, mipmin,
 				GL11.GL_TEXTURE_INTERNAL_FORMAT));
 		GL11.glGetTexParameter(target.value, GL11.GL_TEXTURE_BORDER_COLOR, borderColor);
@@ -247,7 +219,7 @@ public class Texture2D extends GLObject {
 		List<String> errors = GL.readErrorsToList();
 		for (String error : errors)
 			status.add(Logging.logText("ERROR:", error, 0));
-		status.add(Logging.logText("Texture2D:", String.format("%s [%d x %d]", name, w, h), 0));
+		status.add(Logging.logText("Texture3D:", String.format("%s [%d x %d x %d]", name, w, h, d), 0));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Target", target), 1));
 		status.add(Logging.logText(
 				String.format("%-16s:\t%s", "Format", format == null ? "Unrecognized Format" : format), 1));
@@ -258,7 +230,7 @@ public class Texture2D extends GLObject {
 		if (min.mipmaps)
 			status.add(Logging.logText(String.format("%-16s:\t%d - %d", "Mipmap Range", mipmin, mipmax), 1));
 		status.add(Logging.logText(String.format("%-16s:\t[%s, %s, %s, %s]", "Swizzle", r, g, b, a), 1));
-		status.add(Logging.logText(String.format("%-16s:\t%s, %s", "Wrap Mode", swrap, twrap), 1));
+		status.add(Logging.logText(String.format("%-16s:\t%s, %s, %s", "Wrap Mode", swrap, twrap, rwrap), 1));
 		status.add(Logging.logText(String.format("%-16s:\t[%.3f, %.3f, %.3f, %.3f]", "Border Color", borderColor.get(),
 				borderColor.get(), borderColor.get(), borderColor.get()), 1));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Depth/Stencil Mode", dsmode), 1));

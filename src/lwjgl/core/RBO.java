@@ -58,7 +58,7 @@ public class RBO extends GLObject {
 					return true;
 				case GL11.GL_INVALID_VALUE:
 					Logging.glError("Cannot create Renderbuffer Object. Renderbuffer Object too large. Max Size is "
-							+ ContextValues.intConst(GL30.GL_MAX_RENDERBUFFER_SIZE) + " pixels.", null);
+							+ Context.intConst(GL30.GL_MAX_RENDERBUFFER_SIZE) + " pixels.", null);
 					return true;
 				case GL11.GL_OUT_OF_MEMORY:
 					Logging.glError("Cannot create Renderbuffer Object. Out of Memory.", null);

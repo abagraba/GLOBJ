@@ -17,8 +17,13 @@ import org.lwjgl.util.glu.GLU;
 import lwjgl.core.GL;
 import lwjgl.core.RenderTarget;
 import lwjgl.core.VBO;
+import lwjgl.core.texture.MagnifyFilter;
+import lwjgl.core.texture.MinifyFilter;
+import lwjgl.core.texture.Texture;
 import lwjgl.core.texture.Texture2D;
+import lwjgl.core.texture.Texture2DDataTarget;
 import lwjgl.core.texture.Texture2DTarget;
+import lwjgl.core.texture.TextureFormat;
 import lwjgl.debug.Logging;
 
 /**
@@ -38,18 +43,22 @@ public class TextureTestTarget extends RenderTarget {
 	
 	@Override
 	public void init() {
+		
 		FloatBuffer v = BufferUtils.createFloatBuffer(12);
 		FloatBuffer t = BufferUtils.createFloatBuffer(12);
+
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		
 		try {
-			Texture2D.create("Test", Texture2DTarget.TEXTURE_2D).setData(
-					ImageIO.read(new File("src/lwjgl/test/misc/Untitled.png")), 0, GL11.GL_RGBA);
+			Texture2D tex = Texture2D.create("Test", Texture2DTarget.TEXTURE_2D);
+			tex.setFilter(MinifyFilter.NEAREST, MagnifyFilter.NEAREST);
+			tex.setData(Texture2DDataTarget.TEXTURE_2D, ImageIO.read(new File("src/lwjgl/test/misc/Untitled.png")), 0, TextureFormat.RGBA);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		v.put(new float[] { -1, -1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1 }).flip();
 		t.put(new float[] { 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0 }).flip();
-
+		
 		Logging.logObject(Texture2D.get("Test"));
 		
 		vertices = new VBO(GL15.GL_ARRAY_BUFFER);
@@ -75,8 +84,8 @@ public class TextureTestTarget extends RenderTarget {
 	
 	@Override
 	public void render() {
-		
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+		
 		GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
 		GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
 		
@@ -84,6 +93,9 @@ public class TextureTestTarget extends RenderTarget {
 		
 		GL11.glRotatef(theta, 0, 0, 1);
 		GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 6);
+		Logging.logInfo(Texture.status());
+		Logging.logInfo(Texture.constants());
+		
 		
 		GL11.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
 		GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);

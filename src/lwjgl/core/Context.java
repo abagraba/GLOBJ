@@ -5,7 +5,7 @@ import java.util.HashMap;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL32;
 
-public class ContextValues {
+public class Context {
 
 	private static final HashMap<Integer, Boolean> boolVals = new HashMap<Integer, Boolean>();
 	private static final HashMap<Integer, Float> floatVals = new HashMap<Integer, Float>();
@@ -34,6 +34,22 @@ public class ContextValues {
 		if (!longVals.containsKey(name))
 			longVals.put(name, GL32.glGetInteger64(name));
 		return longVals.get(name);
+	}
+	
+	public static boolean boolValue(int name) {
+		return GL11.glGetBoolean(name);
+	}
+
+	public static float floatValue(int name) {
+		return GL11.glGetFloat(name);
+	}
+
+	public static int intValue(int name) {
+		return GL11.glGetInteger(name);
+	}
+
+	public static long longValue(int name) {
+		return GL32.glGetInteger64(name);
 	}
 
 }

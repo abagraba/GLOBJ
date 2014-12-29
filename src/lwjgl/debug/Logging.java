@@ -29,6 +29,14 @@ public class Logging {
 			System.out.println("NULL Object");
 	}
 	
+	public static void logInfo(String[] info) {
+		if (info != null)
+			for (String stat : info)
+				System.out.println(stat);
+		else
+			System.out.println("No Info");
+	}
+	
 	public static String logText(String message, int indent) {
 		String f = "            \t";
 		for (int i = 0; i < indent; i++)
