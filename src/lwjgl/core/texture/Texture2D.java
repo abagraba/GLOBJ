@@ -29,6 +29,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GL33;
+import org.lwjgl.opengl.GL42;
 import org.lwjgl.opengl.GL43;
 
 public class Texture2D extends GLObject {
@@ -169,6 +170,28 @@ public class Texture2D extends GLObject {
 		bind();
 		GL11.glTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_MODE, mode.mode);
 		GL11.glTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_FUNC, mode.func);
+		bindLast(target);
+	}
+	
+	public void initializeTexture(Texture2DDataTarget dataTarget, int w, int h, int levels, TextureFormat texformat) {
+		if (w < 0 || h < 0) {
+			Logging.glError("Cannot initialize Texture2D [" + name + "] with dimensions (" + w + "," + h
+					+ "). Dimensions must be non-negative.", this);
+			return;
+		}
+		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
+		if (w > max || h > max) {
+			Logging.glError("Cannot initialize Texture2D [" + name + "] with dimensions (" + w + "," + h
+					+ "). Device only supports textures up to (" + max + "," + max + ").", this);
+			return;
+		}
+		if (dataTarget.parent != target) {
+			Logging.glError("Invalid Data Target. " + dataTarget + " is not a valid data target for " + target + ".",
+					this);
+			return;
+		}
+		bind();
+		GL42.glTexStorage2D(dataTarget.value, levels, texformat.value, w, h);
 		bindLast(target);
 	}
 	

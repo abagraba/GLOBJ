@@ -17,6 +17,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GL33;
+import org.lwjgl.opengl.GL42;
 import org.lwjgl.opengl.GL43;
 
 public class Texture1D extends GLObject {
@@ -151,19 +152,30 @@ public class Texture1D extends GLObject {
 		bindLast(target);
 	}
 	
-	public void setData(Texture1DDataTarget dataTarget, int w, int lod, TextureFormat texformat, ImageFormat format,
-			ImageDataType type, ByteBuffer data) {
+	public void initializeTexture(Texture1DDataTarget dataTarget, int w, int levels, TextureFormat texformat) {
 		if (w < 0) {
-			Logging.glError("Cannot set data of Texture1D [" + name + "] with dimensions (" + w
+			Logging.glError("Cannot initialize Texture1D [" + name + "] with dimensions (" + w
 					+ "). Dimensions must be non-negative.", this);
 			return;
 		}
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
 		if (w > max) {
-			Logging.glError("Cannot set data of Texture1D [" + name + "] with dimensions (" + w
+			Logging.glError("Cannot initialize Texture1D [" + name + "] with dimensions (" + w
 					+ "). Device only supports textures up to (" + max + ").", this);
 			return;
 		}
+		if (dataTarget.parent != target) {
+			Logging.glError("Invalid Data Target. " + dataTarget + " is not a valid data target for " + target + ".",
+					this);
+			return;
+		}
+		bind();
+		GL42.glTexStorage1D(dataTarget.value, levels, texformat.value, w);
+		bindLast(target);
+	}
+	
+	public void setData(Texture1DDataTarget dataTarget, int w, int lod, TextureFormat texformat, ImageFormat format,
+			ImageDataType type, ByteBuffer data) {
 		if (dataTarget.parent != target) {
 			Logging.glError("Invalid Data Target. " + dataTarget + " is not a valid data target for " + target + ".",
 					this);
@@ -174,6 +186,11 @@ public class Texture1D extends GLObject {
 		bindLast(target);
 	}
 	
+	/**
+	 * Fills a rectangle of the texture specified by x, y, w, h with the image
+	 * data in data. The image must have already been initialized by
+	 * {@link #setData(Texture1DDataTarget, int, int, TextureFormat, ImageFormat, ImageDataType, ByteBuffer)}.
+	 */
 	public void setData(Texture1DDataTarget dataTarget, int x, int w, int lod, ImageFormat format, ImageDataType type,
 			ByteBuffer data) {
 		if (w < 0) {
