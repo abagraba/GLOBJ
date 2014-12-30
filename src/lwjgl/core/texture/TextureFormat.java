@@ -91,11 +91,11 @@ public enum TextureFormat {
 	COMPRESSED_RGB_BTPC_F("RGB BPTC Compressed: Signed float", GL42.GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT),
 	COMPRESSED_RGB_BTPC_F_UNSIGNED("RGB BPTC Compressed: Unsigned float", GL42.GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT),
 	
-	D16("16 bit Depth", GL14.GL_DEPTH_COMPONENT16),
-	D24("24 bit Depth", GL14.GL_DEPTH_COMPONENT24),
-	D32("32 bit Depth", GL14.GL_DEPTH_COMPONENT32),
-	D32_F("32 bit Depth: Float", GL30.GL_DEPTH_COMPONENT32F),
-	D24S8("24 bit Depth, 8 bit Stencil", GL30.GL_DEPTH24_STENCIL8),
+	D16("16 bit Depth", GL14.GL_DEPTH_COMPONENT16, true),
+	D24("24 bit Depth", GL14.GL_DEPTH_COMPONENT24, true),
+	D32("32 bit Depth", GL14.GL_DEPTH_COMPONENT32, true),
+	D32_F("32 bit Depth: Float", GL30.GL_DEPTH_COMPONENT32F, true),
+	D24S8("24 bit Depth, 8 bit Stencil", GL30.GL_DEPTH24_STENCIL8, true),
 //	D32S8_F("32 bit Depth, 8 bit Stencil: Float", GL42.GL_DEPTH32_STENCIL8),
 	S1("1 bit Stencil", GL30.GL_STENCIL_INDEX1),
 	S4("4 bit Stencil", GL30.GL_STENCIL_INDEX4),
@@ -104,10 +104,16 @@ public enum TextureFormat {
 	
 	public final String name;
 	public final int value;
+	public final boolean depth;
 	
 	private TextureFormat(String name, int value) {
+		this(name, value, false);
+	}
+	
+	private TextureFormat(String name, int value, boolean depth) {
 		this.name = name;
 		this.value = value;
+		this.depth = depth;
 	}
 
 	public static TextureFormat get(int i){

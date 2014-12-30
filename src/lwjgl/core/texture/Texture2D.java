@@ -195,6 +195,29 @@ public class Texture2D extends GLObject {
 		bindLast(target);
 	}
 	
+	public void setData(Texture2DDataTarget dataTarget, int x, int y, int w, int h, int lod, ImageFormat format,
+			ImageDataType type, ByteBuffer data) {
+		if (w < 0 || h < 0) {
+			Logging.glError("Cannot set data of Texture2D [" + name + "] with dimensions (" + w + "," + h
+					+ "). Dimensions must be non-negative.", this);
+			return;
+		}
+		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
+		if (w > max || h > max) {
+			Logging.glError("Cannot set data of Texture2D [" + name + "] with dimensions (" + w + "," + h
+					+ "). Device only supports textures up to (" + max + "," + max + ").", this);
+			return;
+		}
+		if (dataTarget.parent != target) {
+			Logging.glError("Invalid Data Target. " + dataTarget + " is not a valid data target for " + target + ".",
+					this);
+			return;
+		}
+		bind();
+		GL11.glTexSubImage2D(dataTarget.value, lod, x, y, w, h, format.value, type.value, data);
+		bindLast(target);
+	}
+	
 	public void setData(Texture2DDataTarget dataTarget, BufferedImage src, int lod, TextureFormat texformat) {
 		setData(dataTarget, src.getWidth(), src.getHeight(), lod, texformat, ImageFormat.RGBA, ImageDataType.UBYTE,
 				imageDataTransparent(src));
@@ -243,6 +266,9 @@ public class Texture2D extends GLObject {
 				GL43.GL_DEPTH_STENCIL_TEXTURE_MODE));
 		int w = GL11.glGetTexLevelParameteri(target.value, mipmin, GL11.GL_TEXTURE_WIDTH);
 		int h = GL11.glGetTexLevelParameteri(target.value, mipmin, GL11.GL_TEXTURE_HEIGHT);
+		int comparemode = GL11.glGetTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_MODE);
+		TextureComparison comparefunc = TextureComparison.get(GL11.glGetTexParameteri(target.value,
+				GL14.GL_TEXTURE_COMPARE_FUNC));
 		TextureFormat format = TextureFormat.get(GL11.glGetTexLevelParameteri(target.value, mipmin,
 				GL11.GL_TEXTURE_INTERNAL_FORMAT));
 		GL11.glGetTexParameter(target.value, GL11.GL_TEXTURE_BORDER_COLOR, borderColor);
@@ -253,20 +279,24 @@ public class Texture2D extends GLObject {
 		for (String error : errors)
 			status.add(Logging.logText("ERROR:", error, 0));
 		status.add(Logging.logText("Texture2D:", String.format("%s [%d x %d]", name, w, h), 0));
-		status.add(Logging.logText(String.format("%-16s:\t%s", "Target", target), 1));
+		status.add(Logging.logText(String.format("%-24s:\t%s", "Target", target), 1));
 		status.add(Logging.logText(
-				String.format("%-16s:\t%s", "Format", format == null ? "Unrecognized Format" : format), 1));
-		status.add(Logging.logText(String.format("%-16s:\t%s", "Minify Filter", min), 1));
-		status.add(Logging.logText(String.format("%-16s:\t%s", "Magnify Filter", mag), 1));
-		status.add(Logging.logText(String.format("%-16s:\t[%.3f, %.3f] + %.3f", "LOD Range", lodmin, lodmax, lodbias),
+				String.format("%-24s:\t%s", "Format", format == null ? "Unrecognized Format" : format), 1));
+		status.add(Logging.logText(String.format("%-24s:\t%s", "Minify Filter", min), 1));
+		status.add(Logging.logText(String.format("%-24s:\t%s", "Magnify Filter", mag), 1));
+		status.add(Logging.logText(String.format("%-24s:\t[%.3f, %.3f] + %.3f", "LOD Range", lodmin, lodmax, lodbias),
 				1));
 		if (min.mipmaps)
-			status.add(Logging.logText(String.format("%-16s:\t%d - %d", "Mipmap Range", mipmin, mipmax), 1));
-		status.add(Logging.logText(String.format("%-16s:\t[%s, %s, %s, %s]", "Swizzle", r, g, b, a), 1));
-		status.add(Logging.logText(String.format("%-16s:\t%s, %s", "Wrap Mode", swrap, twrap), 1));
-		status.add(Logging.logText(String.format("%-16s:\t[%.3f, %.3f, %.3f, %.3f]", "Border Color", borderColor.get(),
+			status.add(Logging.logText(String.format("%-24s:\t%d - %d", "Mipmap Range", mipmin, mipmax), 1));
+		status.add(Logging.logText(String.format("%-24s:\t[%s, %s, %s, %s]", "Swizzle", r, g, b, a), 1));
+		status.add(Logging.logText(String.format("%-24s:\t%s, %s", "Wrap Mode", swrap, twrap), 1));
+		status.add(Logging.logText(String.format("%-24s:\t[%.3f, %.3f, %.3f, %.3f]", "Border Color", borderColor.get(),
 				borderColor.get(), borderColor.get(), borderColor.get()), 1));
-		status.add(Logging.logText(String.format("%-16s:\t%s", "Depth/Stencil Mode", dsmode), 1));
+		if (format.depth){
+			status.add(Logging.logText(String.format("%-24s:\t%s", "Depth/Stencil Mode", dsmode), 1));
+			TextureComparison func = comparemode == GL11.GL_NONE ? TextureComparison.NONE : comparefunc;
+			status.add(Logging.logText(String.format("%-24s:\t%s", "Texture Compare Function", func), 1));
+		}
 		return status.toArray(new String[status.size()]);
 	}
 	

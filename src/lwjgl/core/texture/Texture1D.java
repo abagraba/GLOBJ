@@ -174,6 +174,29 @@ public class Texture1D extends GLObject {
 		bindLast(target);
 	}
 	
+	public void setData(Texture1DDataTarget dataTarget, int x, int w, int lod, ImageFormat format, ImageDataType type,
+			ByteBuffer data) {
+		if (w < 0) {
+			Logging.glError("Cannot set data of Texture1D [" + name + "] with dimensions (" + w
+					+ "). Dimensions must be non-negative.", this);
+			return;
+		}
+		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
+		if (w > max) {
+			Logging.glError("Cannot set data of Texture1D [" + name + "] with dimensions (" + w
+					+ "). Device only supports textures up to (" + max + ").", this);
+			return;
+		}
+		if (dataTarget.parent != target) {
+			Logging.glError("Invalid Data Target. " + dataTarget + " is not a valid data target for " + target + ".",
+					this);
+			return;
+		}
+		bind();
+		GL11.glTexSubImage1D(dataTarget.value, lod, x, w, format.value, type.value, data);
+		bindLast(target);
+	}
+	
 	@Override
 	public String[] status() {
 		if (tex == 0)
@@ -197,6 +220,9 @@ public class Texture1D extends GLObject {
 		DepthStencilMode dsmode = DepthStencilMode.get(GL11.glGetTexParameteri(target.value,
 				GL43.GL_DEPTH_STENCIL_TEXTURE_MODE));
 		int w = GL11.glGetTexLevelParameteri(target.value, mipmin, GL11.GL_TEXTURE_WIDTH);
+		int comparemode = GL11.glGetTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_MODE);
+		TextureComparison comparefunc = TextureComparison.get(GL11.glGetTexParameteri(target.value,
+				GL14.GL_TEXTURE_COMPARE_FUNC));
 		TextureFormat format = TextureFormat.get(GL11.glGetTexLevelParameteri(target.value, mipmin,
 				GL11.GL_TEXTURE_INTERNAL_FORMAT));
 		GL11.glGetTexParameter(target.value, GL11.GL_TEXTURE_BORDER_COLOR, borderColor);
@@ -220,7 +246,11 @@ public class Texture1D extends GLObject {
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Wrap Mode", swrap), 1));
 		status.add(Logging.logText(String.format("%-16s:\t[%.3f, %.3f, %.3f, %.3f]", "Border Color", borderColor.get(),
 				borderColor.get(), borderColor.get(), borderColor.get()), 1));
-		status.add(Logging.logText(String.format("%-16s:\t%s", "Depth/Stencil Mode", dsmode), 1));
+		if (format.depth) {
+			status.add(Logging.logText(String.format("%-16s:\t%s", "Depth/Stencil Mode", dsmode), 1));
+			TextureComparison func = comparemode == GL11.GL_NONE ? TextureComparison.NONE : comparefunc;
+			status.add(Logging.logText(String.format("%-24s:\t%s", "Texture Compare Function", func), 1));
+		}
 		return status.toArray(new String[status.size()]);
 	}
 	
