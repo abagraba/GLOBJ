@@ -165,7 +165,12 @@ public class Texture2D extends GLObject {
 		bindLast(target);
 	}
 	
-	// TODO: Texture Views
+	public void setDepthComparisonMode(TextureComparison mode) {
+		bind();
+		GL11.glTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_MODE, mode.mode);
+		GL11.glTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_FUNC, mode.func);
+		bindLast(target);
+	}
 	
 	public void setData(Texture2DDataTarget dataTarget, int w, int h, int lod, TextureFormat texformat,
 			ImageFormat format, ImageDataType type, ByteBuffer data) {
@@ -264,8 +269,5 @@ public class Texture2D extends GLObject {
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Depth/Stencil Mode", dsmode), 1));
 		return status.toArray(new String[status.size()]);
 	}
-	
-	// TODO GL_TEXTURE_COMPARE_MODE
-	// TODO GL_TEXTURE_COMPARE_FUNC
 	
 }

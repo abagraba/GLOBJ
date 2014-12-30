@@ -1,22 +1,10 @@
 package lwjgl.core.texture;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.color.ColorSpace;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 
 import lwjgl.core.Context;
@@ -158,7 +146,12 @@ public class Texture3D extends GLObject {
 		bindLast(target);
 	}
 	
-	// TODO: Texture Views
+	public void setDepthComparisonMode(TextureComparison mode) {
+		bind();
+		GL11.glTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_MODE, mode.mode);
+		GL11.glTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_FUNC, mode.func);
+		bindLast(target);
+	}
 	
 	public void setData(Texture3DDataTarget dataTarget, int w, int h, int d, int lod, TextureFormat texformat,
 			ImageFormat format, ImageDataType type, ByteBuffer data) {
@@ -236,8 +229,5 @@ public class Texture3D extends GLObject {
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Depth/Stencil Mode", dsmode), 1));
 		return status.toArray(new String[status.size()]);
 	}
-	
-	// TODO GL_TEXTURE_COMPARE_MODE
-	// TODO GL_TEXTURE_COMPARE_FUNC
 	
 }

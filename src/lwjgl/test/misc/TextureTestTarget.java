@@ -91,10 +91,12 @@ public class TextureTestTarget extends RenderTarget {
 		
 		Texture2D.get("Test").bind();
 		
+		Logging.logObject(Texture2D.get("Test"));
+		
 		GL11.glRotatef(theta, 0, 0, 1);
 		GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 6);
-		Logging.logInfo(Texture.status());
-		Logging.logInfo(Texture.constants());
+		//Logging.logInfo(Texture.status());
+		//Logging.logInfo(Texture.constants());
 		
 		
 		GL11.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
