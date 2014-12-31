@@ -8,9 +8,11 @@ import java.util.List;
 import lwjgl.core.Context;
 import lwjgl.core.GL;
 import lwjgl.core.GLObject;
+import lwjgl.core.texture.values.TextureComparison;
 import lwjgl.core.texture.values.MagnifyFilter;
 import lwjgl.core.texture.values.MinifyFilter;
 import lwjgl.core.texture.values.Swizzle;
+import lwjgl.core.texture.values.TextureWrap;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.BufferUtils;
@@ -25,7 +27,7 @@ import org.lwjgl.opengl.GL32;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL40;
 
-public abstract class Texture extends GLObject{
+public abstract class Texture extends GLObject {
 	
 	/*
 	 * TODO : Textures
@@ -45,17 +47,18 @@ public abstract class Texture extends GLObject{
 	 */
 	
 	protected boolean init = false;
-
-	protected Texture(String name, int id){
+	
+	protected Texture(String name, int id) {
 		super(name, id);
 	}
 	
 	public abstract void bind();
+	
 	protected abstract void unbind();
 	
 	protected abstract int target();
 	
-	public void genMipmaps(){
+	public void genMipmaps() {
 		bind();
 		GL30.glGenerateMipmap(target());
 		unbind();
@@ -90,7 +93,7 @@ public abstract class Texture extends GLObject{
 		GL11.glTexParameter(target(), GL33.GL_TEXTURE_SWIZZLE_RGBA, swizzle);
 		unbind();
 	}
-
+	
 	public void setBorderColor(float r, float g, float b, float a) {
 		bind();
 		FloatBuffer color = BufferUtils.createFloatBuffer(4);
@@ -113,7 +116,6 @@ public abstract class Texture extends GLObject{
 	}
 	
 	protected abstract void wrap(TextureWrap s, TextureWrap t, TextureWrap r);
-
 	
 	public static String[] constants() {
 		GL.flushErrors();
@@ -132,8 +134,7 @@ public abstract class Texture extends GLObject{
 		status.add(Logging.logText("Texture Constants:", "", 0));
 		status.add(Logging.logText(String.format("%-32s:\t%d x %d texels", "Max Texture Size", maxSize, maxSize), 0));
 		status.add(Logging.logText(String.format("%-32s:\t%d layers", "Max Texture Array Layers", maxLayers), 0));
-		status.add(Logging.logText(
-				String.format("%-32s:\t%d x %d texels per side", "Max Cube Map Size", maxCube, maxCube), 0));
+		status.add(Logging.logText(String.format("%-32s:\t%d x %d texels per side", "Max Cube Map Size", maxCube, maxCube), 0));
 		status.add(Logging.logText(String.format("%-32s:\t%d x %d texels", "Max Rectangle Size", maxRect, maxRect), 0));
 		status.add(Logging.logText(String.format("%-32s:\t%d texels", "Max Texture Buffer Size", maxBuffer), 0));
 		status.add(Logging.logText(String.format("%-32s:\t%.3f", "Max LOD Bias", lodbias), 0));
@@ -170,34 +171,25 @@ public abstract class Texture extends GLObject{
 		
 		status.add(Logging.logText("Texture Bindings:", 0));
 		// 1D
-		status.add(Logging.logText(
-				String.format("%-40s:\t%s", "Texture 1D Binding", texture1d == null ? "None" : texture1d.name), 1));
+		status.add(Logging.logText(String.format("%-40s:\t%s", "Texture 1D Binding", texture1d == null ? "None" : texture1d.name), 1));
 		// 1D Array
-		status.add(Logging.logText(String.format("%-40s:\t%s", "Texture 1D Array Binding",
-				texture1darr == null ? "None" : texture1darr.name), 1));
+		status.add(Logging.logText(String.format("%-40s:\t%s", "Texture 1D Array Binding", texture1darr == null ? "None" : texture1darr.name), 1));
 		// 2D
-		status.add(Logging.logText(
-				String.format("%-40s:\t%s", "Texture 2D Binding", texture2d == null ? "None" : texture2d.name), 1));
+		status.add(Logging.logText(String.format("%-40s:\t%s", "Texture 2D Binding", texture2d == null ? "None" : texture2d.name), 1));
 		// 2D Array
-		status.add(Logging.logText(String.format("%-40s:\t%s", "Texture 2D Array Binding",
-				texture2darr == null ? "None" : texture2darr.name), 1));
+		status.add(Logging.logText(String.format("%-40s:\t%s", "Texture 2D Array Binding", texture2darr == null ? "None" : texture2darr.name), 1));
 		// 3D
-		status.add(Logging.logText(
-				String.format("%-40s:\t%s", "Texture 3D Binding", texture3d == null ? "None" : texture3d.name), 1));
+		status.add(Logging.logText(String.format("%-40s:\t%s", "Texture 3D Binding", texture3d == null ? "None" : texture3d.name), 1));
 		// Buffer
 		// status.add(Logging.logText(String.format("%-40s:\t%s",
 		// "Texture Buffer Binding", texturebuffer == null ? "None"
 		// : texturebuffer.name), 1));
 		// Rectangle
-		status.add(Logging.logText(String.format("%-40s:\t%s", "Texture Rectangle Binding",
-				texturerect == null ? "None" : texturerect.name), 1));
+		status.add(Logging.logText(String.format("%-40s:\t%s", "Texture Rectangle Binding", texturerect == null ? "None" : texturerect.name), 1));
 		// Cubemap
-		status.add(Logging.logText(
-				String.format("%-40s:\t%s", "Texture Cubemap Binding", texturecube == null ? "None" : texturecube.name),
-				1));
+		status.add(Logging.logText(String.format("%-40s:\t%s", "Texture Cubemap Binding", texturecube == null ? "None" : texturecube.name), 1));
 		// Cubemap Array
-		status.add(Logging.logText(String.format("%-40s:\t%s", "Texture Cubemap Array Binding",
-				texturecubearr == null ? "None" : texturecubearr.name), 1));
+		status.add(Logging.logText(String.format("%-40s:\t%s", "Texture Cubemap Array Binding", texturecubearr == null ? "None" : texturecubearr.name), 1));
 		// 2D Multisample
 		// status.add(Logging.logText(String.format("%-40s:\t%s",
 		// "Texture 2D Multisample Binding",

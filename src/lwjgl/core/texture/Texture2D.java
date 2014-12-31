@@ -14,6 +14,9 @@ import lwjgl.core.texture.values.MagnifyFilter;
 import lwjgl.core.texture.values.MinifyFilter;
 import lwjgl.core.texture.values.Swizzle;
 import lwjgl.core.texture.values.Texture2DTarget;
+import lwjgl.core.texture.values.TextureComparison;
+import lwjgl.core.texture.values.TextureFormat;
+import lwjgl.core.texture.values.TextureWrap;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.BufferUtils;
@@ -84,12 +87,12 @@ public class Texture2D extends Texture {
 	public void bind() {
 		bind(id, target);
 	}
-
+	
 	protected void unbind() {
 		bindLast(target);
 	}
 	
-	protected int target(){
+	protected int target() {
 		return target.value;
 	}
 	

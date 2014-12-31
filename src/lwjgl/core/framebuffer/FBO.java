@@ -1,7 +1,8 @@
-package lwjgl.core;
+package lwjgl.core.framebuffer;
 
 import java.util.HashMap;
 
+import lwjgl.core.GLObject;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.opengl.GL30;

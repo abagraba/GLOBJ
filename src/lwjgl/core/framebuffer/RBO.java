@@ -1,9 +1,12 @@
-package lwjgl.core;
+package lwjgl.core.framebuffer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import lwjgl.core.Context;
+import lwjgl.core.GL;
+import lwjgl.core.GLObject;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.opengl.ARBFramebufferObject;
@@ -23,14 +26,12 @@ public class RBO extends GLObject {
 	
 	public static RBO create(String name, int w, int h, int format) {
 		if (rboname.containsKey(name)) {
-			Logging.glError("Cannot create Renderbuffer Object. Renderbuffer Object [" + name + "] already exists.",
-					null);
+			Logging.glError("Cannot create Renderbuffer Object. Renderbuffer Object [" + name + "] already exists.", null);
 			return null;
 		}
 		RBO rbo = new RBO(name);
 		if (rbo.id == 0) {
-			Logging.glError("Cannot create Renderbuffer Object. No ID could be allocated for Renderbuffer Object ["
-					+ name + "].", null);
+			Logging.glError("Cannot create Renderbuffer Object. No ID could be allocated for Renderbuffer Object [" + name + "].", null);
 			return null;
 		}
 		
@@ -54,8 +55,9 @@ public class RBO extends GLObject {
 					Logging.glError("Cannot create Renderbuffer Object. Invalid format.", null);
 					return true;
 				case GL11.GL_INVALID_VALUE:
-					Logging.glError("Cannot create Renderbuffer Object. Renderbuffer Object too large. Max Size is "
-							+ Context.intConst(GL30.GL_MAX_RENDERBUFFER_SIZE) + " pixels.", null);
+					Logging.glError(
+							"Cannot create Renderbuffer Object. Renderbuffer Object too large. Max Size is " + Context.intConst(GL30.GL_MAX_RENDERBUFFER_SIZE)
+									+ " pixels.", null);
 					return true;
 				case GL11.GL_OUT_OF_MEMORY:
 					Logging.glError("Cannot create Renderbuffer Object. Out of Memory.", null);
@@ -127,11 +129,9 @@ public class RBO extends GLObject {
 		int b = ARBFramebufferObject.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_BLUE_SIZE);
 		int a = ARBFramebufferObject.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_ALPHA_SIZE);
 		int d = ARBFramebufferObject.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_DEPTH_SIZE);
-		int s = ARBFramebufferObject.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER,
-				GL30.GL_RENDERBUFFER_STENCIL_SIZE);
+		int s = ARBFramebufferObject.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_STENCIL_SIZE);
 		int n = ARBFramebufferObject.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_SAMPLES);
-		int f = ARBFramebufferObject.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER,
-				GL30.GL_RENDERBUFFER_INTERNAL_FORMAT);
+		int f = ARBFramebufferObject.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_INTERNAL_FORMAT);
 		unbind();
 		List<String> status = new ArrayList<String>();
 		List<String> errors = GL.readErrorsToList();

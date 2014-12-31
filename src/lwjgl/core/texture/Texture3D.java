@@ -13,6 +13,9 @@ import lwjgl.core.texture.values.MagnifyFilter;
 import lwjgl.core.texture.values.MinifyFilter;
 import lwjgl.core.texture.values.Swizzle;
 import lwjgl.core.texture.values.Texture3DTarget;
+import lwjgl.core.texture.values.TextureComparison;
+import lwjgl.core.texture.values.TextureFormat;
+import lwjgl.core.texture.values.TextureWrap;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.BufferUtils;

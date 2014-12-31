@@ -13,6 +13,9 @@ import lwjgl.core.texture.values.MagnifyFilter;
 import lwjgl.core.texture.values.MinifyFilter;
 import lwjgl.core.texture.values.Swizzle;
 import lwjgl.core.texture.values.Texture1DTarget;
+import lwjgl.core.texture.values.TextureComparison;
+import lwjgl.core.texture.values.TextureFormat;
+import lwjgl.core.texture.values.TextureWrap;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.BufferUtils;
@@ -83,27 +86,28 @@ public class Texture1D extends Texture {
 	public void bind() {
 		bind(id, target);
 	}
-
+	
 	protected void unbind() {
 		bindLast(target);
 	}
 	
-	protected int target(){
+	protected int target() {
 		return target.value;
 	}
-
+	
 	private static void bindLast(Texture1DTarget target) {
 		int l = last.containsKey(target) ? last.get(target) : 0;
 		bind(l, target);
 	}
 	
-	public void destroy(){
+	public void destroy() {
 		if (current.get(target) == id)
 			bind(0, target);
 		GL11.glDeleteTextures(id);
 		texname.remove(name);
 		texid.remove(id);
 	}
+	
 	public static void destroy(String name) {
 		Texture1D tex = get(name);
 		if (tex != null)
@@ -117,7 +121,7 @@ public class Texture1D extends Texture {
 	}
 	
 	public void initializeTexture(int w, int levels, TextureFormat texformat) {
-		if (init){
+		if (init) {
 			Logging.glError("Cannot initialize texture more than once.", this);
 			return;
 		}

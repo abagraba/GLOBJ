@@ -1,12 +1,9 @@
-package lwjgl.core.texture;
+package lwjgl.core.values;
 
 import org.lwjgl.opengl.GL11;
 
 public enum QualityHint {
-	NICEST("Nicest", GL11.GL_NICEST),
-	FASTEST("Fastest", GL11.GL_FASTEST),
-	DONT_CARE("Don't Care", GL11.GL_DONT_CARE)
-	;
+	NICEST("Nicest", GL11.GL_NICEST), FASTEST("Fastest", GL11.GL_FASTEST), DONT_CARE("Don't Care", GL11.GL_DONT_CARE);
 	
 	public final String name;
 	public final int value;
@@ -26,6 +23,5 @@ public enum QualityHint {
 	public String toString() {
 		return name;
 	}
-	
 	
 }
