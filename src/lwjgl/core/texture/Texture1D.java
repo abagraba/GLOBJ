@@ -175,7 +175,7 @@ public class Texture1D extends GLObject {
 	}
 	
 	public void setData(Texture1DDataTarget dataTarget, int w, int lod, TextureFormat texformat, ImageFormat format,
-			ImageDataType type, ByteBuffer data) {
+			DataType type, ByteBuffer data) {
 		if (dataTarget.parent != target) {
 			Logging.glError("Invalid Data Target. " + dataTarget + " is not a valid data target for " + target + ".",
 					this);
@@ -189,9 +189,9 @@ public class Texture1D extends GLObject {
 	/**
 	 * Fills a rectangle of the texture specified by x, y, w, h with the image
 	 * data in data. The image must have already been initialized by
-	 * {@link #setData(Texture1DDataTarget, int, int, TextureFormat, ImageFormat, ImageDataType, ByteBuffer)}.
+	 * {@link #setData(Texture1DDataTarget, int, int, TextureFormat, ImageFormat, DataType, ByteBuffer)}.
 	 */
-	public void setData(Texture1DDataTarget dataTarget, int x, int w, int lod, ImageFormat format, ImageDataType type,
+	public void setData(Texture1DDataTarget dataTarget, int x, int w, int lod, ImageFormat format, DataType type,
 			ByteBuffer data) {
 		if (w < 0) {
 			Logging.glError("Cannot set data of Texture1D [" + name + "] with dimensions (" + w

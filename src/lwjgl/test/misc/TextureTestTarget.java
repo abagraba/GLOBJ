@@ -12,19 +12,16 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
-import org.lwjgl.util.glu.GLU;
 
 import lwjgl.core.GL;
 import lwjgl.core.RenderTarget;
 import lwjgl.core.VBO;
 import lwjgl.core.texture.MagnifyFilter;
 import lwjgl.core.texture.MinifyFilter;
-import lwjgl.core.texture.Texture;
 import lwjgl.core.texture.Texture2D;
-import lwjgl.core.texture.Texture2DDataTarget;
 import lwjgl.core.texture.Texture2DTarget;
-import lwjgl.core.texture.TextureFormat;
 import lwjgl.debug.Logging;
+import lwjgl.debug.Timer;
 
 /**
  * Test Target to test functionality of Vertex Buffer Objects. <br/>
@@ -52,7 +49,10 @@ public class TextureTestTarget extends RenderTarget {
 		try {
 			Texture2D tex = Texture2D.create("Test", Texture2DTarget.TEXTURE_2D);
 			tex.setFilter(MinifyFilter.NEAREST, MagnifyFilter.NEAREST);
-			tex.setData(Texture2DDataTarget.TEXTURE_2D, ImageIO.read(new File("src/lwjgl/test/misc/Untitled.png")), 0, TextureFormat.RGBA);
+			Timer.debug.mark();
+			tex.setDataRGBA(ImageIO.read(new File("src/lwjgl/test/misc/Untitled.png")), 0);
+			Timer.debug.measure("Load Texture:");
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

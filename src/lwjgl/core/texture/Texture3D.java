@@ -179,7 +179,7 @@ public class Texture3D extends GLObject {
 	
 	
 	public void setData(Texture3DDataTarget dataTarget, int x, int y, int z, int w, int h, int d, int lod,
-			ImageFormat format, ImageDataType type, ByteBuffer data) {
+			ImageFormat format, DataType type, ByteBuffer data) {
 		if (w < 0 || h < 0 || d < 0) {
 			Logging.glError("Cannot set data of Texture3D [" + name + "] with dimensions (" + w + "," + h + "," + d
 					+ "). Dimensions must be non-negative.", this);

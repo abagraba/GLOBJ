@@ -1,22 +1,11 @@
 package lwjgl.core.texture;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 
 import lwjgl.core.Context;
@@ -41,14 +30,6 @@ public class Texture2D extends GLObject {
 	
 	private final int tex;
 	private final Texture2DTarget target;
-	
-	private static Color clear = new Color(0f, 0f, 0f, 0f);
-	@SuppressWarnings("unused")
-	private static ColorModel model = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB), new int[] {
-			8, 8, 8, 0 }, false, false, ComponentColorModel.OPAQUE, DataBuffer.TYPE_BYTE);
-	
-	private static ColorModel modelA = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB), new int[] {
-			8, 8, 8, 8 }, true, false, ComponentColorModel.TRANSLUCENT, DataBuffer.TYPE_BYTE);
 	
 	private Texture2D(String name, Texture2DTarget target) {
 		super(name);
@@ -173,95 +154,68 @@ public class Texture2D extends GLObject {
 		bindLast(target);
 	}
 	
-	public void initializeTexture(Texture2DDataTarget dataTarget, int w, int h, int levels, TextureFormat texformat) {
+	/**
+	 * Initializes a w x h texture object to hold a texture with <i>levels</i>
+	 * mipmap levels with internal format of <i>texformat</i>.
+	 */
+	public void initializeTexture(int w, int h, int levels, TextureFormat texformat) {
 		if (w < 0 || h < 0) {
-			Logging.glError("Cannot initialize Texture2D [" + name + "] with dimensions (" + w + "," + h
-					+ "). Dimensions must be non-negative.", this);
+			Logging.glError("Cannot initialize Texture2D [" + name + "] with dimensions (" + w + "," + h + "). Dimensions must be non-negative.", this);
 			return;
 		}
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
 		if (w > max || h > max) {
-			Logging.glError("Cannot initialize Texture2D [" + name + "] with dimensions (" + w + "," + h
-					+ "). Device only supports textures up to (" + max + "," + max + ").", this);
+			Logging.glError("Cannot initialize Texture2D [" + name + "] with dimensions (" + w + "," + h + "). Device only supports textures up to (" + max
+					+ "," + max + ").", this);
 			return;
 		}
-		if (dataTarget.parent != target) {
-			Logging.glError("Invalid Data Target. " + dataTarget + " is not a valid data target for " + target + ".",
-					this);
-			return;
-		}
+		levels = Math.max(1, levels);
 		bind();
-		GL42.glTexStorage2D(dataTarget.value, levels, texformat.value, w, h);
+		GL.flushErrors();
+		if (!GL.versionCheck(4, 2)) {
+			GL42.glTexStorage2D(target.value, levels, texformat.value, w, h);
+		}
+		else {
+			switch (target) {
+				case TEXTURE_2D:
+				case RECTANGLE:
+					for (int i = 0; i < levels; i++) {
+						GL11.glTexImage2D(target.value, i, texformat.value, w, h, 0, texformat.base, DataType.UBYTE.value, (ByteBuffer) null);
+						w = Math.max(1, w / 2);
+						h = Math.max(1, h / 2);
+					}
+					break;
+				case ARRAY_1D:
+					for (int i = 0; i < levels; i++) {
+						GL11.glTexImage2D(target.value, i, texformat.value, w, h, 0, texformat.base, DataType.UBYTE.value, (ByteBuffer) null);
+						w = Math.max(1, w / 2);
+					}
+					break;
+			}
+		}
 		bindLast(target);
-	}
-	
-	public void setData(Texture2DDataTarget dataTarget, int w, int h, int lod, TextureFormat texformat,
-			ImageFormat format, ImageDataType type, ByteBuffer data) {
-		if (w < 0 || h < 0) {
-			Logging.glError("Cannot set data of Texture2D [" + name + "] with dimensions (" + w + "," + h
-					+ "). Dimensions must be non-negative.", this);
-			return;
-		}
-		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
-		if (w > max || h > max) {
-			Logging.glError("Cannot set data of Texture2D [" + name + "] with dimensions (" + w + "," + h
-					+ "). Device only supports textures up to (" + max + "," + max + ").", this);
-			return;
-		}
-		if (dataTarget.parent != target) {
-			Logging.glError("Invalid Data Target. " + dataTarget + " is not a valid data target for " + target + ".",
-					this);
-			return;
-		}
-		bind();
-		GL11.glTexImage2D(dataTarget.value, lod, texformat.value, w, h, 0, format.value, type.value, data);
-		bindLast(target);
-	}
-	
-	public void setData(Texture2DDataTarget dataTarget, int x, int y, int w, int h, int lod, ImageFormat format,
-			ImageDataType type, ByteBuffer data) {
-		if (w < 0 || h < 0) {
-			Logging.glError("Cannot set data of Texture2D [" + name + "] with dimensions (" + w + "," + h
-					+ "). Dimensions must be non-negative.", this);
-			return;
-		}
-		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
-		if (w > max || h > max) {
-			Logging.glError("Cannot set data of Texture2D [" + name + "] with dimensions (" + w + "," + h
-					+ "). Device only supports textures up to (" + max + "," + max + ").", this);
-			return;
-		}
-		if (dataTarget.parent != target) {
-			Logging.glError("Invalid Data Target. " + dataTarget + " is not a valid data target for " + target + ".",
-					this);
-			return;
-		}
-		bind();
-		GL11.glTexSubImage2D(dataTarget.value, lod, x, y, w, h, format.value, type.value, data);
-		bindLast(target);
-	}
-	
-	public void setData(Texture2DDataTarget dataTarget, BufferedImage src, int lod, TextureFormat texformat) {
-		setData(dataTarget, src.getWidth(), src.getHeight(), lod, texformat, ImageFormat.RGBA, ImageDataType.UBYTE,
-				imageDataTransparent(src));
-	}
-	
-	public static ByteBuffer imageDataTransparent(BufferedImage image) {
-		WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, image.getWidth(),
-				image.getHeight(), 4, null);
-		@SuppressWarnings("rawtypes")
-		BufferedImage formatted = new BufferedImage(modelA, raster, false, new Hashtable());
+		GL.flushErrorsOut();
 		
-		Graphics g = formatted.getGraphics();
-		g.setColor(clear);
-		g.fillRect(0, 0, image.getWidth(), image.getHeight());
-		g.drawImage(image, 0, 0, null);
-		
-		byte[] data = ((DataBufferByte) formatted.getRaster().getDataBuffer()).getData();
-		ByteBuffer buffer = ByteBuffer.allocateDirect(data.length);
-		buffer.order(ByteOrder.nativeOrder());
-		buffer.put(data, 0, data.length).flip();
-		return buffer;
+	}
+	
+	/**
+	 * Sets the texel data in specified rectangle of mipmap level
+	 * [GL_TEXTURE_BASE_LEVEL + map].
+	 */
+	public void setData(int x, int y, int w, int h, int map, ImageFormat format, DataType type, ByteBuffer data) {
+		bind();
+		GL11.glTexSubImage2D(target.value, map, x, y, w, h, format.value, type.value, data);
+		bindLast(target);
+	}
+	
+	public void setDataRGB(BufferedImage src, int map) {
+		initializeTexture(src.getWidth(), src.getHeight(), map, TextureFormat.RGB8);
+		setData(0, 0, src.getWidth(), src.getHeight(), map, ImageFormat.RGB, DataType.UBYTE, ImageUtil.imageRGBData(src));
+	}
+	
+	public void setDataRGBA(BufferedImage src, int map) {
+		initializeTexture(src.getWidth(), src.getHeight(), map, TextureFormat.RGBA8);
+		setData(0, 0, src.getWidth(), src.getHeight(), map, ImageFormat.RGBA, DataType.UBYTE, ImageUtil.imageRGBAData(src));
 	}
 	
 	@Override
@@ -285,15 +239,12 @@ public class Texture2D extends GLObject {
 		TextureWrap swrap = TextureWrap.get(GL11.glGetTexParameteri(target.value, GL11.GL_TEXTURE_WRAP_S));
 		TextureWrap twrap = TextureWrap.get(GL11.glGetTexParameteri(target.value, GL11.GL_TEXTURE_WRAP_T));
 		FloatBuffer borderColor = BufferUtils.createFloatBuffer(4);
-		DepthStencilMode dsmode = DepthStencilMode.get(GL11.glGetTexParameteri(target.value,
-				GL43.GL_DEPTH_STENCIL_TEXTURE_MODE));
+		DepthStencilMode dsmode = DepthStencilMode.get(GL11.glGetTexParameteri(target.value, GL43.GL_DEPTH_STENCIL_TEXTURE_MODE));
 		int w = GL11.glGetTexLevelParameteri(target.value, mipmin, GL11.GL_TEXTURE_WIDTH);
 		int h = GL11.glGetTexLevelParameteri(target.value, mipmin, GL11.GL_TEXTURE_HEIGHT);
 		int comparemode = GL11.glGetTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_MODE);
-		TextureComparison comparefunc = TextureComparison.get(GL11.glGetTexParameteri(target.value,
-				GL14.GL_TEXTURE_COMPARE_FUNC));
-		TextureFormat format = TextureFormat.get(GL11.glGetTexLevelParameteri(target.value, mipmin,
-				GL11.GL_TEXTURE_INTERNAL_FORMAT));
+		TextureComparison comparefunc = TextureComparison.get(GL11.glGetTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_FUNC));
+		TextureFormat format = TextureFormat.get(GL11.glGetTexLevelParameteri(target.value, mipmin, GL11.GL_TEXTURE_INTERNAL_FORMAT));
 		GL11.glGetTexParameter(target.value, GL11.GL_TEXTURE_BORDER_COLOR, borderColor);
 		bindLast(target);
 		
@@ -303,19 +254,18 @@ public class Texture2D extends GLObject {
 			status.add(Logging.logText("ERROR:", error, 0));
 		status.add(Logging.logText("Texture2D:", String.format("%s [%d x %d]", name, w, h), 0));
 		status.add(Logging.logText(String.format("%-24s:\t%s", "Target", target), 1));
-		status.add(Logging.logText(
-				String.format("%-24s:\t%s", "Format", format == null ? "Unrecognized Format" : format), 1));
+		status.add(Logging.logText(String.format("%-24s:\t%s", "Format", format == null ? "Unrecognized Format" : format), 1));
 		status.add(Logging.logText(String.format("%-24s:\t%s", "Minify Filter", min), 1));
 		status.add(Logging.logText(String.format("%-24s:\t%s", "Magnify Filter", mag), 1));
-		status.add(Logging.logText(String.format("%-24s:\t[%.3f, %.3f] + %.3f", "LOD Range", lodmin, lodmax, lodbias),
-				1));
+		status.add(Logging.logText(String.format("%-24s:\t[%.3f, %.3f] + %.3f", "LOD Range", lodmin, lodmax, lodbias), 1));
 		if (min.mipmaps)
 			status.add(Logging.logText(String.format("%-24s:\t%d - %d", "Mipmap Range", mipmin, mipmax), 1));
 		status.add(Logging.logText(String.format("%-24s:\t[%s, %s, %s, %s]", "Swizzle", r, g, b, a), 1));
 		status.add(Logging.logText(String.format("%-24s:\t%s, %s", "Wrap Mode", swrap, twrap), 1));
-		status.add(Logging.logText(String.format("%-24s:\t[%.3f, %.3f, %.3f, %.3f]", "Border Color", borderColor.get(),
-				borderColor.get(), borderColor.get(), borderColor.get()), 1));
-		if (format.depth){
+		status.add(Logging.logText(
+				String.format("%-24s:\t[%.3f, %.3f, %.3f, %.3f]", "Border Color", borderColor.get(), borderColor.get(), borderColor.get(), borderColor.get()),
+				1));
+		if (format.depth) {
 			status.add(Logging.logText(String.format("%-24s:\t%s", "Depth/Stencil Mode", dsmode), 1));
 			TextureComparison func = comparemode == GL11.GL_NONE ? TextureComparison.NONE : comparefunc;
 			status.add(Logging.logText(String.format("%-24s:\t%s", "Texture Compare Function", func), 1));

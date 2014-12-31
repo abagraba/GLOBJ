@@ -107,6 +107,14 @@ public class GL {
 			err = GL11.glGetError();
 		}
 	}
+	public static void flushErrorsOut() {
+		int err = GL11.glGetError();
+		while (err != GL11.GL_NO_ERROR) {
+			if (debug)
+				System.out.println(GLU.gluErrorString(err));
+			err = GL11.glGetError();
+		}
+	}
 	
 	public static String readErrors() {
 		int err = GL11.glGetError();
@@ -144,14 +152,22 @@ public class GL {
 		stop = true;
 	}
 	
+	public static boolean versionCheck(int major, int minor){
+		if (Context.intConst(GL30.GL_MAJOR_VERSION) > major)
+			return true;
+		if (Context.intConst(GL30.GL_MAJOR_VERSION) < major)
+			return false;
+		return Context.intConst(GL30.GL_MINOR_VERSION) >= minor;
+	}
+	
 	public static String[] status(){
 		GL.flushErrors();
 		String vendor = GL11.glGetString(GL11.GL_VENDOR);
 		String renderer = GL11.glGetString(GL11.GL_RENDERER);
-		int major = Context.intValue(GL30.GL_MAJOR_VERSION);
-		int minor = Context.intValue(GL30.GL_MINOR_VERSION);
-		int glsl = Context.intValue(GL43.GL_NUM_SHADING_LANGUAGE_VERSIONS);
-		int extnum = Context.intValue(GL30.GL_NUM_EXTENSIONS);
+		int major = Context.intConst(GL30.GL_MAJOR_VERSION);
+		int minor = Context.intConst(GL30.GL_MINOR_VERSION);
+		int glsl = Context.intConst(GL43.GL_NUM_SHADING_LANGUAGE_VERSIONS);
+		int extnum = Context.intConst(GL30.GL_NUM_EXTENSIONS);
 		String[] glsls = new String[glsl];
 		for (int i = 0; i < glsl; i++)
 			glsls[i] = GL30.glGetStringi(GL20.GL_SHADING_LANGUAGE_VERSION, i);

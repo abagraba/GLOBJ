@@ -4,7 +4,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL30;
 
-public enum ImageDataType {
+public enum DataType {
 	
 	UBYTE("Unsigned Byte", GL11.GL_UNSIGNED_BYTE),
 	BYTE("Byte", GL11.GL_BYTE),
@@ -24,6 +24,7 @@ public enum ImageDataType {
 	USHORT_4444("Unsigned Short 4 4 4 4", GL12.GL_UNSIGNED_SHORT_4_4_4_4),
 	USHORT_4444R("Unsigned Short 4 4 4 4 Reversed", GL12.GL_UNSIGNED_SHORT_4_4_4_4_REV),
 	
+	UINT_24_8("Unsigned Integer 24 8", GL30.GL_UNSIGNED_INT_24_8),
 	UINT_8888("Unsigned Integer 8 8 8 8", GL12.GL_UNSIGNED_INT_8_8_8_8),
 	UINT_8888R("Unsigned Integer 8 8 8 8 Reversed", GL12.GL_UNSIGNED_INT_8_8_8_8_REV),
 	UINT_1010102("Unsigned Integer 10 10 10 2", GL12.GL_UNSIGNED_INT_10_10_10_2),
@@ -32,13 +33,13 @@ public enum ImageDataType {
 	public final String name;
 	public final int value;
 	
-	private ImageDataType(String name, int value) {
+	private DataType(String name, int value) {
 		this.name = name;
 		this.value = value;
 	}
 	
-	public static ImageDataType get(int i){
-		for (ImageDataType type : values()) 
+	public static DataType get(int i){
+		for (DataType type : values()) 
 			if (type.value == i)
 				return type;
 		return null;
