@@ -10,12 +10,14 @@ import java.util.List;
 
 import lwjgl.core.Context;
 import lwjgl.core.GL;
+import lwjgl.core.VBO;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL14;
+import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL42;
 import org.lwjgl.opengl.GL43;
@@ -86,17 +88,20 @@ public class Texture2D extends Texture {
 		bind(l, target);
 	}
 	
+	public void destroy() {
+		if (current.get(target) == tex)
+			bind(0, target);
+		GL11.glDeleteTextures(tex);
+		texname.remove(name);
+		texid.remove(tex);
+	}
+	
 	public static void destroy(String name) {
-		if (!texname.containsKey(name)) {
-			Logging.glWarning("Cannot delete Texture2D. Texture2D [" + name + "] does not exist.");
-			return;
-		}
 		Texture2D tex = get(name);
-		if (current.get(tex.target) == tex.tex)
-			bind(0, tex.target);
-		GL11.glDeleteTextures(tex.tex);
-		texname.remove(tex.name);
-		texid.remove(tex.tex);
+		if (tex != null)
+			tex.destroy();
+		else
+			Logging.glWarning("Cannot delete Texture2D. Texture2D [" + name + "] does not exist.");
 	}
 	
 	public void setLOD(float min, float max, float bias) {
@@ -156,7 +161,7 @@ public class Texture2D extends Texture {
 	 * mipmap levels with internal format of <i>texformat</i>.
 	 */
 	public void initializeTexture(int w, int h, int levels, TextureFormat texformat) {
-		if (init){
+		if (init) {
 			Logging.glError("Cannot initialize texture more than once.", this);
 			return;
 		}

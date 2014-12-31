@@ -16,6 +16,7 @@ import org.lwjgl.opengl.GL15;
 import lwjgl.core.GL;
 import lwjgl.core.RenderTarget;
 import lwjgl.core.VBO;
+import lwjgl.core.VBOTarget;
 import lwjgl.core.texture.MagnifyFilter;
 import lwjgl.core.texture.MinifyFilter;
 import lwjgl.core.texture.Texture2D;
@@ -34,6 +35,8 @@ import lwjgl.debug.Timer;
 public class TextureTestTarget extends RenderTarget {
 	
 	private static float theta = 0;
+	private static float phi = 0;
+	
 	private static float rps = (float) (2 * Math.PI) / 6;
 	
 	private VBO vertices, tcoords;
@@ -61,12 +64,14 @@ public class TextureTestTarget extends RenderTarget {
 		
 		Logging.logObject(Texture2D.get("Test"));
 		
-		vertices = new VBO(GL15.GL_ARRAY_BUFFER);
+		vertices = VBO.create("A", VBOTarget.ARRAY);
 		vertices.bufferData(v);
+		vertices.bind();
 		GL11.glVertexPointer(2, GL11.GL_FLOAT, 0, 0);
 		
-		tcoords = new VBO(GL15.GL_ARRAY_BUFFER);
+		tcoords = VBO.create("B", VBOTarget.ARRAY);
 		tcoords.bufferData(t);
+		tcoords.bind();
 		GL11.glTexCoordPointer(2, GL11.GL_FLOAT, 0, 0);
 		
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
@@ -78,8 +83,8 @@ public class TextureTestTarget extends RenderTarget {
 	
 	@Override
 	public void uninit() {
-		vertices.deleteBuffer();
-		tcoords.deleteBuffer();
+		vertices.destroy();
+		tcoords.destroy();
 	}
 	
 	@Override
@@ -91,12 +96,8 @@ public class TextureTestTarget extends RenderTarget {
 		
 		Texture2D.get("Test").bind();
 		
-		Logging.logObject(Texture2D.get("Test"));
-		
-		GL11.glRotatef(theta, 0, 0, 1);
+		GL11.glRotatef(theta, phi, 0, 1);
 		GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 6);
-		//Logging.logInfo(Texture.status());
-		//Logging.logInfo(Texture.constants());
 		
 		
 		GL11.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
@@ -112,7 +113,7 @@ public class TextureTestTarget extends RenderTarget {
 		}
 	}
 	
-	private boolean l, r;
+	private boolean l, r, u, d;
 	
 	@Override
 	public void input() {
@@ -124,6 +125,12 @@ public class TextureTestTarget extends RenderTarget {
 				case Keyboard.KEY_RIGHT:
 					r = Keyboard.getEventKeyState();
 					break;
+				case Keyboard.KEY_UP:
+					u = Keyboard.getEventKeyState();
+					break;
+				case Keyboard.KEY_DOWN:
+					d = Keyboard.getEventKeyState();
+					break;
 				case Keyboard.KEY_ESCAPE:
 					GL.close();
 					break;
@@ -134,6 +141,10 @@ public class TextureTestTarget extends RenderTarget {
 			theta += rps * 0.001f * GL.deltaTime();
 		if (r)
 			theta -= rps * 0.001f * GL.deltaTime();
+		if (u)
+			phi += rps * 0.001f * GL.deltaTime();
+		if (d)
+			phi += rps * 0.001f * GL.deltaTime();
 	}
 	
 }

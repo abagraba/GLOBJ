@@ -85,17 +85,19 @@ public class Texture1D extends Texture {
 		bind(l, target);
 	}
 	
+	public void destroy(){
+		if (current.get(target) == tex)
+			bind(0, target);
+		GL11.glDeleteTextures(tex);
+		texname.remove(name);
+		texid.remove(tex);
+	}
 	public static void destroy(String name) {
-		if (!texname.containsKey(name)) {
-			Logging.glWarning("Cannot delete Texture1D. Texture1D [" + name + "] does not exist.");
-			return;
-		}
 		Texture1D tex = get(name);
-		if (current.get(tex.target) == tex.tex)
-			bind(0, tex.target);
-		GL11.glDeleteTextures(tex.tex);
-		texname.remove(tex.name);
-		texid.remove(tex.tex);
+		if (tex != null)
+			tex.destroy();
+		else
+			Logging.glWarning("Cannot delete Texture1D. Texture1D [" + name + "] does not exist.");
 	}
 	
 	public void setLOD(float min, float max, float bias) {

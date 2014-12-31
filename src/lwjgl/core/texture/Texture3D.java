@@ -85,17 +85,20 @@ public class Texture3D extends Texture {
 		bind(l, target);
 	}
 	
+	public void destroy() {
+		if (current.get(target) == tex)
+			bind(0, target);
+		GL11.glDeleteTextures(tex);
+		texname.remove(name);
+		texid.remove(tex);
+	}
+	
 	public static void destroy(String name) {
-		if (!texname.containsKey(name)) {
-			Logging.glWarning("Cannot delete Texture3D. Texture3D [" + name + "] does not exist.");
-			return;
-		}
 		Texture3D tex = get(name);
-		if (current.get(tex.target) == tex.tex)
-			bind(0, tex.target);
-		GL11.glDeleteTextures(tex.tex);
-		texname.remove(tex.name);
-		texid.remove(tex.tex);
+		if (tex != null)
+			tex.destroy();
+		else
+			Logging.glWarning("Cannot delete Texture3D. Texture3D [" + name + "] does not exist.");
 	}
 	
 	public void setLOD(float min, float max, float bias) {
@@ -151,31 +154,30 @@ public class Texture3D extends Texture {
 		bindLast(target);
 	}
 	
-
 	/**
 	 * Initializes a w x h texture object to hold a texture with <i>levels</i>
 	 * mipmap levels with internal format of <i>texformat</i>.
 	 */
 	public void initializeTexture(int w, int h, int d, int levels, TextureFormat texformat) {
-		if (init){
+		if (init) {
 			Logging.glError("Cannot initialize texture more than once.", this);
 			return;
 		}
 		if (w < 0 || h < 0 || d < 0) {
-			Logging.glError("Cannot initialize Texture3D [" + name + "] with dimensions (" + w + "," + h + "," + d
-					+ "). Dimensions must be non-negative.", this);
+			Logging.glError("Cannot initialize Texture3D [" + name + "] with dimensions (" + w + "," + h + "," + d + "). Dimensions must be non-negative.",
+					this);
 			return;
 		}
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
 		if (w > max || h > max || d > max) {
-			Logging.glError("Cannot initialize Texture3D [" + name + "] with dimensions (" + w + "," + h + "," + d
-					+ "). Device only supports textures up to (" + max + "," + max + "," + max + ").", this);
+			Logging.glError("Cannot initialize Texture3D [" + name + "] with dimensions (" + w + "," + h + "," + d + "). Device only supports textures up to ("
+					+ max + "," + max + "," + max + ").", this);
 			return;
 		}
 		levels = Math.max(1, levels);
 		bind();
 		if (!GL.versionCheck(4, 2)) {
-			if (init){
+			if (init) {
 				Logging.glError("Cannot initialize texture more than once.", this);
 				return;
 			}
@@ -210,8 +212,7 @@ public class Texture3D extends Texture {
 	 * {@link #initializeTexture(int, int, int, TextureFormat)}. Rectangle must
 	 * be within the bounds of the texture. [GL_TEXTURE_BASE_LEVEL + map].
 	 */
-	public void setData(int x, int y, int z, int w, int h, int d, int map,
-			ImageFormat format, DataType type, ByteBuffer data) {
+	public void setData(int x, int y, int z, int w, int h, int d, int map, ImageFormat format, DataType type, ByteBuffer data) {
 		bind();
 		GL12.glTexSubImage3D(target.value, map, x, y, z, w, h, d, format.value, type.value, data);
 		bindLast(target);
@@ -239,16 +240,13 @@ public class Texture3D extends Texture {
 		TextureWrap twrap = TextureWrap.get(GL11.glGetTexParameteri(target.value, GL11.GL_TEXTURE_WRAP_T));
 		TextureWrap rwrap = TextureWrap.get(GL11.glGetTexParameteri(target.value, GL12.GL_TEXTURE_WRAP_R));
 		FloatBuffer borderColor = BufferUtils.createFloatBuffer(4);
-		DepthStencilMode dsmode = DepthStencilMode.get(GL11.glGetTexParameteri(target.value,
-				GL43.GL_DEPTH_STENCIL_TEXTURE_MODE));
+		DepthStencilMode dsmode = DepthStencilMode.get(GL11.glGetTexParameteri(target.value, GL43.GL_DEPTH_STENCIL_TEXTURE_MODE));
 		int w = GL11.glGetTexLevelParameteri(target.value, mipmin, GL11.GL_TEXTURE_WIDTH);
 		int h = GL11.glGetTexLevelParameteri(target.value, mipmin, GL11.GL_TEXTURE_HEIGHT);
 		int d = GL11.glGetTexLevelParameteri(target.value, mipmin, GL12.GL_TEXTURE_DEPTH);
 		int comparemode = GL11.glGetTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_MODE);
-		TextureComparison comparefunc = TextureComparison.get(GL11.glGetTexParameteri(target.value,
-				GL14.GL_TEXTURE_COMPARE_FUNC));
-		TextureFormat format = TextureFormat.get(GL11.glGetTexLevelParameteri(target.value, mipmin,
-				GL11.GL_TEXTURE_INTERNAL_FORMAT));
+		TextureComparison comparefunc = TextureComparison.get(GL11.glGetTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_FUNC));
+		TextureFormat format = TextureFormat.get(GL11.glGetTexLevelParameteri(target.value, mipmin, GL11.GL_TEXTURE_INTERNAL_FORMAT));
 		GL11.glGetTexParameter(target.value, GL11.GL_TEXTURE_BORDER_COLOR, borderColor);
 		bindLast(target);
 		
@@ -258,18 +256,17 @@ public class Texture3D extends Texture {
 			status.add(Logging.logText("ERROR:", error, 0));
 		status.add(Logging.logText("Texture3D:", String.format("%s [%d x %d x %d]", name, w, h, d), 0));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Target", target), 1));
-		status.add(Logging.logText(
-				String.format("%-16s:\t%s", "Format", format == null ? "Unrecognized Format" : format), 1));
+		status.add(Logging.logText(String.format("%-16s:\t%s", "Format", format == null ? "Unrecognized Format" : format), 1));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Minify Filter", min), 1));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Magnify Filter", mag), 1));
-		status.add(Logging.logText(String.format("%-16s:\t[%.3f, %.3f] + %.3f", "LOD Range", lodmin, lodmax, lodbias),
-				1));
+		status.add(Logging.logText(String.format("%-16s:\t[%.3f, %.3f] + %.3f", "LOD Range", lodmin, lodmax, lodbias), 1));
 		if (min.mipmaps)
 			status.add(Logging.logText(String.format("%-16s:\t%d - %d", "Mipmap Range", mipmin, mipmax), 1));
 		status.add(Logging.logText(String.format("%-16s:\t[%s, %s, %s, %s]", "Swizzle", r, g, b, a), 1));
 		status.add(Logging.logText(String.format("%-16s:\t%s, %s, %s", "Wrap Mode", swrap, twrap, rwrap), 1));
-		status.add(Logging.logText(String.format("%-16s:\t[%.3f, %.3f, %.3f, %.3f]", "Border Color", borderColor.get(),
-				borderColor.get(), borderColor.get(), borderColor.get()), 1));
+		status.add(Logging.logText(
+				String.format("%-16s:\t[%.3f, %.3f, %.3f, %.3f]", "Border Color", borderColor.get(), borderColor.get(), borderColor.get(), borderColor.get()),
+				1));
 		if (format.depth) {
 			status.add(Logging.logText(String.format("%-16s:\t%s", "Depth/Stencil Mode", dsmode), 1));
 			TextureComparison func = comparemode == GL11.GL_NONE ? TextureComparison.NONE : comparefunc;
