@@ -10,7 +10,6 @@ import java.util.List;
 
 import lwjgl.core.Context;
 import lwjgl.core.GL;
-import lwjgl.core.GLObject;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.BufferUtils;
@@ -21,19 +20,17 @@ import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL42;
 import org.lwjgl.opengl.GL43;
 
-public class Texture2D extends GLObject {
+public class Texture2D extends Texture {
 	
 	protected static final HashMap<String, Texture2D> texname = new HashMap<String, Texture2D>();
 	protected static final HashMap<Integer, Texture2D> texid = new HashMap<Integer, Texture2D>();
 	protected static final HashMap<Texture2DTarget, Integer> current = new HashMap<Texture2DTarget, Integer>();
 	protected static final HashMap<Texture2DTarget, Integer> last = new HashMap<Texture2DTarget, Integer>();
 	
-	private final int tex;
 	private final Texture2DTarget target;
 	
 	private Texture2D(String name, Texture2DTarget target) {
-		super(name);
-		tex = GL11.glGenTextures();
+		super(name, GL11.glGenTextures());
 		this.target = target;
 	}
 	
@@ -159,6 +156,10 @@ public class Texture2D extends GLObject {
 	 * mipmap levels with internal format of <i>texformat</i>.
 	 */
 	public void initializeTexture(int w, int h, int levels, TextureFormat texformat) {
+		if (init){
+			Logging.glError("Cannot initialize texture more than once.", this);
+			return;
+		}
 		if (w < 0 || h < 0) {
 			Logging.glError("Cannot initialize Texture2D [" + name + "] with dimensions (" + w + "," + h + "). Dimensions must be non-negative.", this);
 			return;
@@ -171,9 +172,9 @@ public class Texture2D extends GLObject {
 		}
 		levels = Math.max(1, levels);
 		bind();
-		GL.flushErrors();
 		if (!GL.versionCheck(4, 2)) {
 			GL42.glTexStorage2D(target.value, levels, texformat.value, w, h);
+			init = true;
 		}
 		else {
 			switch (target) {
@@ -194,13 +195,13 @@ public class Texture2D extends GLObject {
 			}
 		}
 		bindLast(target);
-		GL.flushErrorsOut();
-		
 	}
 	
 	/**
-	 * Sets the texel data in specified rectangle of mipmap level
-	 * [GL_TEXTURE_BASE_LEVEL + map].
+	 * Sets the texel data in specified rectangle of mipmap level. Texture needs
+	 * to be initialized with
+	 * {@link #initializeTexture(int, int, int, TextureFormat)}. Rectangle must
+	 * be within the bounds of the texture. [GL_TEXTURE_BASE_LEVEL + map].
 	 */
 	public void setData(int x, int y, int w, int h, int map, ImageFormat format, DataType type, ByteBuffer data) {
 		bind();
@@ -208,11 +209,19 @@ public class Texture2D extends GLObject {
 		bindLast(target);
 	}
 	
+	/**
+	 * Convenience method. Initializes texture to size of supplied image and
+	 * fills it with image data.
+	 */
 	public void setDataRGB(BufferedImage src, int map) {
 		initializeTexture(src.getWidth(), src.getHeight(), map, TextureFormat.RGB8);
 		setData(0, 0, src.getWidth(), src.getHeight(), map, ImageFormat.RGB, DataType.UBYTE, ImageUtil.imageRGBData(src));
 	}
 	
+	/**
+	 * Convenience method. Initializes texture to size of supplied image and
+	 * fills it with image data.
+	 */
 	public void setDataRGBA(BufferedImage src, int map) {
 		initializeTexture(src.getWidth(), src.getHeight(), map, TextureFormat.RGBA8);
 		setData(0, 0, src.getWidth(), src.getHeight(), map, ImageFormat.RGBA, DataType.UBYTE, ImageUtil.imageRGBAData(src));

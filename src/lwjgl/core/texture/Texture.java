@@ -1,12 +1,16 @@
 package lwjgl.core.texture;
 
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import lwjgl.core.Context;
 import lwjgl.core.GL;
+import lwjgl.core.GLObject;
 import lwjgl.debug.Logging;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
@@ -19,7 +23,7 @@ import org.lwjgl.opengl.GL32;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL40;
 
-public class Texture {
+public abstract class Texture extends GLObject{
 	
 	/*
 	 * TODO : Textures
@@ -37,6 +41,15 @@ public class Texture {
 	 * 
 	 * Initialize texture with gltexstorage fallback to glteximage
 	 */
+	
+	protected final int tex;
+	protected boolean init = false;
+
+	protected Texture(String name, int tex){
+		super(name);
+		this.tex = tex;
+	}
+	
 	public static String[] constants() {
 		GL.flushErrors();
 		int maxSize = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
@@ -63,7 +76,7 @@ public class Texture {
 		return status.toArray(new String[status.size()]);
 	}
 	
-	public static String[] status() {
+	public static String[] states() {
 		GL.flushErrors();
 		Texture1D texture1d = Texture1D.get(Context.intValue(GL11.GL_TEXTURE_BINDING_1D));
 		Texture2D texture1darr = Texture2D.get(Context.intValue(GL30.GL_TEXTURE_BINDING_1D_ARRAY));

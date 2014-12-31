@@ -9,7 +9,6 @@ import java.util.List;
 
 import lwjgl.core.Context;
 import lwjgl.core.GL;
-import lwjgl.core.GLObject;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.BufferUtils;
@@ -20,19 +19,17 @@ import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL42;
 import org.lwjgl.opengl.GL43;
 
-public class Texture3D extends GLObject {
+public class Texture3D extends Texture {
 	
 	protected static final HashMap<String, Texture3D> texname = new HashMap<String, Texture3D>();
 	protected static final HashMap<Integer, Texture3D> texid = new HashMap<Integer, Texture3D>();
 	protected static final HashMap<Texture3DTarget, Integer> current = new HashMap<Texture3DTarget, Integer>();
 	protected static final HashMap<Texture3DTarget, Integer> last = new HashMap<Texture3DTarget, Integer>();
 	
-	private final int tex;
 	private final Texture3DTarget target;
 	
 	private Texture3D(String name, Texture3DTarget target) {
-		super(name);
-		tex = GL11.glGenTextures();
+		super(name, GL11.glGenTextures());
 		this.target = target;
 	}
 	
@@ -155,7 +152,15 @@ public class Texture3D extends GLObject {
 	}
 	
 
-	public void initializeTexture(Texture3DDataTarget dataTarget, int w, int h, int d, int levels, TextureFormat texformat) {
+	/**
+	 * Initializes a w x h texture object to hold a texture with <i>levels</i>
+	 * mipmap levels with internal format of <i>texformat</i>.
+	 */
+	public void initializeTexture(int w, int h, int d, int levels, TextureFormat texformat) {
+		if (init){
+			Logging.glError("Cannot initialize texture more than once.", this);
+			return;
+		}
 		if (w < 0 || h < 0 || d < 0) {
 			Logging.glError("Cannot initialize Texture3D [" + name + "] with dimensions (" + w + "," + h + "," + d
 					+ "). Dimensions must be non-negative.", this);
@@ -167,37 +172,48 @@ public class Texture3D extends GLObject {
 					+ "). Device only supports textures up to (" + max + "," + max + "," + max + ").", this);
 			return;
 		}
-		if (dataTarget.parent != target) {
-			Logging.glError("Invalid Data Target. " + dataTarget + " is not a valid data target for " + target + ".",
-					this);
-			return;
-		}
+		levels = Math.max(1, levels);
 		bind();
-		GL42.glTexStorage3D(dataTarget.value, levels, texformat.value, w, h, d);
+		if (!GL.versionCheck(4, 2)) {
+			if (init){
+				Logging.glError("Cannot initialize texture more than once.", this);
+				return;
+			}
+			GL42.glTexStorage3D(target.value, levels, texformat.value, w, h, d);
+			init = true;
+		}
+		else {
+			switch (target) {
+				case TEXTURE_3D:
+					for (int i = 0; i < levels; i++) {
+						GL12.glTexImage3D(target.value, i, texformat.value, w, h, d, 0, texformat.base, DataType.UBYTE.value, (ByteBuffer) null);
+						w = Math.max(1, w / 2);
+						h = Math.max(1, h / 2);
+						d = Math.max(1, d / 2);
+					}
+					break;
+				case ARRAY_2D:
+					for (int i = 0; i < levels; i++) {
+						GL12.glTexImage3D(target.value, i, texformat.value, w, h, d, 0, texformat.base, DataType.UBYTE.value, (ByteBuffer) null);
+						w = Math.max(1, w / 2);
+						h = Math.max(1, h / 2);
+					}
+					break;
+			}
+		}
 		bindLast(target);
 	}
 	
-	
-	public void setData(Texture3DDataTarget dataTarget, int x, int y, int z, int w, int h, int d, int lod,
+	/**
+	 * Sets the texel data in specified rectangle of mipmap level. Texture needs
+	 * to be initialized with
+	 * {@link #initializeTexture(int, int, int, TextureFormat)}. Rectangle must
+	 * be within the bounds of the texture. [GL_TEXTURE_BASE_LEVEL + map].
+	 */
+	public void setData(int x, int y, int z, int w, int h, int d, int map,
 			ImageFormat format, DataType type, ByteBuffer data) {
-		if (w < 0 || h < 0 || d < 0) {
-			Logging.glError("Cannot set data of Texture3D [" + name + "] with dimensions (" + w + "," + h + "," + d
-					+ "). Dimensions must be non-negative.", this);
-			return;
-		}
-		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
-		if (w > max || h > max || d > max) {
-			Logging.glError("Cannot set data of Texture3D [" + name + "] with dimensions (" + w + "," + h + "," + d
-					+ "). Device only supports textures up to (" + max + "," + max + "," + max + ").", this);
-			return;
-		}
-		if (dataTarget.parent != target) {
-			Logging.glError("Invalid Data Target. " + dataTarget + " is not a valid data target for " + target + ".",
-					this);
-			return;
-		}
 		bind();
-		GL12.glTexSubImage3D(dataTarget.value, lod, x, y, z, w, h, d, format.value, type.value, data);
+		GL12.glTexSubImage3D(target.value, map, x, y, z, w, h, d, format.value, type.value, data);
 		bindLast(target);
 	}
 	

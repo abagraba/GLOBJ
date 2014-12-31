@@ -9,7 +9,6 @@ import java.util.List;
 
 import lwjgl.core.Context;
 import lwjgl.core.GL;
-import lwjgl.core.GLObject;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.BufferUtils;
@@ -20,19 +19,17 @@ import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL42;
 import org.lwjgl.opengl.GL43;
 
-public class Texture1D extends GLObject {
+public class Texture1D extends Texture {
 	
 	protected static final HashMap<String, Texture1D> texname = new HashMap<String, Texture1D>();
 	protected static final HashMap<Integer, Texture1D> texid = new HashMap<Integer, Texture1D>();
 	protected static final HashMap<Texture1DTarget, Integer> current = new HashMap<Texture1DTarget, Integer>();
 	protected static final HashMap<Texture1DTarget, Integer> last = new HashMap<Texture1DTarget, Integer>();
 	
-	private final int tex;
 	private final Texture1DTarget target;
 	
 	private Texture1D(String name, Texture1DTarget target) {
-		super(name);
-		tex = GL11.glGenTextures();
+		super(name, GL11.glGenTextures());
 		this.target = target;
 	}
 	
@@ -152,65 +149,48 @@ public class Texture1D extends GLObject {
 		bindLast(target);
 	}
 	
-	public void initializeTexture(Texture1DDataTarget dataTarget, int w, int levels, TextureFormat texformat) {
+	public void initializeTexture(int w, int levels, TextureFormat texformat) {
+		if (init){
+			Logging.glError("Cannot initialize texture more than once.", this);
+			return;
+		}
 		if (w < 0) {
-			Logging.glError("Cannot initialize Texture1D [" + name + "] with dimensions (" + w
-					+ "). Dimensions must be non-negative.", this);
+			Logging.glError("Cannot initialize Texture1D [" + name + "] with dimensions (" + w + "). Dimensions must be non-negative.", this);
 			return;
 		}
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
 		if (w > max) {
-			Logging.glError("Cannot initialize Texture1D [" + name + "] with dimensions (" + w
-					+ "). Device only supports textures up to (" + max + ").", this);
+			Logging.glError("Cannot initialize Texture1D [" + name + "] with dimensions (" + w + "). Device only supports textures up to (" + max + ").", this);
 			return;
 		}
-		if (dataTarget.parent != target) {
-			Logging.glError("Invalid Data Target. " + dataTarget + " is not a valid data target for " + target + ".",
-					this);
-			return;
-		}
+		levels = Math.max(1, levels);
 		bind();
-		GL42.glTexStorage1D(dataTarget.value, levels, texformat.value, w);
-		bindLast(target);
-	}
-	
-	public void setData(Texture1DDataTarget dataTarget, int w, int lod, TextureFormat texformat, ImageFormat format,
-			DataType type, ByteBuffer data) {
-		if (dataTarget.parent != target) {
-			Logging.glError("Invalid Data Target. " + dataTarget + " is not a valid data target for " + target + ".",
-					this);
-			return;
+		if (!GL.versionCheck(4, 2)) {
+			GL42.glTexStorage1D(target.value, levels, texformat.value, w);
+			init = true;
 		}
-		bind();
-		GL11.glTexImage1D(dataTarget.value, lod, texformat.value, w, 0, format.value, type.value, data);
+		else {
+			switch (target) {
+				case TEXTURE_1D:
+					for (int i = 0; i < levels; i++) {
+						GL11.glTexImage1D(target.value, i, texformat.value, w, 0, texformat.base, DataType.UBYTE.value, (ByteBuffer) null);
+						w = Math.max(1, w / 2);
+					}
+					break;
+			}
+		}
 		bindLast(target);
 	}
 	
 	/**
-	 * Fills a rectangle of the texture specified by x, y, w, h with the image
-	 * data in data. The image must have already been initialized by
-	 * {@link #setData(Texture1DDataTarget, int, int, TextureFormat, ImageFormat, DataType, ByteBuffer)}.
+	 * Sets the texel data in specified rectangle of mipmap level. Texture needs
+	 * to be initialized with
+	 * {@link #initializeTexture(int, int, int, TextureFormat)}. Rectangle must
+	 * be within the bounds of the texture. [GL_TEXTURE_BASE_LEVEL + map].
 	 */
-	public void setData(Texture1DDataTarget dataTarget, int x, int w, int lod, ImageFormat format, DataType type,
-			ByteBuffer data) {
-		if (w < 0) {
-			Logging.glError("Cannot set data of Texture1D [" + name + "] with dimensions (" + w
-					+ "). Dimensions must be non-negative.", this);
-			return;
-		}
-		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
-		if (w > max) {
-			Logging.glError("Cannot set data of Texture1D [" + name + "] with dimensions (" + w
-					+ "). Device only supports textures up to (" + max + ").", this);
-			return;
-		}
-		if (dataTarget.parent != target) {
-			Logging.glError("Invalid Data Target. " + dataTarget + " is not a valid data target for " + target + ".",
-					this);
-			return;
-		}
+	public void setData(int x, int w, int map, ImageFormat format, DataType type, ByteBuffer data) {
 		bind();
-		GL11.glTexSubImage1D(dataTarget.value, lod, x, w, format.value, type.value, data);
+		GL11.glTexSubImage1D(target.value, map, x, w, format.value, type.value, data);
 		bindLast(target);
 	}
 	
@@ -234,14 +214,11 @@ public class Texture1D extends GLObject {
 		Swizzle a = Swizzle.get(GL11.glGetTexParameteri(target.value, GL33.GL_TEXTURE_SWIZZLE_A));
 		TextureWrap swrap = TextureWrap.get(GL11.glGetTexParameteri(target.value, GL11.GL_TEXTURE_WRAP_S));
 		FloatBuffer borderColor = BufferUtils.createFloatBuffer(4);
-		DepthStencilMode dsmode = DepthStencilMode.get(GL11.glGetTexParameteri(target.value,
-				GL43.GL_DEPTH_STENCIL_TEXTURE_MODE));
+		DepthStencilMode dsmode = DepthStencilMode.get(GL11.glGetTexParameteri(target.value, GL43.GL_DEPTH_STENCIL_TEXTURE_MODE));
 		int w = GL11.glGetTexLevelParameteri(target.value, mipmin, GL11.GL_TEXTURE_WIDTH);
 		int comparemode = GL11.glGetTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_MODE);
-		TextureComparison comparefunc = TextureComparison.get(GL11.glGetTexParameteri(target.value,
-				GL14.GL_TEXTURE_COMPARE_FUNC));
-		TextureFormat format = TextureFormat.get(GL11.glGetTexLevelParameteri(target.value, mipmin,
-				GL11.GL_TEXTURE_INTERNAL_FORMAT));
+		TextureComparison comparefunc = TextureComparison.get(GL11.glGetTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_FUNC));
+		TextureFormat format = TextureFormat.get(GL11.glGetTexLevelParameteri(target.value, mipmin, GL11.GL_TEXTURE_INTERNAL_FORMAT));
 		GL11.glGetTexParameter(target.value, GL11.GL_TEXTURE_BORDER_COLOR, borderColor);
 		bindLast(target);
 		
@@ -251,18 +228,17 @@ public class Texture1D extends GLObject {
 			status.add(Logging.logText("ERROR:", error, 0));
 		status.add(Logging.logText("Texture1D:", String.format("%s [%d]", name, w), 0));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Target", target), 1));
-		status.add(Logging.logText(
-				String.format("%-16s:\t%s", "Format", format == null ? "Unrecognized Format" : format), 1));
+		status.add(Logging.logText(String.format("%-16s:\t%s", "Format", format == null ? "Unrecognized Format" : format), 1));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Minify Filter", min), 1));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Magnify Filter", mag), 1));
-		status.add(Logging.logText(String.format("%-16s:\t[%.3f, %.3f] + %.3f", "LOD Range", lodmin, lodmax, lodbias),
-				1));
+		status.add(Logging.logText(String.format("%-16s:\t[%.3f, %.3f] + %.3f", "LOD Range", lodmin, lodmax, lodbias), 1));
 		if (min.mipmaps)
 			status.add(Logging.logText(String.format("%-16s:\t%d - %d", "Mipmap Range", mipmin, mipmax), 1));
 		status.add(Logging.logText(String.format("%-16s:\t[%s, %s, %s, %s]", "Swizzle", r, g, b, a), 1));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Wrap Mode", swrap), 1));
-		status.add(Logging.logText(String.format("%-16s:\t[%.3f, %.3f, %.3f, %.3f]", "Border Color", borderColor.get(),
-				borderColor.get(), borderColor.get(), borderColor.get()), 1));
+		status.add(Logging.logText(
+				String.format("%-16s:\t[%.3f, %.3f, %.3f, %.3f]", "Border Color", borderColor.get(), borderColor.get(), borderColor.get(), borderColor.get()),
+				1));
 		if (format.depth) {
 			status.add(Logging.logText(String.format("%-16s:\t%s", "Depth/Stencil Mode", dsmode), 1));
 			TextureComparison func = comparemode == GL11.GL_NONE ? TextureComparison.NONE : comparefunc;
