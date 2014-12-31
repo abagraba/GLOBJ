@@ -17,10 +17,10 @@ import lwjgl.core.GL;
 import lwjgl.core.RenderTarget;
 import lwjgl.core.VBO;
 import lwjgl.core.VBOTarget;
-import lwjgl.core.texture.MagnifyFilter;
-import lwjgl.core.texture.MinifyFilter;
 import lwjgl.core.texture.Texture2D;
-import lwjgl.core.texture.Texture2DTarget;
+import lwjgl.core.texture.values.MagnifyFilter;
+import lwjgl.core.texture.values.MinifyFilter;
+import lwjgl.core.texture.values.Texture2DTarget;
 import lwjgl.debug.Logging;
 import lwjgl.debug.Timer;
 

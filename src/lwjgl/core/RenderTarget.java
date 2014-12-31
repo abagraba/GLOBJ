@@ -19,6 +19,7 @@ public abstract class RenderTarget {
 	 */
 	public abstract void input();
 
+	//TODO Handle actions before render. Interruptible actions to maintain framerate? Minimum work done.
 	/**
 	 * Rendering code should be put here. This will be run every frame.
 	 */

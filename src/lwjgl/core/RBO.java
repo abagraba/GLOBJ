@@ -17,11 +17,8 @@ public class RBO extends GLObject {
 	protected static int currentRBO = 0;
 	private static int lastRBO = 0;
 	
-	protected final int rbo;
-	
 	private RBO(String name) {
-		super(name);
-		rbo = GL30.glGenRenderbuffers();
+		super(name, GL30.glGenRenderbuffers());
 	}
 	
 	public static RBO create(String name, int w, int h, int format) {
@@ -31,21 +28,21 @@ public class RBO extends GLObject {
 			return null;
 		}
 		RBO rbo = new RBO(name);
-		if (rbo.rbo == 0) {
+		if (rbo.id == 0) {
 			Logging.glError("Cannot create Renderbuffer Object. No ID could be allocated for Renderbuffer Object ["
 					+ name + "].", null);
 			return null;
 		}
 		
 		GL.flushErrors();
-		bind(rbo.rbo);
+		rbo.bind();
 		GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, format, w, h);
-		bindLast();
+		rbo.unbind();
 		if (checkError())
 			return null;
 		
 		rboname.put(rbo.name, rbo);
-		rboid.put(rbo.rbo, rbo);
+		rboid.put(rbo.id, rbo);
 		return rbo;
 	}
 	
@@ -75,11 +72,11 @@ public class RBO extends GLObject {
 			return;
 		}
 		RBO rbo = rboname.get(name);
-		if (currentRBO == rbo.rbo)
+		if (currentRBO == rbo.id)
 			bind(0);
-		GL30.glDeleteRenderbuffers(rbo.rbo);
+		GL30.glDeleteRenderbuffers(rbo.id);
 		rboname.remove(rbo.name);
-		rboid.remove(rbo.rbo);
+		rboid.remove(rbo.id);
 	}
 	
 	public static RBO get(String name) {
@@ -110,16 +107,16 @@ public class RBO extends GLObject {
 	}
 	
 	public void bind() {
-		bind(rbo);
+		bind(id);
 	}
 	
-	private static void bindLast() {
+	protected void unbind() {
 		bind(lastRBO);
 	}
 	
 	@Override
 	public String[] status() {
-		if (rbo == 0)
+		if (id == 0)
 			return new String[] { Logging.logText("RBO:", "Renderbuffer does not exist.", 0) };
 		GL.flushErrors();
 		bind();
@@ -135,7 +132,7 @@ public class RBO extends GLObject {
 		int n = ARBFramebufferObject.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_SAMPLES);
 		int f = ARBFramebufferObject.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER,
 				GL30.GL_RENDERBUFFER_INTERNAL_FORMAT);
-		bindLast();
+		unbind();
 		List<String> status = new ArrayList<String>();
 		List<String> errors = GL.readErrorsToList();
 		for (String error : errors)

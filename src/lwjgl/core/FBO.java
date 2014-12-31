@@ -15,11 +15,8 @@ public class FBO extends GLObject {
 	private static int lastFBOD = 0;
 	private static int lastFBOR = 0;
 	
-	protected final int fbo;
-	
 	private FBO(String name) {
-		super(name);
-		fbo = GL30.glGenFramebuffers();
+		super(name, GL30.glGenFramebuffers());
 	}
 	
 	public static FBO create(String name) {
@@ -28,13 +25,13 @@ public class FBO extends GLObject {
 			return null;
 		}
 		FBO fbo = new FBO(name);
-		if (fbo.fbo == 0) {
+		if (fbo.id == 0) {
 			Logging.glError("Cannot create Framebuffer Object. No ID could be allocated for Framebuffer Object ["
 					+ name + "].", null);
 			return null;
 		}
 		fboname.put(fbo.name, fbo);
-		fboid.put(fbo.fbo, fbo);
+		fboid.put(fbo.id, fbo);
 		return fbo;
 	}
 	
@@ -44,8 +41,8 @@ public class FBO extends GLObject {
 			return;
 		}
 		FBO fbo = fboname.get(name);
-		boolean d = currentFBOD == fbo.fbo;
-		boolean r = currentFBOR == fbo.fbo;
+		boolean d = currentFBOD == fbo.id;
+		boolean r = currentFBOR == fbo.id;
 		if (d && r)
 			bind(0);
 		else {
@@ -54,9 +51,9 @@ public class FBO extends GLObject {
 			if (r)
 				bindRead(0);
 		}
-		GL30.glDeleteFramebuffers(fbo.fbo);
+		GL30.glDeleteFramebuffers(fbo.id);
 		fboname.remove(fbo.name);
-		fboid.remove(fbo.fbo);
+		fboid.remove(fbo.id);
 	}
 	
 	public static FBO get(String name) {
@@ -87,9 +84,13 @@ public class FBO extends GLObject {
 		}
 		f.bind();
 	}
-	
+
 	public void bind() {
-		bind(fbo);
+		bind(id);
+	}
+	
+	protected void unbind() {
+		bind(lastFBOD);
 	}
 	
 	protected static void bindDraw(int fbo) {
@@ -112,7 +113,11 @@ public class FBO extends GLObject {
 	}
 	
 	public void bindDraw() {
-		bindDraw(fbo);
+		bindDraw(id);
+	}
+
+	protected void unbindDraw() {
+		bindDraw(lastFBOD);
 	}
 	
 	protected static void bindRead(int fbo) {
@@ -135,18 +140,13 @@ public class FBO extends GLObject {
 	}
 	
 	public void bindRead() {
-		bindRead(fbo);
+		bindRead(id);
 	}
-	
-	private static void bindLast() {
-		if (lastFBOD == lastFBOR)
-			bind(lastFBOD);
-		else {
-			bindDraw(lastFBOD);
-			bindRead(lastFBOR);
-		}
+
+	protected void unbindRead() {
+		bindRead(lastFBOR);
 	}
-	
+
 	/**
 	 * 
 	 * Be cautious about deleting the attached RBO/Texture. If the FBO is bound,
@@ -170,9 +170,9 @@ public class FBO extends GLObject {
 	 */
 	public void attach(RBO rbo, int point) {
 		bind();
-		int i = rbo == null ? 0 : rbo.rbo;
+		int i = rbo == null ? 0 : rbo.id;
 		GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, point, GL30.GL_RENDERBUFFER, i);
-		bindLast();
+		unbind();
 	}
 	
 	@Override

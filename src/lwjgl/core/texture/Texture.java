@@ -1,13 +1,19 @@
 package lwjgl.core.texture;
 
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import lwjgl.core.Context;
 import lwjgl.core.GL;
 import lwjgl.core.GLObject;
+import lwjgl.core.texture.values.MagnifyFilter;
+import lwjgl.core.texture.values.MinifyFilter;
+import lwjgl.core.texture.values.Swizzle;
 import lwjgl.debug.Logging;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
@@ -38,13 +44,76 @@ public abstract class Texture extends GLObject{
 	 * Initialize texture with gltexstorage fallback to glteximage
 	 */
 	
-	protected final int tex;
 	protected boolean init = false;
 
-	protected Texture(String name, int tex){
-		super(name);
-		this.tex = tex;
+	protected Texture(String name, int id){
+		super(name, id);
 	}
+	
+	public abstract void bind();
+	protected abstract void unbind();
+	
+	protected abstract int target();
+	
+	public void genMipmaps(){
+		bind();
+		GL30.glGenerateMipmap(target());
+		unbind();
+	}
+	
+	public void setLOD(float min, float max, float bias) {
+		bind();
+		GL11.glTexParameterf(target(), GL12.GL_TEXTURE_MIN_LOD, min);
+		GL11.glTexParameterf(target(), GL12.GL_TEXTURE_MAX_LOD, max);
+		GL11.glTexParameterf(target(), GL14.GL_TEXTURE_LOD_BIAS, bias);
+		unbind();
+	}
+	
+	public void setFilter(MinifyFilter min, MagnifyFilter mag) {
+		bind();
+		GL11.glTexParameteri(target(), GL11.GL_TEXTURE_MIN_FILTER, min.value);
+		GL11.glTexParameteri(target(), GL11.GL_TEXTURE_MAG_FILTER, mag.value);
+		unbind();
+	}
+	
+	public void setMipMapRange(int base, int max) {
+		bind();
+		GL11.glTexParameteri(target(), GL12.GL_TEXTURE_BASE_LEVEL, base);
+		GL11.glTexParameteri(target(), GL12.GL_TEXTURE_MAX_LEVEL, max);
+		unbind();
+	}
+	
+	public void setSwizzle(Swizzle r, Swizzle g, Swizzle b, Swizzle a) {
+		bind();
+		IntBuffer swizzle = BufferUtils.createIntBuffer(4);
+		swizzle.put(new int[] { r.value, g.value, b.value, a.value }).flip();
+		GL11.glTexParameter(target(), GL33.GL_TEXTURE_SWIZZLE_RGBA, swizzle);
+		unbind();
+	}
+
+	public void setBorderColor(float r, float g, float b, float a) {
+		bind();
+		FloatBuffer color = BufferUtils.createFloatBuffer(4);
+		color.put(new float[] { r, g, b, a }).flip();
+		GL11.glTexParameter(target(), GL11.GL_TEXTURE_BORDER_COLOR, color);
+		unbind();
+	}
+	
+	public void setDepthComparisonMode(TextureComparison mode) {
+		bind();
+		GL11.glTexParameteri(target(), GL14.GL_TEXTURE_COMPARE_MODE, mode.mode);
+		GL11.glTexParameteri(target(), GL14.GL_TEXTURE_COMPARE_FUNC, mode.func);
+		unbind();
+	}
+	
+	public void setWrap(TextureWrap s, TextureWrap t, TextureWrap r) {
+		bind();
+		wrap(s, t, r);
+		unbind();
+	}
+	
+	protected abstract void wrap(TextureWrap s, TextureWrap t, TextureWrap r);
+
 	
 	public static String[] constants() {
 		GL.flushErrors();

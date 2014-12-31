@@ -8,7 +8,6 @@ import java.util.HashMap;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 
 public class VBO extends GLObject {
@@ -18,12 +17,10 @@ public class VBO extends GLObject {
 	protected static final HashMap<VBOTarget, Integer> current = new HashMap<VBOTarget, Integer>();
 	protected static final HashMap<VBOTarget, Integer> last = new HashMap<VBOTarget, Integer>();
 	
-	private final int vbo;
 	private final VBOTarget target;
 	
 	private VBO(String name, VBOTarget target) {
-		super(name);
-		vbo = GL15.glGenBuffers();
+		super(name, GL15.glGenBuffers());
 		this.target = target;
 	}
 	
@@ -33,12 +30,12 @@ public class VBO extends GLObject {
 			return null;
 		}
 		VBO vbo = new VBO(name, target);
-		if (vbo.vbo == 0) {
+		if (vbo.id == 0) {
 			Logging.glError("Cannot create VBO. No ID could be allocated for VBO [" + name + "].", null);
 			return null;
 		}
 		vboname.put(vbo.name, vbo);
-		vboid.put(vbo.vbo, vbo);
+		vboid.put(vbo.id, vbo);
 		return vbo;
 	}
 	
@@ -50,7 +47,7 @@ public class VBO extends GLObject {
 		return vboid.get(id);
 	}
 	
-	protected static void bind(int vbo, VBOTarget target) {
+	private static void bind(int vbo, VBOTarget target) {
 		int c = current.containsKey(target) ? current.get(target) : 0;
 		if (vbo == c) {
 			last.put(target, c);
@@ -60,7 +57,7 @@ public class VBO extends GLObject {
 		last.put(target, c);
 		current.put(target, vbo);
 	}
-	
+
 	public static void bind(String name) {
 		VBO t = get(name);
 		if (t == null) {
@@ -71,20 +68,20 @@ public class VBO extends GLObject {
 	}
 	
 	public void bind() {
-		bind(vbo, target);
+		bind(id, target);
 	}
-	
-	private static void bindLast(VBOTarget target) {
+
+	protected void unbind(){
 		int l = last.containsKey(target) ? last.get(target) : 0;
 		bind(l, target);
 	}
 	
 	public void destroy() {
-		if (current.get(target) == vbo)
+		if (current.get(target) == id)
 			bind(0, target);
-		GL15.glDeleteBuffers(vbo);
+		GL15.glDeleteBuffers(id);
 		vboname.remove(name);
-		vboid.remove(vbo);
+		vboid.remove(id);
 	}
 	
 	public static void destroy(String name) {
@@ -95,10 +92,13 @@ public class VBO extends GLObject {
 			Logging.glWarning("Cannot delete VBO. VBO [" + name + "] does not exist.");
 	}
 	
+	/**
+	 * TODO: BUFFER SUBRANGES
+	 */
 	public void bufferData(ShortBuffer data) {
 		bind();
 		GL15.glBufferData(target.value, data, GL15.GL_DYNAMIC_DRAW);
-		bindLast(target);
+		unbind();
 	}
 	
 	public void bufferData(short[] data) {
@@ -111,7 +111,7 @@ public class VBO extends GLObject {
 	public void bufferData(IntBuffer data) {
 		bind();
 		GL15.glBufferData(target.value, data, GL15.GL_DYNAMIC_DRAW);
-		bindLast(target);
+		unbind();
 	}
 	
 	public void bufferData(int[] data) {
@@ -124,7 +124,7 @@ public class VBO extends GLObject {
 	public void bufferData(FloatBuffer data) {
 		bind();
 		GL15.glBufferData(target.value, data, GL15.GL_DYNAMIC_DRAW);
-		bindLast(target);
+		unbind();
 	}
 	
 	public void bufferData(float[] data) {

@@ -3,21 +3,23 @@ package lwjgl.core.texture;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import lwjgl.core.Context;
 import lwjgl.core.GL;
-import lwjgl.core.VBO;
+import lwjgl.core.texture.values.DepthStencilMode;
+import lwjgl.core.texture.values.MagnifyFilter;
+import lwjgl.core.texture.values.MinifyFilter;
+import lwjgl.core.texture.values.Swizzle;
+import lwjgl.core.texture.values.Texture2DTarget;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL14;
-import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL42;
 import org.lwjgl.opengl.GL43;
@@ -42,12 +44,12 @@ public class Texture2D extends Texture {
 			return null;
 		}
 		Texture2D tex = new Texture2D(name, target);
-		if (tex.tex == 0) {
+		if (tex.id == 0) {
 			Logging.glError("Cannot create Texture2D. No ID could be allocated for Texture2D [" + name + "].", null);
 			return null;
 		}
 		texname.put(tex.name, tex);
-		texid.put(tex.tex, tex);
+		texid.put(tex.id, tex);
 		return tex;
 	}
 	
@@ -80,7 +82,15 @@ public class Texture2D extends Texture {
 	}
 	
 	public void bind() {
-		bind(tex, target);
+		bind(id, target);
+	}
+
+	protected void unbind() {
+		bindLast(target);
+	}
+	
+	protected int target(){
+		return target.value;
 	}
 	
 	private static void bindLast(Texture2DTarget target) {
@@ -89,11 +99,11 @@ public class Texture2D extends Texture {
 	}
 	
 	public void destroy() {
-		if (current.get(target) == tex)
+		if (current.get(target) == id)
 			bind(0, target);
-		GL11.glDeleteTextures(tex);
+		GL11.glDeleteTextures(id);
 		texname.remove(name);
-		texid.remove(tex);
+		texid.remove(id);
 	}
 	
 	public static void destroy(String name) {
@@ -104,56 +114,9 @@ public class Texture2D extends Texture {
 			Logging.glWarning("Cannot delete Texture2D. Texture2D [" + name + "] does not exist.");
 	}
 	
-	public void setLOD(float min, float max, float bias) {
-		bind();
-		GL11.glTexParameterf(target.value, GL12.GL_TEXTURE_MIN_LOD, min);
-		GL11.glTexParameterf(target.value, GL12.GL_TEXTURE_MAX_LOD, max);
-		GL11.glTexParameterf(target.value, GL14.GL_TEXTURE_LOD_BIAS, bias);
-		bindLast(target);
-	}
-	
-	public void setFilter(MinifyFilter min, MagnifyFilter mag) {
-		bind();
-		GL11.glTexParameteri(target.value, GL11.GL_TEXTURE_MIN_FILTER, min.value);
-		GL11.glTexParameteri(target.value, GL11.GL_TEXTURE_MAG_FILTER, mag.value);
-		bindLast(target);
-	}
-	
-	public void setMipMapRange(int base, int max) {
-		bind();
-		GL11.glTexParameteri(target.value, GL12.GL_TEXTURE_BASE_LEVEL, base);
-		GL11.glTexParameteri(target.value, GL12.GL_TEXTURE_MAX_LEVEL, max);
-		bindLast(target);
-	}
-	
-	public void setSwizzle(Swizzle r, Swizzle g, Swizzle b, Swizzle a) {
-		bind();
-		IntBuffer swizzle = BufferUtils.createIntBuffer(4);
-		swizzle.put(new int[] { r.value, g.value, b.value, a.value }).flip();
-		GL11.glTexParameter(target.value, GL33.GL_TEXTURE_SWIZZLE_RGBA, swizzle);
-		bindLast(target);
-	}
-	
-	public void setWrap(TextureWrap s, TextureWrap t) {
-		bind();
+	protected void wrap(TextureWrap s, TextureWrap t, TextureWrap r) {
 		GL11.glTexParameteri(target.value, GL11.GL_TEXTURE_WRAP_S, s.value);
 		GL11.glTexParameteri(target.value, GL11.GL_TEXTURE_WRAP_T, t.value);
-		bindLast(target);
-	}
-	
-	public void setBorderColor(float r, float g, float b, float a) {
-		bind();
-		FloatBuffer color = BufferUtils.createFloatBuffer(4);
-		color.put(new float[] { r, g, b, a }).flip();
-		GL11.glTexParameter(target.value, GL11.GL_TEXTURE_BORDER_COLOR, color);
-		bindLast(target);
-	}
-	
-	public void setDepthComparisonMode(TextureComparison mode) {
-		bind();
-		GL11.glTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_MODE, mode.mode);
-		GL11.glTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_FUNC, mode.func);
-		bindLast(target);
 	}
 	
 	/**
@@ -199,7 +162,7 @@ public class Texture2D extends Texture {
 					break;
 			}
 		}
-		bindLast(target);
+		unbind();
 	}
 	
 	/**
@@ -211,7 +174,7 @@ public class Texture2D extends Texture {
 	public void setData(int x, int y, int w, int h, int map, ImageFormat format, DataType type, ByteBuffer data) {
 		bind();
 		GL11.glTexSubImage2D(target.value, map, x, y, w, h, format.value, type.value, data);
-		bindLast(target);
+		unbind();
 	}
 	
 	/**
@@ -234,7 +197,7 @@ public class Texture2D extends Texture {
 	
 	@Override
 	public String[] status() {
-		if (tex == 0)
+		if (id == 0)
 			return new String[] { Logging.logText("Texture2D:", "Texture does not exist.", 0) };
 		GL.flushErrors();
 		
@@ -260,7 +223,7 @@ public class Texture2D extends Texture {
 		TextureComparison comparefunc = TextureComparison.get(GL11.glGetTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_FUNC));
 		TextureFormat format = TextureFormat.get(GL11.glGetTexLevelParameteri(target.value, mipmin, GL11.GL_TEXTURE_INTERNAL_FORMAT));
 		GL11.glGetTexParameter(target.value, GL11.GL_TEXTURE_BORDER_COLOR, borderColor);
-		bindLast(target);
+		unbind();
 		
 		List<String> status = new ArrayList<String>();
 		List<String> errors = GL.readErrorsToList();
