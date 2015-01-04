@@ -1,10 +1,20 @@
 package lwjgl.core.framebuffer;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
+import lwjgl.core.Context;
+import lwjgl.core.GL;
 import lwjgl.core.GLObject;
+import lwjgl.core.framebuffer.values.FBOAttachment;
+import lwjgl.core.texture.Texture1D;
+import lwjgl.core.texture.Texture2D;
+import lwjgl.core.texture.values.Texture1DTarget;
+import lwjgl.core.texture.values.Texture2DTarget;
 import lwjgl.debug.Logging;
 
+import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.GL30;
 
 public class FBO extends GLObject {
@@ -20,6 +30,8 @@ public class FBO extends GLObject {
 		super(name, GL30.glGenFramebuffers());
 	}
 	
+	/**************************************************/
+	
 	public static FBO create(String name) {
 		if (fboname.containsKey(name)) {
 			Logging.glError("Cannot create Framebuffer Object. Framebuffer Object [" + name + "] already exists.", null);
@@ -27,8 +39,7 @@ public class FBO extends GLObject {
 		}
 		FBO fbo = new FBO(name);
 		if (fbo.id == 0) {
-			Logging.glError("Cannot create Framebuffer Object. No ID could be allocated for Framebuffer Object ["
-					+ name + "].", null);
+			Logging.glError("Cannot create Framebuffer Object. No ID could be allocated for Framebuffer Object [" + name + "].", null);
 			return null;
 		}
 		fboname.put(fbo.name, fbo);
@@ -65,7 +76,9 @@ public class FBO extends GLObject {
 		return fboid.get(id);
 	}
 	
-	protected static void bind(int fbo) {
+	/**************************************************/
+	
+	static void bind(int fbo) {
 		if (fbo == currentFBOD && fbo == currentFBOR) {
 			lastFBOD = lastFBOR = fbo;
 			return;
@@ -85,7 +98,7 @@ public class FBO extends GLObject {
 		}
 		f.bind();
 	}
-
+	
 	public void bind() {
 		bind(id);
 	}
@@ -116,7 +129,7 @@ public class FBO extends GLObject {
 	public void bindDraw() {
 		bindDraw(id);
 	}
-
+	
 	protected void unbindDraw() {
 		bindDraw(lastFBOD);
 	}
@@ -143,12 +156,17 @@ public class FBO extends GLObject {
 	public void bindRead() {
 		bindRead(id);
 	}
-
+	
 	protected void unbindRead() {
 		bindRead(lastFBOR);
 	}
-
+	
+	/**************************************************/
+	
 	/**
+	 * 
+	 * Bind textures to fbos? bind function in texture?
+	 * Separate texture to one target per class?
 	 * 
 	 * Be cautious about deleting the attached RBO/Texture. If the FBO is bound,
 	 * deleted RBO/Textures are automatically detached. However, non-active FBOs
@@ -167,13 +185,47 @@ public class FBO extends GLObject {
 	 * deleted RBO/Textures are automatically detached. However, non-active FBOs
 	 * will not.
 	 * 
-	 * @param rbo
 	 */
-	public void attach(RBO rbo, int point) {
+	public void attachTexture1D(Texture1D tex, FBOAttachment attach, int level) {
+		bindDraw();
+		if (tex == null)
+			GL30.glFramebufferTexture1D(GL30.GL_DRAW_FRAMEBUFFER, attach.value, Texture1DTarget.TEXTURE_1D.value, 0, level);
+		else
+			GL30.glFramebufferTexture1D(GL30.GL_DRAW_FRAMEBUFFER, attach.value, tex.target.value, tex.id, level);
+		unbindDraw();
+	}
+
+	public void attachTexture2D(Texture2D tex, FBOAttachment attach, int level) {
+		bindDraw();
+		if (tex == null)
+			GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attach.value, Texture2DTarget.TEXTURE_2D.value, 0, level);
+		else {
+			if (tex.target == Texture2DTarget.RECTANGLE)
+				level = 0;
+			GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attach.value, tex.target.value, tex.id, level);
+		}
+		unbindDraw();
+	}
+
+	private void attach(RBO rbo, int point) {
 		bind();
 		int i = rbo == null ? 0 : rbo.id;
 		GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, point, GL30.GL_RENDERBUFFER, i);
 		unbind();
+	}
+	
+	public static String[] constants() {
+		GL.flushErrors();
+		int rs = Context.intConst(GL30.GL_MAX_RENDERBUFFER_SIZE);
+		int ca = Context.intConst(GL30.GL_MAX_COLOR_ATTACHMENTS);
+		List<String> status = new ArrayList<String>();
+		List<String> errors = GL.readErrorsToList();
+		for (String error : errors)
+			status.add(Logging.logText("ERROR:", error, 0));
+		status.add(Logging.logText("FBO Constants:", "", 0));
+		status.add(Logging.logText(String.format("%-12s:\t%d", "Max Color Attachments", ca), 1));
+		status.add(Logging.logText(String.format("%-12s:\t%d", "Max Renderbuffer Size", rs), 1));
+		return status.toArray(new String[status.size()]);
 	}
 	
 	@Override

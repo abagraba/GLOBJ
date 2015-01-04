@@ -52,4 +52,8 @@ public class Logging {
 		f += "%s";
 		return String.format(f, pre, message);
 	}
+	
+	public static void globjError(Class<? extends GLObject> obj, String name, String error, String message){
+		glError(String.format("%s %s [%s]: %s.", error, obj, name, message), null);
+	}
 }

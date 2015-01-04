@@ -50,7 +50,7 @@ public class TextureTestTarget extends RenderTarget {
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		
 		try {
-			Texture2D tex = Texture2D.create("Test", Texture2DTarget.TEXTURE_2D);
+			Texture2D tex = Texture2D.create("Test");
 			tex.setFilter(MinifyFilter.NEAREST, MagnifyFilter.NEAREST);
 			Timer.debug.mark();
 			tex.setDataRGBA(ImageIO.read(new File("src/lwjgl/test/misc/Untitled.png")), 0);

@@ -48,15 +48,11 @@ public abstract class Texture extends GLObject {
 	
 	protected boolean init = false;
 	
-	protected Texture(String name, int id) {
-		super(name, id);
+	protected Texture(String name) {
+		super(name, GL11.glGenTextures());
 	}
 	
-	public abstract void bind();
-	
-	protected abstract void unbind();
-	
-	protected abstract int target();
+	public abstract int target();
 	
 	public void genMipmaps() {
 		bind();

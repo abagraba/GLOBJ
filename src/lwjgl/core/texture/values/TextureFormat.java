@@ -83,15 +83,15 @@ public enum TextureFormat {
 	COMPRESSED_RGB_BTPC_F("RGB BPTC Compressed: Signed float", GL42.GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT, GL11.GL_RGB),
 	COMPRESSED_RGB_BTPC_F_UNSIGNED("RGB BPTC Compressed: Unsigned float", GL42.GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT, GL11.GL_RGB),
 	
-	D16("16 bit Depth", GL14.GL_DEPTH_COMPONENT16, GL11.GL_DEPTH_COMPONENT, true),
-	D24("24 bit Depth", GL14.GL_DEPTH_COMPONENT24, GL11.GL_DEPTH_COMPONENT, true),
-	D32("32 bit Depth", GL14.GL_DEPTH_COMPONENT32, GL11.GL_DEPTH_COMPONENT, true),
-	D32_F("32 bit Depth: Float", GL30.GL_DEPTH_COMPONENT32F, GL11.GL_DEPTH_COMPONENT, true),
-//	D24S8("24 bit Depth, 8 bit Stencil", GL30.GL_DEPTH24_STENCIL8, GL30.GL_DEPTH_STENCIL, true),
-//	D32S8_F("32 bit Depth, 8 bit Stencil: Float", GL30.GL_DEPTH32F_STENCIL8, GL30.GL_DEPTH_STENCIL, true),
+	D16("16 bit Depth", GL14.GL_DEPTH_COMPONENT16, GL11.GL_DEPTH_COMPONENT, true, false),
+	D24("24 bit Depth", GL14.GL_DEPTH_COMPONENT24, GL11.GL_DEPTH_COMPONENT, true, false),
+	D32("32 bit Depth", GL14.GL_DEPTH_COMPONENT32, GL11.GL_DEPTH_COMPONENT, true, false),
+	D32_F("32 bit Depth: Float", GL30.GL_DEPTH_COMPONENT32F, GL11.GL_DEPTH_COMPONENT, true, false),
+//	D24S8("24 bit Depth, 8 bit Stencil", GL30.GL_DEPTH24_STENCIL8, GL30.GL_DEPTH_STENCIL, true, true),
+//	D32S8_F("32 bit Depth, 8 bit Stencil: Float", GL30.GL_DEPTH32F_STENCIL8, GL30.GL_DEPTH_STENCIL, true, true),
 	// S1("1 bit Stencil", GL30.GL_STENCIL_INDEX1, GL11.GL_STENCIL_INDEX),
 	// S4("4 bit Stencil", GL30.GL_STENCIL_INDEX4, GL11.GL_STENCIL_INDEX),
-	S8("8 bit Stencil", GL30.GL_STENCIL_INDEX8, GL11.GL_STENCIL_INDEX),
+	S8("8 bit Stencil", GL30.GL_STENCIL_INDEX8, GL11.GL_STENCIL_INDEX, false, true),
 	// S16("16 bit Stencil", GL30.GL_STENCIL_INDEX16, GL11.GL_STENCIL_INDEX)
 	;
 	
@@ -99,16 +99,18 @@ public enum TextureFormat {
 	public final int value;
 	public final int base;
 	public final boolean depth;
+	public final boolean stencil;
 	
 	private TextureFormat(String name, int value, int base) {
-		this(name, value, base, false);
+		this(name, value, base, false, false);
 	}
 	
-	private TextureFormat(String name, int value, int base, boolean depth) {
+	private TextureFormat(String name, int value, int base, boolean depth, boolean stencil) {
 		this.name = name;
 		this.value = value;
 		this.base = base;
 		this.depth = depth;
+		this.stencil = stencil;
 	}
 	
 	public static TextureFormat get(int i) {

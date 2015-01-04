@@ -23,58 +23,59 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL14;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL42;
 import org.lwjgl.opengl.GL43;
 
-public class Texture1D extends Texture implements FBOAttachable {
+public class Texture1DArray extends Texture implements FBOAttachable {
 	
-	private static final GLObjectTracker<Texture1D> tracker = new GLObjectTracker<Texture1D>();
+	private static final GLObjectTracker<Texture1DArray> tracker = new GLObjectTracker<Texture1DArray>();
 	private static final BindTracker curr = new BindTracker();
 	
-	public final static String target = "1D Texture";
+	public final static String target = "1D Texture Array";
 	
-	private Texture1D(String name) {
+	private Texture1DArray(String name) {
 		super(name);
 	}
 	
-	public static Texture1D create(String name) {
+	public static Texture1DArray create(String name) {
 		if (tracker.contains(name)) {
-			Logging.globjError(Texture1D.class, name, "Cannot create", "Already exists");
+			Logging.globjError(Texture1DArray.class, name, "Cannot create", "Already exists");
 			return null;
 		}
-		Texture1D tex = new Texture1D(name);
+		Texture1DArray tex = new Texture1DArray(name);
 		if (tex.id == 0) {
-			Logging.globjError(Texture1D.class, name, "Cannot create", "No ID could be allocated");
+			Logging.globjError(Texture1DArray.class, name, "Cannot create", "No ID could be allocated");
 			return null;
 		}
 		tracker.add(tex);
 		return tex;
 	}
 	
-	public static Texture1D get(String name) {
+	public static Texture1DArray get(String name) {
 		return tracker.get(name);
 	}
 	
-	protected static Texture1D get(int id) {
+	protected static Texture1DArray get(int id) {
 		return tracker.get(id);
 	}
 	
 	public int target() {
-		return GL11.GL_TEXTURE_1D;
+		return GL30.GL_TEXTURE_1D_ARRAY;
 	}
 	
 	protected static void bind(int tex) {
 		curr.update(tex);
 		if (tex == curr.last())
 			return;
-		GL11.glBindTexture(GL11.GL_TEXTURE_1D, tex);
+		GL11.glBindTexture(GL30.GL_TEXTURE_1D_ARRAY, tex);
 	}
 	
 	public static void bind(String name) {
-		Texture1D t = get(name);
+		Texture1DArray t = get(name);
 		if (t == null) {
-			Logging.globjError(Texture1D.class, name, "Cannot bind", "Does not exist");
+			Logging.globjError(Texture1DArray.class, name, "Cannot bind", "Does not exist");
 			return;
 		}
 		t.bind();
@@ -96,41 +97,42 @@ public class Texture1D extends Texture implements FBOAttachable {
 	}
 	
 	public static void destroy(String name) {
-		Texture1D tex = tracker.get(name);
+		Texture1DArray tex = tracker.get(name);
 		if (tex != null)
 			tex.destroy();
 		else
-			Logging.globjError(Texture1D.class, name, "Cannot delete", "Does not exist");
+			Logging.globjError(Texture1DArray.class, name, "Cannot delete", "Does not exist");
 	}
 	
 	protected void wrap(TextureWrap s, TextureWrap t, TextureWrap r) {
 		GL11.glTexParameteri(target(), GL11.GL_TEXTURE_WRAP_S, s.value);
 	}
 	
-	public void initializeTexture(int w, int maps, TextureFormat texformat) {
+	public void initializeTexture(int w, int layers, int maps, TextureFormat texformat) {
 		if (init) {
-			Logging.globjError(Texture1D.class, name, "Cannot initialize", "Already initialized");
+			Logging.globjError(Texture1DArray.class, name, "Cannot initialize", "Already initialized");
 			return;
 		}
-		if (w < 0) {
-			Logging.globjError(Texture1D.class, name, "Cannot initialize", "Dimensions (" + w + ") must be non-negative");
+		if (w < 0 || layers < 0) {
+			Logging.globjError(Texture1DArray.class, name, "Cannot initialize", "Dimensions (" + w + "," + layers + ") must be non-negative");
 			return;
 		}
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
-		if (w > max) {
-			Logging.globjError(Texture1D.class, name, "Cannot initialize", "Dimensions (" + w + ") too large. Device only supports textures up to (" + max
-					+ ")");
+		int maxlayers = Context.intConst(GL30.GL_MAX_ARRAY_TEXTURE_LAYERS);
+		if (w > max || layers > maxlayers) {
+			Logging.globjError(Texture1DArray.class, name, "Cannot initialize", "Dimensions (" + w + "," + layers
+					+ ") too large. Device only supports textures up to (" + max + "," + maxlayers + ")");
 			return;
 		}
 		maps = Math.max(1, maps);
 		bind();
 		if (GL.versionCheck(4, 2)) {
-			GL42.glTexStorage1D(target(), maps, texformat.value, w);
+			GL42.glTexStorage2D(target(), maps, texformat.value, w, layers);
 			init = true;
 		}
 		else {
 			for (int i = 0; i < maps; i++) {
-				GL11.glTexImage1D(target(), i, texformat.value, w, 0, texformat.base, DataType.UBYTE.value, (ByteBuffer) null);
+				GL11.glTexImage2D(target(), i, texformat.value, w, layers, 0, texformat.base, DataType.UBYTE.value, (ByteBuffer) null);
 				w = Math.max(1, w / 2);
 			}
 		}
@@ -143,9 +145,9 @@ public class Texture1D extends Texture implements FBOAttachable {
 	 * {@link #initializeTexture(int, int, int, TextureFormat)}. Rectangle must
 	 * be within the bounds of the texture. [GL_TEXTURE_BASE_LEVEL + map].
 	 */
-	public void setData(int x, int w, int map, ImageFormat format, DataType type, ByteBuffer data) {
+	public void setData(int x, int w, int layeri, int layerf, int map, ImageFormat format, DataType type, ByteBuffer data) {
 		bind();
-		GL11.glTexSubImage1D(target(), map, x, w, format.value, type.value, data);
+		GL11.glTexSubImage2D(target(), map, x, layeri, w, layerf, format.value, type.value, data);
 		unbind();
 	}
 	
@@ -164,7 +166,7 @@ public class Texture1D extends Texture implements FBOAttachable {
 	@Override
 	public String[] status() {
 		if (id == 0)
-			return new String[] { Logging.logText("Texture1D:", "Texture does not exist.", 0) };
+			return new String[] { Logging.logText("Texture1DArray:", "Texture does not exist.", 0) };
 		GL.flushErrors();
 		
 		bind();
@@ -183,6 +185,7 @@ public class Texture1D extends Texture implements FBOAttachable {
 		FloatBuffer borderColor = BufferUtils.createFloatBuffer(4);
 		DepthStencilMode dsmode = DepthStencilMode.get(GL11.glGetTexParameteri(target(), GL43.GL_DEPTH_STENCIL_TEXTURE_MODE));
 		int w = GL11.glGetTexLevelParameteri(target(), mipmin, GL11.GL_TEXTURE_WIDTH);
+		int h = GL11.glGetTexLevelParameteri(target(), mipmin, GL11.GL_TEXTURE_HEIGHT);
 		int comparemode = GL11.glGetTexParameteri(target(), GL14.GL_TEXTURE_COMPARE_MODE);
 		TextureComparison comparefunc = TextureComparison.get(GL11.glGetTexParameteri(target(), GL14.GL_TEXTURE_COMPARE_FUNC));
 		TextureFormat format = TextureFormat.get(GL11.glGetTexLevelParameteri(target(), mipmin, GL11.GL_TEXTURE_INTERNAL_FORMAT));
@@ -193,7 +196,7 @@ public class Texture1D extends Texture implements FBOAttachable {
 		List<String> errors = GL.readErrorsToList();
 		for (String error : errors)
 			status.add(Logging.logText("ERROR:", error, 0));
-		status.add(Logging.logText("Texture1D:", String.format("%s [%d]", name, w), 0));
+		status.add(Logging.logText("Texture1D:", String.format("%s [%d] %d layers", name, w, h), 0));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Target", target), 1));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Format", format == null ? "Unrecognized Format" : format), 1));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Minify Filter", min), 1));

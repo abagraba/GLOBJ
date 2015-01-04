@@ -2,13 +2,17 @@ package lwjgl.test.ogldev;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
+
 import lwjgl.core.GL;
 import lwjgl.core.RenderTarget;
+import lwjgl.core.framebuffer.FBO;
+import lwjgl.debug.Logging;
 
 public class Tutorial2 extends RenderTarget {
 	
 	@Override
 	public void init() {
+		Logging.logInfo(FBO.constants());
 	}
 	
 	@Override
