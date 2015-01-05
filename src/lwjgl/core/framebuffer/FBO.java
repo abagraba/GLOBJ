@@ -164,49 +164,37 @@ public class FBO extends GLObject {
 	
 	/**************************************************/
 	
-	/**
+	/*
 	 * 
 	 * Bind textures to fbos? bind function in texture? Separate texture to one
 	 * target per class?
-	 * 
+	 */
+	/**
 	 * Be cautious about deleting the attached RBO/Texture. If the FBO is bound,
 	 * deleted RBO/Textures are automatically detached. However, non-active FBOs
 	 * will not.
 	 * 
 	 * @param level
-	 * <pre>	Texture1D:			mipmap level.<br/></pre>
-	 * 
-	 * <pre>	Texture1DArray:		mipmap level.<br/></pre>
-	 * 
-	 * <pre>	Texture2D:			mipmap level.<br/></pre>
-	 * 
-	 * <pre>	Texture2DArray:		mipmap level.<br/></pre>
-	 * 
-	 * <pre>	Texture3D:			mipmap level.<br/></pre>
-	 * 
-	 * <pre>	TextureRectangle:		unused.<br/></pre>
-	 * 
-	 * <pre>	TextureCubemap:		mipmap level.<br/></pre>
-	 * 
-	 * <pre>	TextureCubemapArray:	mipmap level.<br/></pre>
+	 *            Texture1D: mipmap level.<br/>
+	 *            &nbsp;&nbsp;&nbsp;Texture1DArray: mipmap level.<br/>
+	 *            &nbsp;&nbsp;&nbsp;Texture2D: mipmap level.<br/>
+	 *            &nbsp;&nbsp;&nbsp;Texture2DArray: mipmap level.<br/>
+	 *            &nbsp;&nbsp;&nbsp;Texture3D: mipmap level.<br/>
+	 *            &nbsp;&nbsp;&nbsp;TextureRectangle: unused.<br/>
+	 *            &nbsp;&nbsp;&nbsp;TextureCubemap: mipmap level.<br/>
+	 *            &nbsp;&nbsp;&nbsp;TextureCubemapArray: mipmap level.<br/>
 	 * 
 	 * @param layer
-	 * 
-	 * <pre>	Texture1D:				unused.<br/></pre>
-	 * 
-	 * <pre>	Texture1DArray:			texture index.<br/></pre>
-	 * 
-	 * <pre>	Texture2D:				unused.<br/></pre>
-	 * 
-	 * <pre>	Texture2DArray:			texture index.<br/></pre>
-	 * 
-	 * <pre>	Texture3D:				z-offset.<br/></pre>
-	 * 
-	 * <pre>	TextureRectangle:		unused.<br/></pre>
-	 * 
-	 * <pre>	TextureCubemap:			cubemap face. Use {@link CubemapTarget#layer}.<br/></pre>
-	 * 
-	 * <pre>	TextureCubemapArray:	cubemap index and face. Use 6 * cubemap index + {@link CubemapTarget#layer}.<br/></pre>
+	 *            Texture1D: unused.<br/>
+	 *            &nbsp;&nbsp;&nbsp;Texture1DArray: texture index.<br/>
+	 *            &nbsp;&nbsp;&nbsp;Texture2D: unused.<br/>
+	 *            &nbsp;&nbsp;&nbsp;Texture2DArray: texture index.<br/>
+	 *            &nbsp;&nbsp;&nbsp;Texture3D: z-offset.<br/>
+	 *            &nbsp;&nbsp;&nbsp;TextureRectangle: unused.<br/>
+	 *            &nbsp;&nbsp;&nbsp;TextureCubemap: cubemap face. Use
+	 *            {@link CubemapTarget#layer}.<br/>
+	 *            &nbsp;&nbsp;&nbsp;TextureCubemapArray: cubemap index and face.
+	 *            Use 6 * cubemap index + {@link CubemapTarget#layer}.<br/>
 	 */
 	public void attach(FBOAttachable att, FBOAttachment attach, int level, int layer) {
 		bindDraw();

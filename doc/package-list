@@ -1,1 +1,12 @@
-lwjgl.test
+lwjgl.core
+lwjgl.core.framebuffer
+lwjgl.core.framebuffer.values
+lwjgl.core.texture
+lwjgl.core.texture.values
+lwjgl.core.values
+lwjgl.debug
+lwjgl.test.misc
+lwjgl.test.ogldev
+lwjgl.test.set1
+lwjgl.test.set2
+lwjgl.test.set3
