@@ -10,6 +10,7 @@ import lwjgl.core.GLObject;
 import lwjgl.core.framebuffer.values.FBOAttachment;
 import lwjgl.core.texture.Texture1D;
 import lwjgl.core.texture.Texture2D;
+import lwjgl.core.texture.values.CubemapTarget;
 import lwjgl.core.texture.values.Texture1DTarget;
 import lwjgl.core.texture.values.Texture2DTarget;
 import lwjgl.debug.Logging;
@@ -165,48 +166,57 @@ public class FBO extends GLObject {
 	
 	/**
 	 * 
-	 * Bind textures to fbos? bind function in texture?
-	 * Separate texture to one target per class?
+	 * Bind textures to fbos? bind function in texture? Separate texture to one
+	 * target per class?
 	 * 
 	 * Be cautious about deleting the attached RBO/Texture. If the FBO is bound,
 	 * deleted RBO/Textures are automatically detached. However, non-active FBOs
 	 * will not.
 	 * 
-	 * @param rbo
-	 */
-	/*
-	 * XXX public void attach(RBO rbo, int point){ bind(); int i = rbo == null ?
-	 * 0 : rbo.rbo; GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, point,
-	 * GL30.GL_RENDERBUFFER, i); bind(lastFBO); }
-	 */
-	/**
+	 * @param level
+	 * <pre>	Texture1D:			mipmap level.<br/></pre>
 	 * 
-	 * Be cautious about deleting the attached RBO/Texture. If the FBO is bound,
-	 * deleted RBO/Textures are automatically detached. However, non-active FBOs
-	 * will not.
+	 * <pre>	Texture1DArray:		mipmap level.<br/></pre>
 	 * 
+	 * <pre>	Texture2D:			mipmap level.<br/></pre>
+	 * 
+	 * <pre>	Texture2DArray:		mipmap level.<br/></pre>
+	 * 
+	 * <pre>	Texture3D:			mipmap level.<br/></pre>
+	 * 
+	 * <pre>	TextureRectangle:		unused.<br/></pre>
+	 * 
+	 * <pre>	TextureCubemap:		mipmap level.<br/></pre>
+	 * 
+	 * <pre>	TextureCubemapArray:	mipmap level.<br/></pre>
+	 * 
+	 * @param layer
+	 * 
+	 * <pre>	Texture1D:				unused.<br/></pre>
+	 * 
+	 * <pre>	Texture1DArray:			texture index.<br/></pre>
+	 * 
+	 * <pre>	Texture2D:				unused.<br/></pre>
+	 * 
+	 * <pre>	Texture2DArray:			texture index.<br/></pre>
+	 * 
+	 * <pre>	Texture3D:				z-offset.<br/></pre>
+	 * 
+	 * <pre>	TextureRectangle:		unused.<br/></pre>
+	 * 
+	 * <pre>	TextureCubemap:			cubemap face. Use {@link CubemapTarget#layer}.<br/></pre>
+	 * 
+	 * <pre>	TextureCubemapArray:	cubemap index and face. Use 6 * cubemap index + {@link CubemapTarget#layer}.<br/></pre>
 	 */
-	public void attachTexture1D(Texture1D tex, FBOAttachment attach, int level) {
+	public void attach(FBOAttachable att, FBOAttachment attach, int level, int layer) {
 		bindDraw();
-		if (tex == null)
-			GL30.glFramebufferTexture1D(GL30.GL_DRAW_FRAMEBUFFER, attach.value, Texture1DTarget.TEXTURE_1D.value, 0, level);
+		if (att == null)
+			GL30.glFramebufferTextureLayer(GL30.GL_DRAW_FRAMEBUFFER, attach.value, 0, 0, 0);
 		else
-			GL30.glFramebufferTexture1D(GL30.GL_DRAW_FRAMEBUFFER, attach.value, tex.target.value, tex.id, level);
+			att.attachToFBO(attach, level, layer);
 		unbindDraw();
 	}
-
-	public void attachTexture2D(Texture2D tex, FBOAttachment attach, int level) {
-		bindDraw();
-		if (tex == null)
-			GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attach.value, Texture2DTarget.TEXTURE_2D.value, 0, level);
-		else {
-			if (tex.target == Texture2DTarget.RECTANGLE)
-				level = 0;
-			GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attach.value, tex.target.value, tex.id, level);
-		}
-		unbindDraw();
-	}
-
+	
 	private void attach(RBO rbo, int point) {
 		bind();
 		int i = rbo == null ? 0 : rbo.id;
