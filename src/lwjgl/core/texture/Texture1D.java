@@ -17,12 +17,14 @@ import lwjgl.core.texture.values.Swizzle;
 import lwjgl.core.texture.values.TextureComparison;
 import lwjgl.core.texture.values.TextureFormat;
 import lwjgl.core.texture.values.TextureWrap;
+import lwjgl.core.values.DataType;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL14;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL42;
 import org.lwjgl.opengl.GL43;
@@ -153,10 +155,15 @@ public class Texture1D extends Texture implements FBOAttachable {
 	/****************** FBOAttachable *****************/
 	/**************************************************/
 	
+	/**
+	 * @param level
+	 *            mipmap level.
+	 * @param layer
+	 *            unused.
+	 */
 	@Override
 	public void attachToFBO(FBOAttachment attachment, int level, int layer) {
-		// TODO Auto-generated method stub
-		
+		GL30.glFramebufferTexture1D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value, target(), id, level);
 	}
 	
 	/**************************************************/
@@ -193,7 +200,7 @@ public class Texture1D extends Texture implements FBOAttachable {
 		List<String> errors = GL.readErrorsToList();
 		for (String error : errors)
 			status.add(Logging.logText("ERROR:", error, 0));
-		status.add(Logging.logText("Texture1D:", String.format("%s [%d]", name, w), 0));
+		status.add(Logging.logText("Texture1D:", String.format("%s\t%d px", name, w), 0));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Target", target), 1));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Format", format == null ? "Unrecognized Format" : format), 1));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Minify Filter", min), 1));

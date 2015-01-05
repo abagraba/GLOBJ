@@ -17,6 +17,7 @@ import lwjgl.core.texture.values.Swizzle;
 import lwjgl.core.texture.values.TextureComparison;
 import lwjgl.core.texture.values.TextureFormat;
 import lwjgl.core.texture.values.TextureWrap;
+import lwjgl.core.values.DataType;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.BufferUtils;
@@ -114,14 +115,14 @@ public class Texture1DArray extends Texture implements FBOAttachable {
 			return;
 		}
 		if (w < 0 || layers < 0) {
-			Logging.globjError(Texture1DArray.class, name, "Cannot initialize", "Dimensions (" + w + "," + layers + ") must be non-negative");
+			Logging.globjError(Texture1DArray.class, name, "Cannot initialize", "Dimensions (" + w + " x " + layers + ") must be non-negative");
 			return;
 		}
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
 		int maxlayers = Context.intConst(GL30.GL_MAX_ARRAY_TEXTURE_LAYERS);
 		if (w > max || layers > maxlayers) {
-			Logging.globjError(Texture1DArray.class, name, "Cannot initialize", "Dimensions (" + w + "," + layers
-					+ ") too large. Device only supports textures up to (" + max + "," + maxlayers + ")");
+			Logging.globjError(Texture1DArray.class, name, "Cannot initialize", "Dimensions (" + w + " x " + layers
+					+ ") too large. Device only supports textures up to (" + max + " x " + maxlayers + ")");
 			return;
 		}
 		maps = Math.max(1, maps);
@@ -154,13 +155,16 @@ public class Texture1DArray extends Texture implements FBOAttachable {
 	/**************************************************/
 	/****************** FBOAttachable *****************/
 	/**************************************************/
-	
+	/**
+	 * @param level
+	 *            mipmap level.
+	 * @param layer
+	 *            texture index.
+	 */
 	@Override
 	public void attachToFBO(FBOAttachment attachment, int level, int layer) {
-		// TODO Auto-generated method stub
-		
+		GL30.glFramebufferTextureLayer(GL30.GL_DRAW_FRAMEBUFFER, attachment.value, id, level, layer);
 	}
-	
 	/**************************************************/
 	
 	@Override
@@ -196,7 +200,7 @@ public class Texture1DArray extends Texture implements FBOAttachable {
 		List<String> errors = GL.readErrorsToList();
 		for (String error : errors)
 			status.add(Logging.logText("ERROR:", error, 0));
-		status.add(Logging.logText("Texture1D:", String.format("%s [%d] %d layers", name, w, h), 0));
+		status.add(Logging.logText("Texture1D:", String.format("%s\t%d px %d\tlayers", name, w, h), 0));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Target", target), 1));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Format", format == null ? "Unrecognized Format" : format), 1));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Minify Filter", min), 1));

@@ -11,6 +11,7 @@ import lwjgl.core.GL;
 import lwjgl.core.GLObjectTracker;
 import lwjgl.core.framebuffer.FBOAttachable;
 import lwjgl.core.framebuffer.values.FBOAttachment;
+import lwjgl.core.texture.values.CubemapTarget;
 import lwjgl.core.texture.values.DepthStencilMode;
 import lwjgl.core.texture.values.MagnifyFilter;
 import lwjgl.core.texture.values.MinifyFilter;
@@ -24,60 +25,61 @@ import lwjgl.debug.Logging;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL42;
 import org.lwjgl.opengl.GL43;
 
-public class Texture2D extends Texture implements FBOAttachable {
+public class TextureCubemap extends Texture implements FBOAttachable {
 	
-	private static final GLObjectTracker<Texture2D> tracker = new GLObjectTracker<Texture2D>();
+	private static final GLObjectTracker<TextureCubemap> tracker = new GLObjectTracker<TextureCubemap>();
 	private static final BindTracker curr = new BindTracker();
 	
-	public final static String target = "2D Texture";
+	public final static String target = "Cubemap Texture";
 	
-	private Texture2D(String name) {
+	private TextureCubemap(String name) {
 		super(name);
 	}
 	
-	public static Texture2D create(String name) {
+	public static TextureCubemap create(String name) {
 		if (tracker.contains(name)) {
-			Logging.globjError(Texture2D.class, name, "Cannot create", "Already exists");
+			Logging.globjError(TextureCubemap.class, name, "Cannot create", "Already exists");
 			return null;
 		}
-		Texture2D tex = new Texture2D(name);
+		TextureCubemap tex = new TextureCubemap(name);
 		if (tex.id == 0) {
-			Logging.globjError(Texture2D.class, name, "Cannot create", "No ID could be allocated");
+			Logging.globjError(TextureCubemap.class, name, "Cannot create", "No ID could be allocated");
 			return null;
 		}
 		tracker.add(tex);
 		return tex;
 	}
 	
-	public static Texture2D get(String name) {
+	public static TextureCubemap get(String name) {
 		return tracker.get(name);
 	}
 	
-	protected static Texture2D get(int id) {
+	protected static TextureCubemap get(int id) {
 		return tracker.get(id);
 	}
 	
 	public int target() {
-		return GL11.GL_TEXTURE_2D;
+		return GL13.GL_TEXTURE_CUBE_MAP;
 	}
 	
 	protected static void bind(int tex) {
 		curr.update(tex);
 		if (tex == curr.last())
 			return;
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex);
+		GL11.glBindTexture(GL13.GL_TEXTURE_CUBE_MAP, tex);
 	}
 	
 	public static void bind(String name) {
-		Texture2D t = get(name);
+		TextureCubemap t = get(name);
 		if (t == null) {
-			Logging.globjError(Texture2D.class, name, "Cannot bind", "Does not exist");
+			Logging.globjError(TextureCubemap.class, name, "Cannot bind", "Does not exist");
 			return;
 		}
 		t.bind();
@@ -99,11 +101,11 @@ public class Texture2D extends Texture implements FBOAttachable {
 	}
 	
 	public static void destroy(String name) {
-		Texture2D tex = tracker.get(name);
+		TextureCubemap tex = tracker.get(name);
 		if (tex != null)
 			tex.destroy();
 		else
-			Logging.globjError(Texture2D.class, name, "Cannot delete", "Does not exist");
+			Logging.globjError(TextureCubemap.class, name, "Cannot delete", "Does not exist");
 	}
 	
 	protected void wrap(TextureWrap s, TextureWrap t, TextureWrap r) {
@@ -113,17 +115,21 @@ public class Texture2D extends Texture implements FBOAttachable {
 	
 	public void initializeTexture(int w, int h, int maps, TextureFormat texformat) {
 		if (init) {
-			Logging.globjError(Texture2D.class, name, "Cannot initialize", "Already initialized");
+			Logging.globjError(TextureCubemap.class, name, "Cannot initialize", "Already initialized");
+			return;
+		}
+		if (w != h) {
+			Logging.globjError(TextureCubemap.class, name, "Cannot initialize", "Dimensions (" + w + " x " + h + ") must be square.");
 			return;
 		}
 		if (w < 0 || h < 0) {
-			Logging.globjError(Texture2D.class, name, "Cannot initialize", "Dimensions (" + w + " x " + h + ") must be non-negative");
+			Logging.globjError(TextureCubemap.class, name, "Cannot initialize", "Dimensions (" + w + " x " + h + ") must be non-negative");
 			return;
 		}
-		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
+		int max = Context.intConst(GL13.GL_MAX_CUBE_MAP_TEXTURE_SIZE);
 		if (w > max || h > max) {
-			Logging.globjError(Texture2D.class, name, "Cannot initialize", "Dimensions (" + w + " x " + h + ") too large. Device only supports textures up to ("
-					+ max + " x " + max + ")");
+			Logging.globjError(TextureCubemap.class, name, "Cannot initialize", "Dimensions (" + w + " x " + h
+					+ ") too large. Device only supports textures up to (" + max + " x " + max + ")");
 			return;
 		}
 		maps = Math.max(1, maps);
@@ -134,7 +140,8 @@ public class Texture2D extends Texture implements FBOAttachable {
 		}
 		else {
 			for (int i = 0; i < maps; i++) {
-				GL11.glTexImage2D(target(), i, texformat.value, w, h, 0, texformat.base, DataType.UBYTE.value, (ByteBuffer) null);
+				for (CubemapTarget target : CubemapTarget.values())
+					GL11.glTexImage2D(target.value, i, texformat.value, w, h, 0, texformat.base, DataType.UBYTE.value, (ByteBuffer) null);
 				w = Math.max(1, w / 2);
 				h = Math.max(1, h / 2);
 			}
@@ -171,18 +178,19 @@ public class Texture2D extends Texture implements FBOAttachable {
 	 * @param level
 	 *            mipmap level.
 	 * @param layer
-	 *            unused.
+	 *            cubemap face. Use {@link CubemapTarget#layer}.
 	 */
 	@Override
 	public void attachToFBO(FBOAttachment attachment, int level, int layer) {
 		GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value, target(), id, level);
 	}
+	
 	/**************************************************/
 	
 	@Override
 	public String[] status() {
 		if (id == 0)
-			return new String[] { Logging.logText("Texture2D:", "Texture does not exist.", 0) };
+			return new String[] { Logging.logText("TextureCubeMap:", "Texture does not exist.", 0) };
 		GL.flushErrors();
 		
 		bind();

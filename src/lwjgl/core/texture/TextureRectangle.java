@@ -17,12 +17,14 @@ import lwjgl.core.texture.values.Swizzle;
 import lwjgl.core.texture.values.TextureComparison;
 import lwjgl.core.texture.values.TextureFormat;
 import lwjgl.core.texture.values.TextureWrap;
+import lwjgl.core.values.DataType;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL14;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL42;
@@ -115,13 +117,13 @@ public class TextureRectangle extends Texture implements FBOAttachable {
 			return;
 		}
 		if (w < 0 || h < 0) {
-			Logging.globjError(TextureRectangle.class, name, "Cannot initialize", "Dimensions (" + w + "," + h + ") must be non-negative");
+			Logging.globjError(TextureRectangle.class, name, "Cannot initialize", "Dimensions (" + w + " x " + h + ") must be non-negative");
 			return;
 		}
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
 		if (w > max || h > max) {
-			Logging.globjError(TextureRectangle.class, name, "Cannot initialize", "Dimensions (" + w + "," + h
-					+ ") too large. Device only supports textures up to (" + max + "," + max + ")");
+			Logging.globjError(TextureRectangle.class, name, "Cannot initialize", "Dimensions (" + w + " x " + h
+					+ ") too large. Device only supports textures up to (" + max + " x " + max + ")");
 			return;
 		}
 		bind();
@@ -150,13 +152,16 @@ public class TextureRectangle extends Texture implements FBOAttachable {
 	/**************************************************/
 	/****************** FBOAttachable *****************/
 	/**************************************************/
-	
+	/**
+	 * @param level
+	 *            unused.
+	 * @param layer
+	 *            unused.
+	 */
 	@Override
 	public void attachToFBO(FBOAttachment attachment, int level, int layer) {
-		// TODO Auto-generated method stub
-		
+		GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value, target(), id, 0);
 	}
-	
 	/**************************************************/
 	
 	@Override
@@ -191,7 +196,7 @@ public class TextureRectangle extends Texture implements FBOAttachable {
 		List<String> errors = GL.readErrorsToList();
 		for (String error : errors)
 			status.add(Logging.logText("ERROR:", error, 0));
-		status.add(Logging.logText("Texture1D:", String.format("%s [%d, %d]", name, w, h), 0));
+		status.add(Logging.logText("Texture1D:", String.format("%s\t%d x %d px", name, w, h), 0));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Target", target), 1));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Format", format == null ? "Unrecognized Format" : format), 1));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Minify Filter", min), 1));

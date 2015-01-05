@@ -17,12 +17,14 @@ import lwjgl.core.texture.values.Swizzle;
 import lwjgl.core.texture.values.TextureComparison;
 import lwjgl.core.texture.values.TextureFormat;
 import lwjgl.core.texture.values.TextureWrap;
+import lwjgl.core.values.DataType;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL14;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL42;
 import org.lwjgl.opengl.GL43;
@@ -115,13 +117,13 @@ public class Texture3D extends Texture implements FBOAttachable {
 			return;
 		}
 		if (w < 0 || h < 0 || d < 0) {
-			Logging.globjError(Texture3D.class, name, "Cannot initialize", "Dimensions (" + w + "," + h + "," + d + ") must be non-negative");
+			Logging.globjError(Texture3D.class, name, "Cannot initialize", "Dimensions (" + w + " x " + h + " x " + d + ") must be non-negative");
 			return;
 		}
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
 		if (w > max || h > max || d > max) {
-			Logging.globjError(Texture3D.class, name, "Cannot initialize", "Dimensions (" + w + "," + h + "," + d
-					+ ") too large. Device only supports textures up to (" + max + "," + max + "," + max + ")");
+			Logging.globjError(Texture3D.class, name, "Cannot initialize", "Dimensions (" + w + " x " + h + " x " + d
+					+ ") too large. Device only supports textures up to (" + max + " x " + max + " x " + max + ")");
 			return;
 		}
 		maps = Math.max(1, maps);
@@ -156,13 +158,16 @@ public class Texture3D extends Texture implements FBOAttachable {
 	/**************************************************/
 	/****************** FBOAttachable *****************/
 	/**************************************************/
-	
+	/**
+	 * @param level
+	 *            mipmap level.
+	 * @param layer
+	 *            z offset.
+	 */
 	@Override
 	public void attachToFBO(FBOAttachment attachment, int level, int layer) {
-		// TODO Auto-generated method stub
-		
+		GL30.glFramebufferTexture3D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value, target(), id, level, layer);
 	}
-	
 	/**************************************************/
 	
 	@Override
@@ -201,7 +206,7 @@ public class Texture3D extends Texture implements FBOAttachable {
 		List<String> errors = GL.readErrorsToList();
 		for (String error : errors)
 			status.add(Logging.logText("ERROR:", error, 0));
-		status.add(Logging.logText("Texture1D:", String.format("%s [%d, %d, %d]", name, w, h, d), 0));
+		status.add(Logging.logText("Texture1D:", String.format("%s\t%d x %d x %d px", name, w, h, d), 0));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Target", target), 1));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Format", format == null ? "Unrecognized Format" : format), 1));
 		status.add(Logging.logText(String.format("%-16s:\t%s", "Minify Filter", min), 1));

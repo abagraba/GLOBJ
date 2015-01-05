@@ -20,7 +20,6 @@ import lwjgl.core.VBOTarget;
 import lwjgl.core.texture.Texture2D;
 import lwjgl.core.texture.values.MagnifyFilter;
 import lwjgl.core.texture.values.MinifyFilter;
-import lwjgl.core.texture.values.Texture2DTarget;
 import lwjgl.debug.Logging;
 import lwjgl.debug.Timer;
 

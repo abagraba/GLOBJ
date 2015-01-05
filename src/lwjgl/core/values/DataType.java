@@ -1,4 +1,5 @@
-package lwjgl.core.texture;
+package lwjgl.core.values;
+
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;

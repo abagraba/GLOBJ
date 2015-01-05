@@ -4,8 +4,8 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.GL11;
 
 import lwjgl.core.GL;
-import lwjgl.core.RBO;
 import lwjgl.core.RenderTarget;
+import lwjgl.core.framebuffer.RBO;
 import lwjgl.debug.Logging;
 
 public class RBOTests extends RenderTarget {
