@@ -27,6 +27,7 @@ import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL32;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL40;
 import org.lwjgl.opengl.GL42;
@@ -150,6 +151,19 @@ public class TextureCubemapArray extends Texture implements FBOAttachable {
 		unbind();
 	}
 	
+	/*
+	 * XXX When is this core? Latest 4.4?
+	 */
+	public void makeSeamless(boolean seamless) {
+		if (GL.versionCheck(4, 4)) {
+			bind();
+			GL11.glTexParameteri(target(), GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS, seamless ? 1 : 0);
+			unbind();
+		}
+		else
+			Logging.glWarning("Cannot use per texture seamless cubemaps. Version 4.4 required.");
+	}
+	
 	/**
 	 * Sets the texel data in specified rectangle of mipmap level. Texture needs
 	 * to be initialized with
@@ -161,6 +175,7 @@ public class TextureCubemapArray extends Texture implements FBOAttachable {
 		GL11.glTexSubImage2D(target(), map, x, y, w, h, format.value, type.value, data);
 		unbind();
 	}
+	
 	
 	/**************************************************/
 	/****************** FBOAttachable *****************/
