@@ -60,6 +60,16 @@ public abstract class Texture extends GLObject {
 		unbind();
 	}
 	
+	/**
+	 * Sets the level of detail bounds for the texture.
+	 * 
+	 * @param min
+	 *            minimum LOD.
+	 * @param max
+	 *            maximum LOD.
+	 * @param bias
+	 *            LOD bias.
+	 */
 	public void setLOD(float min, float max, float bias) {
 		bind();
 		GL11.glTexParameterf(target(), GL12.GL_TEXTURE_MIN_LOD, min);
@@ -68,6 +78,14 @@ public abstract class Texture extends GLObject {
 		unbind();
 	}
 	
+	/**
+	 * Sets the minification and magnification filters for the texture.
+	 * 
+	 * @param min
+	 *            minification filter.
+	 * @param mag
+	 *            magnification filter.
+	 */
 	public void setFilter(MinifyFilter min, MagnifyFilter mag) {
 		bind();
 		GL11.glTexParameteri(target(), GL11.GL_TEXTURE_MIN_FILTER, min.value);
@@ -75,6 +93,14 @@ public abstract class Texture extends GLObject {
 		unbind();
 	}
 	
+	/**
+	 * Set the range of mipmap level.
+	 * 
+	 * @param base
+	 *            base mipmap level.
+	 * @param max
+	 *            maximum mipmap level.
+	 */
 	public void setMipMapRange(int base, int max) {
 		bind();
 		GL11.glTexParameteri(target(), GL12.GL_TEXTURE_BASE_LEVEL, base);
@@ -82,6 +108,18 @@ public abstract class Texture extends GLObject {
 		unbind();
 	}
 	
+	/**
+	 * Sets the component swizzle for the texture.
+	 * 
+	 * @param r
+	 *            the first component.
+	 * @param g
+	 *            the second component.
+	 * @param b
+	 *            the third component.
+	 * @param a
+	 *            the fourth component.
+	 */
 	public void setSwizzle(Swizzle r, Swizzle g, Swizzle b, Swizzle a) {
 		bind();
 		IntBuffer swizzle = BufferUtils.createIntBuffer(4);
@@ -90,6 +128,18 @@ public abstract class Texture extends GLObject {
 		unbind();
 	}
 	
+	/**
+	 * Sets the color of the border.
+	 * 
+	 * @param r
+	 *            red component.
+	 * @param g
+	 *            green component.
+	 * @param b
+	 *            blue component.
+	 * @param a
+	 *            alpha component.
+	 */
 	public void setBorderColor(float r, float g, float b, float a) {
 		bind();
 		FloatBuffer color = BufferUtils.createFloatBuffer(4);
@@ -98,13 +148,27 @@ public abstract class Texture extends GLObject {
 		unbind();
 	}
 	
-	public void setDepthComparisonMode(TextureComparison mode) {
+	/**
+	 * Sets the comparison mode for the texture. Only useful if the texture has
+	 * a depth component.
+	 * 
+	 * @param func
+	 *            depth comparison function.
+	 */
+	public void setDepthComparisonMode(TextureComparison func) {
 		bind();
-		GL11.glTexParameteri(target(), GL14.GL_TEXTURE_COMPARE_MODE, mode.mode);
-		GL11.glTexParameteri(target(), GL14.GL_TEXTURE_COMPARE_FUNC, mode.func);
+		GL11.glTexParameteri(target(), GL14.GL_TEXTURE_COMPARE_MODE, func.mode);
+		GL11.glTexParameteri(target(), GL14.GL_TEXTURE_COMPARE_FUNC, func.func);
 		unbind();
 	}
 	
+	/**
+	 * Sets the wrap mode for each axis of the texture. Excess arguments are
+	 * ignored.
+	 * 
+	 * @param mode
+	 *            texture edge wrap mode.
+	 */
 	public void setWrap(TextureWrap s, TextureWrap t, TextureWrap r) {
 		bind();
 		wrap(s, t, r);
