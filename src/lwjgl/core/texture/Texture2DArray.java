@@ -217,7 +217,7 @@ public class Texture2DArray extends Texture implements FBOAttachable {
 		status.add(Logging.logText(
 				String.format("%-16s:\t[%.3f, %.3f, %.3f, %.3f]", "Border Color", borderColor.get(), borderColor.get(), borderColor.get(), borderColor.get()),
 				1));
-		if (format.depth) {
+		if (format != null && format.depth) {
 			TextureComparison func = comparemode == GL11.GL_NONE ? TextureComparison.NONE : comparefunc;
 			status.add(Logging.logText(String.format("%-24s:\t%s", "Texture Compare Function", func), 1));
 			if (format.stencil)
