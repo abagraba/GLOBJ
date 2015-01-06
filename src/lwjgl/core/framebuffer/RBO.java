@@ -7,13 +7,14 @@ import java.util.List;
 import lwjgl.core.Context;
 import lwjgl.core.GL;
 import lwjgl.core.GLObject;
+import lwjgl.core.framebuffer.values.FBOAttachment;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
-public class RBO extends GLObject {
+public class RBO extends GLObject implements FBOAttachable {
 	
 	protected static final HashMap<String, RBO> rboname = new HashMap<String, RBO>();
 	protected static final HashMap<Integer, RBO> rboid = new HashMap<Integer, RBO>();
@@ -116,22 +117,38 @@ public class RBO extends GLObject {
 		bind(lastRBO);
 	}
 	
+	/**************************************************/
+	/****************** FBOAttachable *****************/
+	/**************************************************/
+	/**
+	 * @param level
+	 *            mipmap level.
+	 * @param layer
+	 *            z offset.
+	 */
+	@Override
+	public void attachToFBO(FBOAttachment attachment, int level, int layer) {
+		GL30.glFramebufferRenderbuffer(GL30.GL_DRAW_FRAMEBUFFER, attachment.value, GL30.GL_RENDERBUFFER, id);
+	}
+	
+	/**************************************************/
+	
 	@Override
 	public String[] status() {
 		if (id == 0)
 			return new String[] { Logging.logText("RBO:", "Renderbuffer does not exist.", 0) };
 		GL.flushErrors();
 		bind();
-		int w = ARBFramebufferObject.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_WIDTH);
-		int h = ARBFramebufferObject.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_HEIGHT);
-		int r = ARBFramebufferObject.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_RED_SIZE);
-		int g = ARBFramebufferObject.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_GREEN_SIZE);
-		int b = ARBFramebufferObject.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_BLUE_SIZE);
-		int a = ARBFramebufferObject.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_ALPHA_SIZE);
-		int d = ARBFramebufferObject.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_DEPTH_SIZE);
-		int s = ARBFramebufferObject.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_STENCIL_SIZE);
-		int n = ARBFramebufferObject.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_SAMPLES);
-		int f = ARBFramebufferObject.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_INTERNAL_FORMAT);
+		int w = GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_WIDTH);
+		int h = GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_HEIGHT);
+		int r = GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_RED_SIZE);
+		int g = GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_GREEN_SIZE);
+		int b = GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_BLUE_SIZE);
+		int a = GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_ALPHA_SIZE);
+		int d = GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_DEPTH_SIZE);
+		int s = GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_STENCIL_SIZE);
+		int n = GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_SAMPLES);
+		int f = GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_INTERNAL_FORMAT);
 		unbind();
 		List<String> status = new ArrayList<String>();
 		List<String> errors = GL.readErrorsToList();
