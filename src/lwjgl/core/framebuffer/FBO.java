@@ -8,15 +8,16 @@ import lwjgl.core.Context;
 import lwjgl.core.GL;
 import lwjgl.core.GLObject;
 import lwjgl.core.framebuffer.values.FBOAttachment;
-import lwjgl.core.texture.Texture1D;
-import lwjgl.core.texture.Texture2D;
+import lwjgl.core.framebuffer.values.FBOError;
+import lwjgl.core.texture.Texture;
 import lwjgl.core.texture.values.CubemapTarget;
-import lwjgl.core.texture.values.Texture1DTarget;
-import lwjgl.core.texture.values.Texture2DTarget;
+import lwjgl.core.values.DataType;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.opengl.ARBFramebufferObject;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL43;
 
 public class FBO extends GLObject {
 	
@@ -205,13 +206,6 @@ public class FBO extends GLObject {
 		unbindDraw();
 	}
 	
-	private void attach(RBO rbo, int point) {
-		bind();
-		int i = rbo == null ? 0 : rbo.id;
-		GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, point, GL30.GL_RENDERBUFFER, i);
-		unbind();
-	}
-	
 	public static String[] constants() {
 		GL.flushErrors();
 		int rs = Context.intConst(GL30.GL_MAX_RENDERBUFFER_SIZE);
@@ -228,35 +222,83 @@ public class FBO extends GLObject {
 	
 	@Override
 	public String[] status() {
-		/*
-		 * if (rbo == 0) return "-\tRenderbuffer does not exist.";
-		 * GL.flushErrors(); bind(); int w =
-		 * ARBFramebufferObject.glGetRenderbufferParameteri(
-		 * GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_WIDTH); int h =
-		 * ARBFramebufferObject.glGetRenderbufferParameteri(
-		 * GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_HEIGHT); int r =
-		 * ARBFramebufferObject.glGetRenderbufferParameteri(
-		 * GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_RED_SIZE); int g =
-		 * ARBFramebufferObject.glGetRenderbufferParameteri(
-		 * GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_GREEN_SIZE); int b =
-		 * ARBFramebufferObject.glGetRenderbufferParameteri(
-		 * GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_BLUE_SIZE); int a =
-		 * ARBFramebufferObject.glGetRenderbufferParameteri(
-		 * GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_ALPHA_SIZE); int d =
-		 * ARBFramebufferObject.glGetRenderbufferParameteri(
-		 * GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_DEPTH_SIZE); int s =
-		 * ARBFramebufferObject.glGetRenderbufferParameteri(
-		 * GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_STENCIL_SIZE); int n =
-		 * ARBFramebufferObject.glGetRenderbufferParameteri(
-		 * GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_SAMPLES); int f =
-		 * ARBFramebufferObject.glGetRenderbufferParameteri(
-		 * GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_INTERNAL_FORMAT);
-		 * bindLast(); String err = GL.readErrors(); String out = String.format(
-		 * "-\t%-12s:\t%s\n-\t%dx%d Renderbuffer Object. %d samples.\n-\t%-12s:\t[%d, %d, %d, %d]\n-\t%-12s:\t%d\n-\t%-12s:\t%d\n-\t%-12s:\t%d"
-		 * , new Object[]{"Renderbuffer", name, w, h, n, "RGBA", r, g, b, a,
-		 * "Depth:", d, "Stencil", s, "Format", f}); if (err == null) return
-		 * out; return "ERRORS:\n" + err + out;
-		 */
-		return null;
+		GL.flushErrors();
+		bindDraw();
+		List<String> status = new ArrayList<String>();
+		FBOError err = FBOError.get(GL30.glCheckFramebufferStatus(GL30.GL_DRAW_FRAMEBUFFER));
+		if (err != FBOError.NONE) {
+			unbindDraw();
+			status.add(Logging.logText("FBO:", name, 0));
+			status.add(Logging.logText("Framebuffer incomplete: " + err, 1));
+			return status.toArray(new String[status.size()]);
+		}
+		
+		int w = 0, h = 0, l = 0, s = 0, f = 0;
+		if (GL.versionCheck(4, 3)) {
+			w = GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER, GL43.GL_FRAMEBUFFER_DEFAULT_WIDTH);
+			h = GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER, GL43.GL_FRAMEBUFFER_DEFAULT_HEIGHT);
+			l = GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER, GL43.GL_FRAMEBUFFER_DEFAULT_LAYERS);
+			s = GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER, GL43.GL_FRAMEBUFFER_DEFAULT_SAMPLES);
+			f = GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER, GL43.GL_FRAMEBUFFER_DEFAULT_FIXED_SAMPLE_LOCATIONS);
+		}
+		status.add(Logging.logText("FBO:", name, 0));
+		for (FBOAttachment attach : FBOAttachment.values())
+			if (attach != FBOAttachment.DEPTH_STENCIL)
+				statusBinding(status, attach);
+		unbindDraw();
+		if (GL.versionCheck(4, 3)) {
+			status.add(Logging.logText(String.format("%-32s:\t%d x %d \t%d layers", "Default Dimensions", w, h, l), 1));
+			status.add(Logging.logText(String.format("%-32s:\t%d", "Default Samples", s), 1));
+			status.add(Logging.logText(String.format("%-32s:\t%d", "Default Fixed Sample Locations", f), 1));
+		}
+		List<String> errors = GL.readErrorsToList();
+		for (String error : errors)
+			status.add(Logging.logText("ERROR:", error, 0));
+		return status.toArray(new String[status.size()]);
 	}
+	
+	private void statusBinding(List<String> status, FBOAttachment attach) {
+		int ca = Context.intConst(GL30.GL_MAX_COLOR_ATTACHMENTS);
+		if (attach.colorindex >= ca)
+			return;
+		int type = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE);
+		switch (type) {
+			case GL11.GL_NONE:
+				return;
+			case GL11.GL_TEXTURE:
+				Texture tex = Texture.getTexture(GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value,
+						GL30.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME));
+				int level = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL);
+				int layer = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER);
+				status.add(Logging.logText(attach.toString(), 1));
+				status.add(Logging.logText(String.format("%-16s:\t%s", "Texture", tex), 2));
+				status.add(Logging.logText(String.format("%-16s:\t%d", "Layer", layer), 3));
+				status.add(Logging.logText(String.format("%-16s:\t%d", "Mipmap Level", level), 3));
+				return;
+			case GL30.GL_FRAMEBUFFER_DEFAULT:
+				status.add(Logging.logText(attach.toString(), 1));
+				status.add(Logging.logText("Default Framebuffer", 2));
+				return;
+			case GL30.GL_RENDERBUFFER:
+				RBO rbo = RBO
+						.get(GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME));
+				int r = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE);
+				int g = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE);
+				int b = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE);
+				int a = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE);
+				int d = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE);
+				int s = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE);
+				DataType f = DataType.get(GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value,
+						GL30.GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE));
+				// TODO sRGB
+				status.add(Logging.logText(attach.toString(), 1));
+				status.add(Logging.logText(String.format("%-16s:\t%s", "Renderbuffer", rbo), 2));
+				status.add(Logging.logText(String.format("%-16s:\t(%d, %d, %d, %d)", "RGBA Size", r, g, b, a), 3));
+				status.add(Logging.logText(String.format("%-16s:\t%d", "Depth Size", d), 3));
+				status.add(Logging.logText(String.format("%-16s:\t%d", "Stencil Size", s), 3));
+				status.add(Logging.logText(String.format("%-16s:\t%s", "Data Format", f), 3));
+				return;
+		}
+	}
+	
 }

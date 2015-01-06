@@ -60,6 +60,29 @@ public abstract class Texture extends GLObject {
 		unbind();
 	}
 	
+	public static Texture getTexture(int id){
+		Texture tex = Texture1D.get(id);
+		if (tex != null)
+			return tex;
+		tex = Texture1DArray.get(id);
+		if (tex != null)
+			return tex;
+		tex = Texture2D.get(id);
+		if (tex != null)
+			return tex;
+		tex = Texture2DArray.get(id);
+		if (tex != null)
+			return tex;
+		tex = Texture3D.get(id);
+		if (tex != null)
+			return tex;
+		tex = TextureCubemap.get(id);
+		if (tex != null)
+			return tex;
+		tex = TextureCubemapArray.get(id);
+			return tex;
+	}
+	
 	/**
 	 * Sets the level of detail bounds for the texture.
 	 * 

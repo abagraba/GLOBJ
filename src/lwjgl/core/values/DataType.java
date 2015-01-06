@@ -1,9 +1,9 @@
 package lwjgl.core.values;
 
-
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL31;
 
 public enum DataType {
 	
@@ -14,7 +14,9 @@ public enum DataType {
 	UINT("Unsigned Integer", GL11.GL_UNSIGNED_INT),
 	INT("Integer", GL11.GL_INT),
 	FLOAT("Float", GL11.GL_FLOAT),
-
+	NORM("Normalized Fixed Point", GL31.GL_SIGNED_NORMALIZED),
+	UNORM("Unsigned Normalized Fixed Point", GL30.GL_UNSIGNED_NORMALIZED),
+	
 	UBYTE_332("Unsigned Byte 3 3 2", GL12.GL_UNSIGNED_BYTE_3_3_2),
 	UBYTE_233R("Unsigned Byte 2 3 3 Reversed", GL12.GL_UNSIGNED_BYTE_2_3_3_REV),
 	
@@ -39,14 +41,14 @@ public enum DataType {
 		this.value = value;
 	}
 	
-	public static DataType get(int i){
-		for (DataType type : values()) 
+	public static DataType get(int i) {
+		for (DataType type : values())
 			if (type.value == i)
 				return type;
 		return null;
 	}
 	
-	public String toString(){
+	public String toString() {
 		return name;
 	}
 	

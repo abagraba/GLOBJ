@@ -14,5 +14,9 @@ public abstract class GLObject {
 	protected abstract void unbind();
 	
 	public abstract String[] status();
+
+	public String toString(){
+		return name;
+	}
 	
 }
