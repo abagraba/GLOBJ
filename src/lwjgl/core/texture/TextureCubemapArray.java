@@ -114,26 +114,26 @@ public class TextureCubemapArray extends Texture implements FBOAttachable {
 		GL11.glTexParameteri(target(), GL11.GL_TEXTURE_WRAP_T, t.value);
 	}
 	
-	public void initializeTexture(int w, int h, int cubemaps, int maps, TextureFormat texformat) {
+	public TextureCubemapArray initializeTexture(int w, int h, int cubemaps, int maps, TextureFormat texformat) {
 		if (init) {
 			Logging.globjError(TextureCubemapArray.class, name, "Cannot initialize", "Already initialized");
-			return;
+			return this;
 		}
 		if (w != h) {
 			Logging.globjError(TextureCubemapArray.class, name, "Cannot initialize", "Dimensions (" + w + " x " + h + " x " + cubemaps + ") must be square.");
-			return;
+			return this;
 		}
 		if (w < 0 || h < 0 || cubemaps < 0) {
 			Logging.globjError(TextureCubemapArray.class, name, "Cannot initialize", "Dimensions (" + w + " x " + h + " x " + cubemaps
 					+ ") must be non-negative");
-			return;
+			return this;
 		}
 		int max = Context.intConst(GL13.GL_MAX_CUBE_MAP_TEXTURE_SIZE);
 		int maxlayers = Context.intConst(GL30.GL_MAX_ARRAY_TEXTURE_LAYERS);
 		if (w > max || h > max || cubemaps * 6 > maxlayers) {
 			Logging.globjError(TextureCubemapArray.class, name, "Cannot initialize", "Dimensions (" + w + " x " + h + " x " + cubemaps
 					+ ") too large. Device only supports textures up to (" + max + " x " + max + " x " + maxlayers / 6 + ")");
-			return;
+			return this;
 		}
 		maps = Math.max(1, maps);
 		bind();
@@ -149,6 +149,7 @@ public class TextureCubemapArray extends Texture implements FBOAttachable {
 			}
 		}
 		unbind();
+		return this;
 	}
 	
 	/*
@@ -176,7 +177,6 @@ public class TextureCubemapArray extends Texture implements FBOAttachable {
 		unbind();
 	}
 	
-	
 	/**************************************************/
 	/****************** FBOAttachable *****************/
 	/**************************************************/
@@ -184,7 +184,8 @@ public class TextureCubemapArray extends Texture implements FBOAttachable {
 	 * @param level
 	 *            mipmap level.
 	 * @param layer
-	 *            cubemap index and face. Use 6 * cubemap index + {@link CubemapTarget#layer}.
+	 *            cubemap index and face. Use 6 * cubemap index +
+	 *            {@link CubemapTarget#layer}.
 	 */
 	@Override
 	public void attachToFBO(FBOAttachment attachment, int level, int layer) {

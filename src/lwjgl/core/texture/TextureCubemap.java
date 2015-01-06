@@ -113,24 +113,24 @@ public class TextureCubemap extends Texture implements FBOAttachable {
 		GL11.glTexParameteri(target(), GL11.GL_TEXTURE_WRAP_T, t.value);
 	}
 	
-	public void initializeTexture(int w, int h, int maps, TextureFormat texformat) {
+	public TextureCubemap initializeTexture(int w, int h, int maps, TextureFormat texformat) {
 		if (init) {
 			Logging.globjError(TextureCubemap.class, name, "Cannot initialize", "Already initialized");
-			return;
+			return this;
 		}
 		if (w != h) {
 			Logging.globjError(TextureCubemap.class, name, "Cannot initialize", "Dimensions (" + w + " x " + h + ") must be square.");
-			return;
+			return this;
 		}
 		if (w < 0 || h < 0) {
 			Logging.globjError(TextureCubemap.class, name, "Cannot initialize", "Dimensions (" + w + " x " + h + ") must be non-negative");
-			return;
+			return this;
 		}
 		int max = Context.intConst(GL13.GL_MAX_CUBE_MAP_TEXTURE_SIZE);
 		if (w > max || h > max) {
 			Logging.globjError(TextureCubemap.class, name, "Cannot initialize", "Dimensions (" + w + " x " + h
 					+ ") too large. Device only supports textures up to (" + max + " x " + max + ")");
-			return;
+			return this;
 		}
 		maps = Math.max(1, maps);
 		bind();
@@ -147,6 +147,7 @@ public class TextureCubemap extends Texture implements FBOAttachable {
 			}
 		}
 		unbind();
+		return this;
 	}
 	
 	/*

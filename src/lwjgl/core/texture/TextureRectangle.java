@@ -111,20 +111,20 @@ public class TextureRectangle extends Texture implements FBOAttachable {
 		GL11.glTexParameteri(target(), GL11.GL_TEXTURE_WRAP_T, t.value);
 	}
 	
-	public void initializeTexture(int w, int h, TextureFormat texformat) {
+	public TextureRectangle initializeTexture(int w, int h, TextureFormat texformat) {
 		if (init) {
 			Logging.globjError(TextureRectangle.class, name, "Cannot initialize", "Already initialized");
-			return;
+			return this;
 		}
 		if (w < 0 || h < 0) {
 			Logging.globjError(TextureRectangle.class, name, "Cannot initialize", "Dimensions (" + w + " x " + h + ") must be non-negative");
-			return;
+			return this;
 		}
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
 		if (w > max || h > max) {
 			Logging.globjError(TextureRectangle.class, name, "Cannot initialize", "Dimensions (" + w + " x " + h
 					+ ") too large. Device only supports textures up to (" + max + " x " + max + ")");
-			return;
+			return this;
 		}
 		bind();
 		if (GL.versionCheck(4, 2)) {
@@ -135,6 +135,7 @@ public class TextureRectangle extends Texture implements FBOAttachable {
 			GL11.glTexImage2D(target(), 0, texformat.value, w, h, 0, texformat.base, DataType.UBYTE.value, (ByteBuffer) null);
 		}
 		unbind();
+		return this;
 	}
 	
 	/**
@@ -162,6 +163,7 @@ public class TextureRectangle extends Texture implements FBOAttachable {
 	public void attachToFBO(FBOAttachment attachment, int level, int layer) {
 		GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value, target(), id, 0);
 	}
+	
 	/**************************************************/
 	
 	@Override

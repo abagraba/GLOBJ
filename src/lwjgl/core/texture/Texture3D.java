@@ -111,20 +111,20 @@ public class Texture3D extends Texture implements FBOAttachable {
 		GL11.glTexParameteri(target(), GL12.GL_TEXTURE_WRAP_R, r.value);
 	}
 	
-	public void initializeTexture(int w, int h, int d, int maps, TextureFormat texformat) {
+	public Texture3D initializeTexture(int w, int h, int d, int maps, TextureFormat texformat) {
 		if (init) {
 			Logging.globjError(Texture3D.class, name, "Cannot initialize", "Already initialized");
-			return;
+			return this;
 		}
 		if (w < 0 || h < 0 || d < 0) {
 			Logging.globjError(Texture3D.class, name, "Cannot initialize", "Dimensions (" + w + " x " + h + " x " + d + ") must be non-negative");
-			return;
+			return this;
 		}
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
 		if (w > max || h > max || d > max) {
 			Logging.globjError(Texture3D.class, name, "Cannot initialize", "Dimensions (" + w + " x " + h + " x " + d
 					+ ") too large. Device only supports textures up to (" + max + " x " + max + " x " + max + ")");
-			return;
+			return this;
 		}
 		maps = Math.max(1, maps);
 		bind();
@@ -141,6 +141,7 @@ public class Texture3D extends Texture implements FBOAttachable {
 			}
 		}
 		unbind();
+		return this;
 	}
 	
 	/**

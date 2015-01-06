@@ -109,21 +109,21 @@ public class Texture1DArray extends Texture implements FBOAttachable {
 		GL11.glTexParameteri(target(), GL11.GL_TEXTURE_WRAP_S, s.value);
 	}
 	
-	public void initializeTexture(int w, int layers, int maps, TextureFormat texformat) {
+	public Texture1DArray initializeTexture(int w, int layers, int maps, TextureFormat texformat) {
 		if (init) {
 			Logging.globjError(Texture1DArray.class, name, "Cannot initialize", "Already initialized");
-			return;
+			return this;
 		}
 		if (w < 0 || layers < 0) {
 			Logging.globjError(Texture1DArray.class, name, "Cannot initialize", "Dimensions (" + w + " x " + layers + ") must be non-negative");
-			return;
+			return this;
 		}
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
 		int maxlayers = Context.intConst(GL30.GL_MAX_ARRAY_TEXTURE_LAYERS);
 		if (w > max || layers > maxlayers) {
 			Logging.globjError(Texture1DArray.class, name, "Cannot initialize", "Dimensions (" + w + " x " + layers
 					+ ") too large. Device only supports textures up to (" + max + " x " + maxlayers + ")");
-			return;
+			return this;
 		}
 		maps = Math.max(1, maps);
 		bind();
@@ -138,6 +138,7 @@ public class Texture1DArray extends Texture implements FBOAttachable {
 			}
 		}
 		unbind();
+		return this;
 	}
 	
 	/**
