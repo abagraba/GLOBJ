@@ -77,6 +77,10 @@ public class Texture2D extends Texture implements FBOAttachable {
 	}
 	
 	public static void bind(String name) {
+		if (name == null){
+			bind(0);
+			return;
+		}
 		Texture2D t = get(name);
 		if (t == null) {
 			Logging.globjError(Texture2D.class, name, "Cannot bind", "Does not exist");

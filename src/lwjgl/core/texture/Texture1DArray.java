@@ -74,6 +74,10 @@ public class Texture1DArray extends Texture implements FBOAttachable {
 	}
 	
 	public static void bind(String name) {
+		if (name == null){
+			bind(0);
+			return;
+		}
 		Texture1DArray t = get(name);
 		if (t == null) {
 			Logging.globjError(Texture1DArray.class, name, "Cannot bind", "Does not exist");

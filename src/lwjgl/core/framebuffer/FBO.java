@@ -93,6 +93,10 @@ public class FBO extends GLObject {
 	}
 	
 	public static void bind(String name) {
+		if (name == null){
+			bind(0);
+			return;
+		}
 		FBO f = get(name);
 		if (f == null) {
 			Logging.glError("Cannot bind FBO [" + name + "]. Does not exist.", null);

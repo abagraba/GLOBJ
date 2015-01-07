@@ -78,6 +78,10 @@ public class TextureCubemapArray extends Texture implements FBOAttachable {
 	}
 	
 	public static void bind(String name) {
+		if (name == null){
+			bind(0);
+			return;
+		}
 		TextureCubemapArray t = get(name);
 		if (t == null) {
 			Logging.globjError(TextureCubemapArray.class, name, "Cannot bind", "Does not exist");

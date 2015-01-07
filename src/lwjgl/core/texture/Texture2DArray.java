@@ -74,6 +74,10 @@ public class Texture2DArray extends Texture implements FBOAttachable {
 	}
 	
 	public static void bind(String name) {
+		if (name == null){
+			bind(0);
+			return;
+		}
 		Texture2DArray t = get(name);
 		if (t == null) {
 			Logging.globjError(Texture2DArray.class, name, "Cannot bind", "Does not exist");

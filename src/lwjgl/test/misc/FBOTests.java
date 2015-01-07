@@ -6,6 +6,8 @@ import org.lwjgl.opengl.GL11;
 
 import lwjgl.core.GL;
 import lwjgl.core.RenderTarget;
+import lwjgl.core.VBO;
+import lwjgl.core.VBOTarget;
 import lwjgl.core.framebuffer.FBO;
 import lwjgl.core.framebuffer.RBO;
 import lwjgl.core.framebuffer.values.FBOAttachment;
@@ -23,14 +25,18 @@ public class FBOTests extends RenderTarget {
 			e.printStackTrace();
 		}
 	}
-	
+	VBO vbo;
+	FBO fbo;
 	@Override
 	public void init() {
+		
+		vbo = VBO.create("Test", VBOTarget.ARRAY);
+		
 		Logging.logInfo(FBO.constants());
 		
 		Texture2D c0 = Texture2D.create("Color 0");
 		Texture2D d = Texture2D.create("Depth");
-		FBO fbo = FBO.create("Test RBO");
+		fbo = FBO.create("Test RBO");
 		Logging.logObject(fbo);
 		fbo.attach(c0, FBOAttachment.COLOR0, 0, 0);
 		Logging.logObject(fbo);
@@ -40,7 +46,7 @@ public class FBOTests extends RenderTarget {
 		Logging.logObject(fbo);
 		d.initializeTexture(16, 16, 1, TextureFormat.D16);
 		Logging.logObject(fbo);
-		
+		FBO.bind(null);
 	}
 	
 	@Override

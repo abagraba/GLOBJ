@@ -101,6 +101,10 @@ public class RBO extends GLObject implements FBOAttachable {
 	}
 	
 	public static void bind(String name) {
+		if (name == null){
+			bind(0);
+			return;
+		}
 		RBO r = get(name);
 		if (r == null) {
 			Logging.glError("Cannot bind RBO [" + name + "]. Does not exist.", null);

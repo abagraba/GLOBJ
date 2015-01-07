@@ -74,6 +74,10 @@ public class Texture3D extends Texture implements FBOAttachable {
 	}
 	
 	public static void bind(String name) {
+		if (name == null){
+			bind(0);
+			return;
+		}
 		Texture3D t = get(name);
 		if (t == null) {
 			Logging.globjError(Texture3D.class, name, "Cannot bind", "Does not exist");

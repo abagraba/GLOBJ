@@ -75,6 +75,10 @@ public class TextureRectangle extends Texture implements FBOAttachable {
 	}
 	
 	public static void bind(String name) {
+		if (name == null){
+			bind(0);
+			return;
+		}
 		TextureRectangle t = get(name);
 		if (t == null) {
 			Logging.globjError(TextureRectangle.class, name, "Cannot bind", "Does not exist");
