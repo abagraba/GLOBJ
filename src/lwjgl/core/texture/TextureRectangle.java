@@ -67,48 +67,35 @@ public class TextureRectangle extends Texture implements FBOAttachable {
 		return GL31.GL_TEXTURE_RECTANGLE;
 	}
 	
-	protected static void bind(int tex) {
+	/**************************************************/
+	
+	private static void bind(int tex) {
 		curr.update(tex);
 		if (tex == curr.last())
 			return;
 		GL11.glBindTexture(GL31.GL_TEXTURE_RECTANGLE, tex);
 	}
 	
-	public static void bind(String name) {
-		if (name == null){
-			bind(0);
-			return;
-		}
-		TextureRectangle t = get(name);
-		if (t == null) {
-			Logging.globjError(TextureRectangle.class, name, "Cannot bind", "Does not exist");
-			return;
-		}
-		t.bind();
-	}
-	
 	public void bind() {
 		bind(id);
 	}
 	
-	protected void unbind() {
+	public void bindNone() {
+		bind(0);
+	}
+	
+	protected void undobind() {
 		bind(curr.revert());
 	}
 	
 	public void destroy() {
 		if (curr.value() == id)
-			bind(0);
+			bindNone();
 		GL11.glDeleteTextures(id);
 		tracker.remove(this);
 	}
 	
-	public static void destroy(String name) {
-		TextureRectangle tex = tracker.get(name);
-		if (tex != null)
-			tex.destroy();
-		else
-			Logging.globjError(TextureRectangle.class, name, "Cannot delete", "Does not exist");
-	}
+	/**************************************************/
 	
 	protected void wrap(TextureWrap s, TextureWrap t, TextureWrap r) {
 		GL11.glTexParameteri(target(), GL11.GL_TEXTURE_WRAP_S, s.value);
@@ -138,7 +125,7 @@ public class TextureRectangle extends Texture implements FBOAttachable {
 		else {
 			GL11.glTexImage2D(target(), 0, texformat.value, w, h, 0, texformat.base, DataType.UBYTE.value, (ByteBuffer) null);
 		}
-		unbind();
+		undobind();
 		return this;
 	}
 	
@@ -151,7 +138,7 @@ public class TextureRectangle extends Texture implements FBOAttachable {
 	public void setData(int x, int y, int w, int h, ImageFormat format, DataType type, ByteBuffer data) {
 		bind();
 		GL11.glTexSubImage2D(target(), 0, x, y, w, h, format.value, type.value, data);
-		unbind();
+		undobind();
 	}
 	
 	/**************************************************/
@@ -196,7 +183,7 @@ public class TextureRectangle extends Texture implements FBOAttachable {
 		TextureComparison comparefunc = TextureComparison.get(GL11.glGetTexParameteri(target(), GL14.GL_TEXTURE_COMPARE_FUNC));
 		TextureFormat format = TextureFormat.get(GL11.glGetTexLevelParameteri(target(), 0, GL11.GL_TEXTURE_INTERNAL_FORMAT));
 		GL11.glGetTexParameter(target(), GL11.GL_TEXTURE_BORDER_COLOR, borderColor);
-		unbind();
+		undobind();
 		
 		List<String> status = new ArrayList<String>();
 		List<String> errors = GL.readErrorsToList();

@@ -109,7 +109,7 @@ public class FBO extends GLObject {
 		bind(id);
 	}
 	
-	protected void unbind() {
+	protected void undobind() {
 		bind(lastFBOD);
 	}
 	

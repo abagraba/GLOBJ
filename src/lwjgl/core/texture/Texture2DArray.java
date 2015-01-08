@@ -66,48 +66,35 @@ public class Texture2DArray extends Texture implements FBOAttachable {
 		return GL30.GL_TEXTURE_2D_ARRAY;
 	}
 	
-	protected static void bind(int tex) {
+	/**************************************************/
+
+	private static void bind(int tex) {
 		curr.update(tex);
 		if (tex == curr.last())
 			return;
 		GL11.glBindTexture(GL30.GL_TEXTURE_2D_ARRAY, tex);
 	}
 	
-	public static void bind(String name) {
-		if (name == null){
-			bind(0);
-			return;
-		}
-		Texture2DArray t = get(name);
-		if (t == null) {
-			Logging.globjError(Texture2DArray.class, name, "Cannot bind", "Does not exist");
-			return;
-		}
-		t.bind();
-	}
-	
 	public void bind() {
 		bind(id);
 	}
 	
-	protected void unbind() {
+	public void bindNone() {
+		bind(0);
+	}
+	
+	protected void undobind() {
 		bind(curr.revert());
 	}
 	
 	public void destroy() {
 		if (curr.value() == id)
-			bind(0);
+			bindNone();
 		GL11.glDeleteTextures(id);
 		tracker.remove(this);
 	}
 	
-	public static void destroy(String name) {
-		Texture2DArray tex = tracker.get(name);
-		if (tex != null)
-			tex.destroy();
-		else
-			Logging.globjError(Texture2DArray.class, name, "Cannot delete", "Does not exist");
-	}
+	/**************************************************/
 	
 	protected void wrap(TextureWrap s, TextureWrap t, TextureWrap r) {
 		GL11.glTexParameteri(target(), GL11.GL_TEXTURE_WRAP_S, s.value);
@@ -143,7 +130,7 @@ public class Texture2DArray extends Texture implements FBOAttachable {
 				h = Math.max(1, h / 2);
 			}
 		}
-		unbind();
+		undobind();
 		return this;
 	}
 	
@@ -156,7 +143,7 @@ public class Texture2DArray extends Texture implements FBOAttachable {
 	public void setData(int x, int y, int w, int h, int layeri, int layerf, int map, ImageFormat format, DataType type, ByteBuffer data) {
 		bind();
 		GL12.glTexSubImage3D(target(), map, x, y, layeri, w, h, layerf, format.value, type.value, data);
-		unbind();
+		undobind();
 	}
 	
 	/**************************************************/
@@ -203,7 +190,7 @@ public class Texture2DArray extends Texture implements FBOAttachable {
 		TextureComparison comparefunc = TextureComparison.get(GL11.glGetTexParameteri(target(), GL14.GL_TEXTURE_COMPARE_FUNC));
 		TextureFormat format = TextureFormat.get(GL11.glGetTexLevelParameteri(target(), mipmin, GL11.GL_TEXTURE_INTERNAL_FORMAT));
 		GL11.glGetTexParameter(target(), GL11.GL_TEXTURE_BORDER_COLOR, borderColor);
-		unbind();
+		undobind();
 		
 		List<String> status = new ArrayList<String>();
 		List<String> errors = GL.readErrorsToList();

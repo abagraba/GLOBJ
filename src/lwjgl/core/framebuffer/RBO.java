@@ -39,7 +39,7 @@ public class RBO extends GLObject implements FBOAttachable {
 		GL.flushErrors();
 		rbo.bind();
 		GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, format, w, h);
-		rbo.unbind();
+		rbo.undobind();
 		if (checkError())
 			return null;
 		
@@ -117,7 +117,7 @@ public class RBO extends GLObject implements FBOAttachable {
 		bind(id);
 	}
 	
-	protected void unbind() {
+	protected void undobind() {
 		bind(lastRBO);
 	}
 	
@@ -153,7 +153,7 @@ public class RBO extends GLObject implements FBOAttachable {
 		int s = GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_STENCIL_SIZE);
 		int n = GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_SAMPLES);
 		int f = GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_INTERNAL_FORMAT);
-		unbind();
+		undobind();
 		List<String> status = new ArrayList<String>();
 		List<String> errors = GL.readErrorsToList();
 		for (String error : errors)

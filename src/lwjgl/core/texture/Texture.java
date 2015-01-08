@@ -46,6 +46,14 @@ public abstract class Texture extends GLObject {
 	 * Initialize texture with gltexstorage fallback to glteximage
 	 */
 	
+	public static void bind(Texture tex) {
+		tex.bind();
+	}
+	
+	public static void unbind(Texture tex) {
+		tex.bindNone();
+	}
+	
 	protected boolean init = false;
 	
 	protected Texture(String name) {
@@ -57,10 +65,10 @@ public abstract class Texture extends GLObject {
 	public void genMipmaps() {
 		bind();
 		GL30.glGenerateMipmap(target());
-		unbind();
+		undobind();
 	}
 	
-	public static Texture getTexture(int id){
+	public static Texture getTexture(int id) {
 		Texture tex = Texture1D.get(id);
 		if (tex != null)
 			return tex;
@@ -80,7 +88,7 @@ public abstract class Texture extends GLObject {
 		if (tex != null)
 			return tex;
 		tex = TextureCubemapArray.get(id);
-			return tex;
+		return tex;
 	}
 	
 	/**
@@ -98,7 +106,7 @@ public abstract class Texture extends GLObject {
 		GL11.glTexParameterf(target(), GL12.GL_TEXTURE_MIN_LOD, min);
 		GL11.glTexParameterf(target(), GL12.GL_TEXTURE_MAX_LOD, max);
 		GL11.glTexParameterf(target(), GL14.GL_TEXTURE_LOD_BIAS, bias);
-		unbind();
+		undobind();
 	}
 	
 	/**
@@ -113,7 +121,7 @@ public abstract class Texture extends GLObject {
 		bind();
 		GL11.glTexParameteri(target(), GL11.GL_TEXTURE_MIN_FILTER, min.value);
 		GL11.glTexParameteri(target(), GL11.GL_TEXTURE_MAG_FILTER, mag.value);
-		unbind();
+		undobind();
 	}
 	
 	/**
@@ -128,7 +136,7 @@ public abstract class Texture extends GLObject {
 		bind();
 		GL11.glTexParameteri(target(), GL12.GL_TEXTURE_BASE_LEVEL, base);
 		GL11.glTexParameteri(target(), GL12.GL_TEXTURE_MAX_LEVEL, max);
-		unbind();
+		undobind();
 	}
 	
 	/**
@@ -148,7 +156,7 @@ public abstract class Texture extends GLObject {
 		IntBuffer swizzle = BufferUtils.createIntBuffer(4);
 		swizzle.put(new int[] { r.value, g.value, b.value, a.value }).flip();
 		GL11.glTexParameter(target(), GL33.GL_TEXTURE_SWIZZLE_RGBA, swizzle);
-		unbind();
+		undobind();
 	}
 	
 	/**
@@ -168,7 +176,7 @@ public abstract class Texture extends GLObject {
 		FloatBuffer color = BufferUtils.createFloatBuffer(4);
 		color.put(new float[] { r, g, b, a }).flip();
 		GL11.glTexParameter(target(), GL11.GL_TEXTURE_BORDER_COLOR, color);
-		unbind();
+		undobind();
 	}
 	
 	/**
@@ -182,7 +190,7 @@ public abstract class Texture extends GLObject {
 		bind();
 		GL11.glTexParameteri(target(), GL14.GL_TEXTURE_COMPARE_MODE, func.mode);
 		GL11.glTexParameteri(target(), GL14.GL_TEXTURE_COMPARE_FUNC, func.func);
-		unbind();
+		undobind();
 	}
 	
 	/**
@@ -195,7 +203,7 @@ public abstract class Texture extends GLObject {
 	public void setWrap(TextureWrap s, TextureWrap t, TextureWrap r) {
 		bind();
 		wrap(s, t, r);
-		unbind();
+		undobind();
 	}
 	
 	protected abstract void wrap(TextureWrap s, TextureWrap t, TextureWrap r);

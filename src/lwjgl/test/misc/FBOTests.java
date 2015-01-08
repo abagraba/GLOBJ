@@ -1,5 +1,11 @@
 package lwjgl.test.misc;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
@@ -25,18 +31,38 @@ public class FBOTests extends RenderTarget {
 			e.printStackTrace();
 		}
 	}
+	
 	VBO vbo;
 	FBO fbo;
+	Texture2D tex;
+	
 	@Override
 	public void init() {
+//		Logging.logInfo(FBO.constants());
 		
+		File file = new File("src/lwjgl/test/misc/Untitled.png");
 		vbo = VBO.create("Test", VBOTarget.ARRAY);
+		fbo = FBO.create("Test FBO");
+		tex = Texture2D.create("Tex");
+		Logging.logObject(tex);
 		
-		Logging.logInfo(FBO.constants());
+		try {
+			tex.setDataRGBA(ImageIO.read(file), 1);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Logging.logObject(tex);
+
+		vbo.bufferData(new float[] { 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0 });
+		
+		vbo.bind();
+		GL11.glVertexPointer(2, GL11.GL_FLOAT, 4 * 4, 0 * 4);
+		GL11.glTexCoordPointer(2, GL11.GL_FLOAT, 4 * 4, 2 * 4);
+		VBO.unbind(VBOTarget.ARRAY);
 		
 		Texture2D c0 = Texture2D.create("Color 0");
 		Texture2D d = Texture2D.create("Depth");
-		fbo = FBO.create("Test RBO");
+		
 		Logging.logObject(fbo);
 		fbo.attach(c0, FBOAttachment.COLOR0, 0, 0);
 		Logging.logObject(fbo);
@@ -46,7 +72,6 @@ public class FBOTests extends RenderTarget {
 		Logging.logObject(fbo);
 		d.initializeTexture(16, 16, 1, TextureFormat.D16);
 		Logging.logObject(fbo);
-		FBO.bind(null);
 	}
 	
 	@Override
@@ -71,6 +96,19 @@ public class FBOTests extends RenderTarget {
 	
 	@Override
 	public void render() {
+		fbo.bind();
+		tex.bind();
+		vbo.bind();
+		GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
+		GL11.glEnableClientState(GL11.GL_COLOR_ARRAY);
+		
+		GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 2 * 3);
+		
+		GL11.glDisableClientState(GL11.GL_COLOR_ARRAY);
+		GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
+		VBO.unbind(VBOTarget.ARRAY);
+		Texture2D.bind(null);
+		FBO.bind(null);
 	}
 	
 }

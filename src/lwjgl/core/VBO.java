@@ -17,7 +17,7 @@ public class VBO extends GLObject {
 	protected static final HashMap<VBOTarget, Integer> current = new HashMap<VBOTarget, Integer>();
 	protected static final HashMap<VBOTarget, Integer> last = new HashMap<VBOTarget, Integer>();
 	
-	private final VBOTarget target;
+	protected final VBOTarget target;
 	
 	private VBO(String name, VBOTarget target) {
 		super(name, GL15.glGenBuffers());
@@ -67,11 +67,15 @@ public class VBO extends GLObject {
 		t.bind();
 	}
 	
+	public static void unbind(VBOTarget target){
+		bind(0, target);
+	}
+	
 	public void bind() {
 		bind(id, target);
 	}
 
-	protected void unbind(){
+	protected void undobind(){
 		int l = last.containsKey(target) ? last.get(target) : 0;
 		bind(l, target);
 	}
@@ -98,7 +102,7 @@ public class VBO extends GLObject {
 	public void bufferData(ShortBuffer data) {
 		bind();
 		GL15.glBufferData(target.value, data, GL15.GL_DYNAMIC_DRAW);
-		unbind();
+		undobind();
 	}
 	
 	public void bufferData(short[] data) {
@@ -111,7 +115,7 @@ public class VBO extends GLObject {
 	public void bufferData(IntBuffer data) {
 		bind();
 		GL15.glBufferData(target.value, data, GL15.GL_DYNAMIC_DRAW);
-		unbind();
+		undobind();
 	}
 	
 	public void bufferData(int[] data) {
@@ -124,7 +128,7 @@ public class VBO extends GLObject {
 	public void bufferData(FloatBuffer data) {
 		bind();
 		GL15.glBufferData(target.value, data, GL15.GL_DYNAMIC_DRAW);
-		unbind();
+		undobind();
 	}
 	
 	public void bufferData(float[] data) {

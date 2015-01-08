@@ -11,7 +11,8 @@ public abstract class GLObject {
 	}
 	
 	public abstract void bind();
-	protected abstract void unbind();
+	public abstract void bindNone();
+	protected abstract void undobind();
 	
 	public abstract String[] status();
 
