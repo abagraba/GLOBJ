@@ -95,11 +95,16 @@ public class Texture2D extends GLTexture2D implements FBOAttachable {
 			return null;
 		}
 		// TODO warn if clamped?
-		int maps = Math.max(1, Math.min(mipmaps, levels(Math.max(w, h))));
+		int maps = Math.max(1, Math.min(mipmaps, levels(Math.max(tex.w, tex.h))));
 
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
-		if (!checkBounds(new int[] { w, h }, new int[] { max, max }, tex))
+		if (!checkBounds(new int[] { tex.w, tex.h }, new int[] { max, max }, tex))
 			return null;
+
+		tex.w = w;
+		tex.h = h;
+		tex.basemap = 0;
+		tex.maxmap = mipmaps - 1;
 
 		tex.bind();
 		GL11.glTexParameteri(target.value, GL12.GL_TEXTURE_MAX_LEVEL, maps - 1);
@@ -114,6 +119,8 @@ public class Texture2D extends GLTexture2D implements FBOAttachable {
 			}
 		}
 		GL11.glTexSubImage2D(target.value, 0, 0, 0, w, h, ImageFormat.RGBA.value, DataType.UBYTE.value, ImageUtil.imageRGBAData(image));
+		if(mipmaps > 1)
+			GL30.glGenerateMipmap(target.value);
 		tex.undobind();
 		tracker.add(tex);
 		return tex;
@@ -216,7 +223,7 @@ public class Texture2D extends GLTexture2D implements FBOAttachable {
 			ts += "\tUnresolved:\t" + String.format("[%4f, %4f] + %4f", lodMin.state(), lodMax.state(), lodBias.state());
 		Logging.writeOut(ts);
 		
-		if (minFilter.value().mipmaps)
+		if (minFilter.value().mipmaps && maxmap > 0)
 			Logging.writeOut(Logging.fixedString("Mipmap Range:") + String.format("[%d, %d]", basemap, maxmap));
 				
 		tb = swizzleR.resolved() && swizzleG.resolved() && swizzleB.resolved() && swizzleA.resolved();

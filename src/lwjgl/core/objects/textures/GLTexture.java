@@ -16,7 +16,6 @@ import lwjgl.core.objects.textures.values.Swizzle;
 import lwjgl.core.objects.textures.values.TextureComparison;
 import lwjgl.core.objects.textures.values.TextureFormat;
 import lwjgl.core.objects.textures.values.TextureTarget;
-import lwjgl.core.objects.textures.values.TextureWrap;
 import lwjgl.core.states.State;
 import lwjgl.debug.Logging;
 

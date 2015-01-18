@@ -190,7 +190,7 @@ public class TextureCubemapArray extends GLTexture2D implements FBOAttachable {
 			ts += "\tUnresolved:\t" + String.format("[%4f, %4f] + %4f", lodMin.state(), lodMax.state(), lodBias.state());
 		Logging.writeOut(ts);
 		
-		if (minFilter.value().mipmaps)
+		if (minFilter.value().mipmaps && maxmap > 0)
 			Logging.writeOut(Logging.fixedString("Mipmap Range:") + String.format("[%d, %d]", basemap, maxmap));
 				
 		tb = swizzleR.resolved() && swizzleG.resolved() && swizzleB.resolved() && swizzleA.resolved();
