@@ -7,9 +7,9 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 
 import lwjgl.core.GL;
-import lwjgl.core.RenderTarget;
+import lwjgl.core.RenderCommand;
 
-public class ImmediateTestTarget extends RenderTarget {
+public class ImmediateTestTarget extends RenderCommand {
 
 	private static float phi = 0;
 	private static float theta = 0;

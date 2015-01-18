@@ -34,12 +34,12 @@ public class GL {
 	private volatile static boolean display = false;
 	
 	private static Object targetLock = new Object();
-	private static RenderTarget target;
-	private static RenderTarget current;
+	private static RenderCommand target;
+	private static RenderCommand current;
 	private static long lastRender = System.nanoTime();
 	private static long currentRender = System.nanoTime();
 	
-	public static void setTarget(RenderTarget target) {
+	public static void setTarget(RenderCommand target) {
 		synchronized (targetLock) {
 			GL.target = target;
 		}
@@ -73,7 +73,7 @@ public class GL {
 					lastRender = currentRender;
 					currentRender = System.nanoTime();
 					Display.sync(fps);
-					RenderTarget next;
+					RenderCommand next;
 					synchronized (targetLock) {
 						next = target;
 					}

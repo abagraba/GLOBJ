@@ -3,12 +3,13 @@ package lwjgl.test.misc;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
+
 import lwjgl.core.GL;
-import lwjgl.core.RenderTarget;
-import lwjgl.core.texture.Texture2D;
-import lwjgl.core.texture.values.MagnifyFilter;
-import lwjgl.core.texture.values.MinifyFilter;
-import lwjgl.core.texture.values.TextureFormat;
+import lwjgl.core.RenderCommand;
+import lwjgl.core.objects.textures.Texture2D;
+import lwjgl.core.objects.textures.values.MagnifyFilter;
+import lwjgl.core.objects.textures.values.MinifyFilter;
+import lwjgl.core.objects.textures.values.TextureFormat;
 import lwjgl.debug.Timer;
 
 /**
@@ -19,7 +20,7 @@ import lwjgl.debug.Timer;
  * >http://www.ozone3d.net/tutorials/opengl_vbo.php</a>
  *
  */
-public class TextureFormatTestTarget extends RenderTarget {
+public class TextureFormatTestTarget extends RenderCommand {
 	
 	@Override
 	public void init() {

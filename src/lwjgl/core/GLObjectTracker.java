@@ -2,6 +2,8 @@ package lwjgl.core;
 
 import java.util.HashMap;
 
+import lwjgl.core.objects.GLObject;
+
 public class GLObjectTracker<T extends GLObject> {
 	
 	private final HashMap<String, T> name = new HashMap<String, T>();

@@ -5,12 +5,13 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.HashMap;
 
+import lwjgl.core.objects.BindableGLObject;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL15;
 
-public class VBO extends GLObject {
+public class VBO extends BindableGLObject{
 	
 	protected static final HashMap<String, VBO> vboname = new HashMap<String, VBO>();
 	protected static final HashMap<Integer, VBO> vboid = new HashMap<Integer, VBO>();
@@ -67,6 +68,11 @@ public class VBO extends GLObject {
 		t.bind();
 	}
 	
+	@Override
+	public void bindNone() {
+		// TODO Auto-generated method stub
+		
+	}
 	public static void unbind(VBOTarget target){
 		bind(0, target);
 	}
@@ -139,9 +145,10 @@ public class VBO extends GLObject {
 	}
 	
 	@Override
-	public String[] status() {
+	public void debug() {
 		// TODO Auto-generated method stub
-		return null;
 	}
+
+
 	
 }

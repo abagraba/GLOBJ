@@ -11,7 +11,7 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.util.glu.GLU;
 
 import lwjgl.core.GL;
-import lwjgl.core.RenderTarget;
+import lwjgl.core.RenderCommand;
 import lwjgl.core.VBO;
 
 /**
@@ -22,7 +22,7 @@ import lwjgl.core.VBO;
  * >http://www.ozone3d.net/tutorials/opengl_vbo.php</a>
  *
  */
-public class InterleavedVBOTestTarget extends RenderTarget {
+public class InterleavedVBOTestTarget extends RenderCommand {
 
 	private static float theta = 0;
 	private static float rps = (float) (2 * Math.PI) / 6;

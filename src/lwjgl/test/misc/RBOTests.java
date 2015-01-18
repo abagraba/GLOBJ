@@ -4,11 +4,11 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.GL11;
 
 import lwjgl.core.GL;
-import lwjgl.core.RenderTarget;
-import lwjgl.core.framebuffer.RBO;
+import lwjgl.core.RenderCommand;
+import lwjgl.core.objects.framebuffers.RBO;
 import lwjgl.debug.Logging;
 
-public class RBOTests extends RenderTarget {
+public class RBOTests extends RenderCommand {
 	
 	boolean r = true;
 	
@@ -38,10 +38,10 @@ public class RBOTests extends RenderTarget {
 	@Override
 	public void render() {
 		if (r) {
-			Logging.logObject(RBO.create("Test RBO", 100, 800, GL11.GL_DEPTH_COMPONENT));
-			Logging.logObject(RBO.create("Rocks", 1000, 800, GL11.GL_RGBA));
-			Logging.logObject(RBO.create("Coconut", 18000, 800, GL11.GL_RGBA));
-			Logging.logObject(RBO.create("Test RBO", 100, 800, GL11.GL_DEPTH_COMPONENT));
+			Logging.debug(RBO.create("Test RBO", 100, 800, GL11.GL_DEPTH_COMPONENT));
+			Logging.debug(RBO.create("Rocks", 1000, 800, GL11.GL_RGBA));
+			Logging.debug(RBO.create("Coconut", 18000, 800, GL11.GL_RGBA));
+			Logging.debug(RBO.create("Test RBO", 100, 800, GL11.GL_DEPTH_COMPONENT));
 		}
 		r = false;
 	}

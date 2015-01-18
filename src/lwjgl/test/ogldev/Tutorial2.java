@@ -4,11 +4,11 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 
 import lwjgl.core.GL;
-import lwjgl.core.RenderTarget;
-import lwjgl.core.framebuffer.FBO;
+import lwjgl.core.RenderCommand;
+import lwjgl.core.objects.framebuffers.FBO;
 import lwjgl.debug.Logging;
 
-public class Tutorial2 extends RenderTarget {
+public class Tutorial2 extends RenderCommand {
 	
 	@Override
 	public void init() {

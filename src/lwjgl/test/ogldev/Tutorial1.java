@@ -3,9 +3,9 @@ package lwjgl.test.ogldev;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import lwjgl.core.GL;
-import lwjgl.core.RenderTarget;
+import lwjgl.core.RenderCommand;
 
-public class Tutorial1 extends RenderTarget {
+public class Tutorial1 extends RenderCommand {
 	
 	@Override
 	public void init() {

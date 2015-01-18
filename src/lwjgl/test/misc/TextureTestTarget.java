@@ -14,12 +14,12 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 
 import lwjgl.core.GL;
-import lwjgl.core.RenderTarget;
+import lwjgl.core.RenderCommand;
 import lwjgl.core.VBO;
 import lwjgl.core.VBOTarget;
-import lwjgl.core.texture.Texture2D;
-import lwjgl.core.texture.values.MagnifyFilter;
-import lwjgl.core.texture.values.MinifyFilter;
+import lwjgl.core.objects.textures.Texture2D;
+import lwjgl.core.objects.textures.values.MagnifyFilter;
+import lwjgl.core.objects.textures.values.MinifyFilter;
 import lwjgl.debug.Logging;
 import lwjgl.debug.Timer;
 
@@ -31,7 +31,7 @@ import lwjgl.debug.Timer;
  * >http://www.ozone3d.net/tutorials/opengl_vbo.php</a>
  *
  */
-public class TextureTestTarget extends RenderTarget {
+public class TextureTestTarget extends RenderCommand {
 	
 	private static float theta = 0;
 	private static float phi = 0;
@@ -61,7 +61,7 @@ public class TextureTestTarget extends RenderTarget {
 		v.put(new float[] { -1, -1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1 }).flip();
 		t.put(new float[] { 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0 }).flip();
 		
-		Logging.logObject(Texture2D.get("Test"));
+		Logging.debug(Texture2D.get("Test"));
 		
 		vertices = VBO.create("A", VBOTarget.ARRAY);
 		vertices.bufferData(v);
