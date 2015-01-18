@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 import lwjgl.core.Context;
 import lwjgl.core.GL;
-import lwjgl.core.GLObjectTracker;
+import lwjgl.core.objects.GLObjectTracker;
 import lwjgl.core.objects.framebuffers.FBOAttachable;
 import lwjgl.core.objects.framebuffers.values.FBOAttachment;
 import lwjgl.core.objects.textures.values.CubemapTarget;

@@ -12,7 +12,7 @@ import org.lwjgl.util.glu.GLU;
 
 import lwjgl.core.GL;
 import lwjgl.core.RenderCommand;
-import lwjgl.core.VBO;
+import lwjgl.core.objects.bufferobjects.VBO;
 
 /**
  * Test Target to test functionality of Vertex Buffer Objects. <br/>

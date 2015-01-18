@@ -1,8 +1,6 @@
-package lwjgl.core;
+package lwjgl.core.objects;
 
 import java.util.HashMap;
-
-import lwjgl.core.objects.GLObject;
 
 public class GLObjectTracker<T extends GLObject> {
 	

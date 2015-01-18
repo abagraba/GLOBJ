@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 import org.lwjgl.opengl.GL20;
 
-import lwjgl.core.GLObjectTracker;
+import lwjgl.core.objects.GLObjectTracker;
 import lwjgl.debug.Logging;
 
 public class Shaders {

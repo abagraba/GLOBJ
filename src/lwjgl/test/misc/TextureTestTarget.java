@@ -15,8 +15,8 @@ import org.lwjgl.opengl.GL15;
 
 import lwjgl.core.GL;
 import lwjgl.core.RenderCommand;
-import lwjgl.core.VBO;
-import lwjgl.core.VBOTarget;
+import lwjgl.core.objects.bufferobjects.VBO;
+import lwjgl.core.objects.bufferobjects.VBOTarget;
 import lwjgl.core.objects.textures.Texture2D;
 import lwjgl.core.objects.textures.values.MagnifyFilter;
 import lwjgl.core.objects.textures.values.MinifyFilter;

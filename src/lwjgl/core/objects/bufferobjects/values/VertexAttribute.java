@@ -1,4 +1,4 @@
-package lwjgl.core.bufferobjects.values;
+package lwjgl.core.objects.bufferobjects.values;
 
 import org.lwjgl.opengl.GL13;
 

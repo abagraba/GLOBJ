@@ -1,4 +1,4 @@
-package lwjgl.core;
+package lwjgl.core.objects.bufferobjects;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
