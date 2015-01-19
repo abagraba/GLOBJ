@@ -1,14 +1,17 @@
 package lwjgl.core.objects.textures;
 
+import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 
 import lwjgl.core.Context;
 import lwjgl.core.GL;
-import lwjgl.core.objects.GLObjectTracker;
+import lwjgl.core.objects.BindTracker;
 import lwjgl.core.objects.framebuffers.FBOAttachable;
 import lwjgl.core.objects.framebuffers.values.FBOAttachment;
+import lwjgl.core.objects.textures.values.ImageFormat;
 import lwjgl.core.objects.textures.values.TextureFormat;
 import lwjgl.core.objects.textures.values.TextureTarget;
+import lwjgl.core.utils.ImageUtil;
 import lwjgl.core.values.DataType;
 import lwjgl.debug.Logging;
 
@@ -17,28 +20,19 @@ import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL42;
 
-public class Texture1DArray extends GLTexture1D implements FBOAttachable {
+public final class Texture1DArray extends GLTexture1D implements FBOAttachable {
 	
-	private static final GLObjectTracker<Texture1DArray> tracker = new GLObjectTracker<Texture1DArray>();
 	private static final BindTracker curr = new BindTracker();
 	
 	public final static TextureTarget target = TextureTarget.TEXTURE_1D_ARRAY;
 	
 	private int w, layers, basemap, maxmap;
-
+	
 	private Texture1DArray(String name, TextureFormat texformat) {
 		super(name, texformat, target);
 	}
 	
-	public static Texture1DArray create(String name, TextureFormat texformat, int w, int layers, int mipmaps) {
-		return create(name, texformat, w, layers, 0, mipmaps - 1);
-	}
-	
-	public static Texture1DArray create(String name, TextureFormat texformat, int w, int layers, int basemap, int maxmap) {
-		if (tracker.contains(name)) {
-			Logging.globjError(Texture1DArray.class, name, "Cannot create", "Already exists");
-			return null;
-		}
+	protected static Texture1DArray create(String name, TextureFormat texformat, int w, int layers, int basemap, int maxmap) {
 		Texture1DArray tex = new Texture1DArray(name, texformat);
 		if (tex.id == 0) {
 			Logging.globjError(Texture1DArray.class, name, "Cannot create", "No ID could be allocated");
@@ -74,20 +68,46 @@ public class Texture1DArray extends GLTexture1D implements FBOAttachable {
 			}
 		}
 		tex.undobind();
-		tracker.add(tex);
 		return tex;
 	}
 	
-	public static Texture1DArray get(String name) {
-		return tracker.get(name);
-	}
-	
-	protected static Texture1DArray get(int id) {
-		return tracker.get(id);
-	}
-	
-	public int target() {
-		return GL30.GL_TEXTURE_1D_ARRAY;
+	protected static Texture1DArray create(String name, BufferedImage image, int mipmaps) {
+		int w = image.getWidth();
+		int layers = image.getHeight();
+		TextureFormat texformat = TextureFormat.RGBA8;
+		Texture1DArray tex = new Texture1DArray(name, texformat);
+		if (tex.id == 0) {
+			Logging.globjError(Texture1DArray.class, name, "Cannot create", "No ID could be allocated");
+			return null;
+		}
+		int maps = Math.max(1, Math.min(mipmaps, levels(tex.w)));
+		
+		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
+		int maxlayers = Context.intConst(GL30.GL_MAX_ARRAY_TEXTURE_LAYERS);
+		if (!checkBounds(new int[] { w, layers }, new int[] { max, maxlayers }, tex))
+			return null;
+		
+		tex.w = w;
+		tex.layers = layers;
+		tex.basemap = 0;
+		tex.maxmap = maps - 1;
+		
+		tex.bind();
+		GL11.glTexParameteri(target.value, GL12.GL_TEXTURE_MAX_LEVEL, maps - 1);
+		if (GL.versionCheck(4, 2)) {
+			GL42.glTexStorage2D(target.value, maps, texformat.value, w, layers);
+		}
+		else {
+			for (int i = 0; i <= maps; i++) {
+				GL11.glTexImage2D(target.value, i, texformat.value, w, layers, 0, texformat.base, DataType.UBYTE.value, (ByteBuffer) null);
+				w = Math.max(1, w / 2);
+			}
+		}
+		GL11.glTexSubImage2D(target.value, 0, 0, 0, w, layers, ImageFormat.RGBA.value, DataType.UBYTE.value, ImageUtil.imageRGBAData(image));
+		if (mipmaps > 1)
+			GL30.glGenerateMipmap(target.value);
+		tex.undobind();
+		return tex;
 	}
 	
 	/**************************************************/
@@ -117,7 +137,6 @@ public class Texture1DArray extends GLTexture1D implements FBOAttachable {
 		if (curr.value() == id)
 			bindNone();
 		GL11.glDeleteTextures(id);
-		tracker.remove(this);
 	}
 	
 	/**************************************************/
@@ -130,7 +149,7 @@ public class Texture1DArray extends GLTexture1D implements FBOAttachable {
 	 */
 	public void setData(int x, int w, int layeri, int layerf, int map, ImageFormat format, DataType type, ByteBuffer data) {
 		bind();
-		GL11.glTexSubImage2D(target(), map, x, layeri, w, layerf, format.value, type.value, data);
+		GL11.glTexSubImage2D(target.value, map, x, layeri, w, layerf, format.value, type.value, data);
 		undobind();
 	}
 	
@@ -171,7 +190,7 @@ public class Texture1DArray extends GLTexture1D implements FBOAttachable {
 		
 		if (minFilter.value().mipmaps && maxmap > 0)
 			Logging.writeOut(Logging.fixedString("Mipmap Range:") + String.format("[%d, %d]", basemap, maxmap));
-				
+		
 		tb = swizzleR.resolved() && swizzleG.resolved() && swizzleB.resolved() && swizzleA.resolved();
 		ts = Logging.fixedString("Texture Swizzle:")
 				+ String.format("[%s, %s, %s, %s]", swizzleR.value(), swizzleG.value(), swizzleB.value(), swizzleA.value());
@@ -185,6 +204,7 @@ public class Texture1DArray extends GLTexture1D implements FBOAttachable {
 		Logging.unindent();
 		
 		Logging.unsetPad();
+		GL.flushErrors();
 	}
 	
 }

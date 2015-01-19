@@ -4,9 +4,10 @@ import java.nio.ByteBuffer;
 
 import lwjgl.core.Context;
 import lwjgl.core.GL;
-import lwjgl.core.objects.GLObjectTracker;
+import lwjgl.core.objects.BindTracker;
 import lwjgl.core.objects.framebuffers.FBOAttachable;
 import lwjgl.core.objects.framebuffers.values.FBOAttachment;
+import lwjgl.core.objects.textures.values.ImageFormat;
 import lwjgl.core.objects.textures.values.TextureFormat;
 import lwjgl.core.objects.textures.values.TextureTarget;
 import lwjgl.core.values.DataType;
@@ -17,9 +18,8 @@ import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL42;
 
-public class Texture1D extends GLTexture1D implements FBOAttachable {
+public final class Texture1D extends GLTexture1D implements FBOAttachable {
 	
-	private static final GLObjectTracker<Texture1D> tracker = new GLObjectTracker<Texture1D>();
 	private static final BindTracker curr = new BindTracker();
 	
 	public final static TextureTarget target = TextureTarget.TEXTURE_1D;
@@ -30,15 +30,7 @@ public class Texture1D extends GLTexture1D implements FBOAttachable {
 		super(name, texformat, target);
 	}
 	
-	public static Texture1D create(String name, TextureFormat texformat, int w, int maps) {
-		return create(name, texformat, w, 0, maps - 1);
-	}
-	
-	public static Texture1D create(String name, TextureFormat texformat, int w, int basemap, int maxmap) {
-		if (tracker.contains(name)) {
-			Logging.globjError(Texture1D.class, name, "Cannot create", "Already exists");
-			return null;
-		}
+	protected static Texture1D create(String name, TextureFormat texformat, int w, int basemap, int maxmap) {
 		Texture1D tex = new Texture1D(name, texformat);
 		if (tex.id == 0) {
 			Logging.globjError(Texture1D.class, name, "Cannot create", "No ID could be allocated");
@@ -53,7 +45,7 @@ public class Texture1D extends GLTexture1D implements FBOAttachable {
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
 		if (!checkBounds(new int[] { w }, new int[] { max }, tex))
 			return null;
-
+		
 		tex.w = w;
 		tex.basemap = basemap;
 		tex.maxmap = maxmap;
@@ -73,20 +65,7 @@ public class Texture1D extends GLTexture1D implements FBOAttachable {
 			}
 		}
 		tex.undobind();
-		tracker.add(tex);
 		return tex;
-	}
-	
-	public static Texture1D get(String name) {
-		return tracker.get(name);
-	}
-	
-	protected static Texture1D get(int id) {
-		return tracker.get(id);
-	}
-	
-	public int target() {
-		return target.value;
 	}
 	
 	/**************************************************/
@@ -113,11 +92,10 @@ public class Texture1D extends GLTexture1D implements FBOAttachable {
 			GL11.glBindTexture(target.value, curr.revert());
 	}
 	
-	public void destroy() {
+	protected void destroy() {
 		if (curr.value() == id)
 			bindNone();
 		GL11.glDeleteTextures(id);
-		tracker.remove(this);
 	}
 	
 	/**************************************************/
@@ -186,6 +164,7 @@ public class Texture1D extends GLTexture1D implements FBOAttachable {
 		Logging.unindent();
 		
 		Logging.unsetPad();
+		GL.flushErrors();
 	}
 	
 }

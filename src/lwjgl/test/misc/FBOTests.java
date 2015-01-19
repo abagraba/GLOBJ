@@ -8,7 +8,6 @@ import javax.imageio.ImageIO;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
 
 import lwjgl.core.GL;
 import lwjgl.core.RenderCommand;
@@ -16,7 +15,6 @@ import lwjgl.core.objects.bufferobjects.VBO;
 import lwjgl.core.objects.bufferobjects.VBOTarget;
 import lwjgl.core.objects.framebuffers.FBO;
 import lwjgl.core.objects.framebuffers.values.FBOAttachment;
-import lwjgl.core.objects.textures.GLTexture;
 import lwjgl.core.objects.textures.Texture2D;
 import lwjgl.core.objects.textures.values.TextureFormat;
 import lwjgl.core.objects.textures.values.TextureWrap;
@@ -52,6 +50,7 @@ public class FBOTests extends RenderCommand {
 			e1.printStackTrace();
 		}
 		tex.setWrap(TextureWrap.CLAMP_EDGE, TextureWrap.CLAMP_EDGE);
+		tex.update();
 		Logging.debug(tex);
 		
 		try {

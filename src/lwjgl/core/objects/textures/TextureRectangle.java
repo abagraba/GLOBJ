@@ -1,14 +1,17 @@
 package lwjgl.core.objects.textures;
 
-import java.nio.ByteBuffer; 
+import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 
 import lwjgl.core.Context;
 import lwjgl.core.GL;
-import lwjgl.core.objects.GLObjectTracker;
+import lwjgl.core.objects.BindTracker;
 import lwjgl.core.objects.framebuffers.FBOAttachable;
 import lwjgl.core.objects.framebuffers.values.FBOAttachment;
+import lwjgl.core.objects.textures.values.ImageFormat;
 import lwjgl.core.objects.textures.values.TextureFormat;
 import lwjgl.core.objects.textures.values.TextureTarget;
+import lwjgl.core.utils.ImageUtil;
 import lwjgl.core.values.DataType;
 import lwjgl.debug.Logging;
 
@@ -17,24 +20,19 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.GL42;
 
-public class TextureRectangle extends GLTexture2D implements FBOAttachable {
+public final class TextureRectangle extends GLTexture2D implements FBOAttachable {
 	
-	private static final GLObjectTracker<TextureRectangle> tracker = new GLObjectTracker<TextureRectangle>();
 	private static final BindTracker curr = new BindTracker();
 	
 	public final static TextureTarget target = TextureTarget.TEXTURE_RECTANGLE;
 	
 	private int w, h;
-
+	
 	private TextureRectangle(String name, TextureFormat texformat) {
 		super(name, texformat, target);
 	}
 	
-	public static TextureRectangle create(String name, TextureFormat texformat, int w, int h) {
-		if (tracker.contains(name)) {
-			Logging.globjError(TextureRectangle.class, name, "Cannot create", "Already exists");
-			return null;
-		}
+	protected static TextureRectangle create(String name, TextureFormat texformat, int w, int h) {
 		TextureRectangle tex = new TextureRectangle(name, texformat);
 		if (tex.id == 0) {
 			Logging.globjError(TextureRectangle.class, name, "Cannot create", "No ID could be allocated");
@@ -56,20 +54,37 @@ public class TextureRectangle extends GLTexture2D implements FBOAttachable {
 			GL11.glTexImage2D(target.value, 0, texformat.value, w, h, 0, texformat.base, DataType.UBYTE.value, (ByteBuffer) null);
 		}
 		tex.undobind();
-		tracker.add(tex);
 		return tex;
 	}
 	
-	public static TextureRectangle get(String name) {
-		return tracker.get(name);
-	}
-	
-	protected static TextureRectangle get(int id) {
-		return tracker.get(id);
-	}
-	
-	public int target() {
-		return GL31.GL_TEXTURE_RECTANGLE;
+	protected static TextureRectangle create(String name, BufferedImage image) {
+		int w = image.getWidth();
+		int h = image.getHeight();
+		TextureFormat texformat = TextureFormat.RGBA8;
+		TextureRectangle tex = new TextureRectangle(name, texformat);
+		if (tex.id == 0) {
+			Logging.globjError(TextureRectangle.class, name, "Cannot create", "No ID could be allocated");
+			return null;
+		}
+		
+		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
+		if (!checkBounds(new int[] { w, h }, new int[] { max, max }, tex))
+			return null;
+		
+		tex.w = w;
+		tex.h = h;
+		
+		tex.bind();
+		if (GL.versionCheck(4, 2)) {
+			GL42.glTexStorage2D(target.value, 0, texformat.value, w, h);
+		}
+		else {
+			GL11.glTexImage2D(target.value, 0, texformat.value, w, h, 0, texformat.base, DataType.UBYTE.value, (ByteBuffer) null);
+		}
+		// TODO BGRA more efficient?
+		GL11.glTexSubImage2D(target.value, 0, 0, 0, w, h, ImageFormat.RGBA.value, DataType.UBYTE.value, ImageUtil.imageRGBAData(image));
+		tex.undobind();
+		return tex;
 	}
 	
 	/**************************************************/
@@ -95,11 +110,10 @@ public class TextureRectangle extends GLTexture2D implements FBOAttachable {
 		bind(curr.revert());
 	}
 	
-	public void destroy() {
+	protected void destroy() {
 		if (curr.value() == id)
 			bindNone();
 		GL11.glDeleteTextures(id);
-		tracker.remove(this);
 	}
 	
 	/**************************************************/
@@ -112,7 +126,7 @@ public class TextureRectangle extends GLTexture2D implements FBOAttachable {
 	 */
 	public void setData(int x, int y, int w, int h, ImageFormat format, DataType type, ByteBuffer data) {
 		bind();
-		GL11.glTexSubImage2D(target(), 0, x, y, w, h, format.value, type.value, data);
+		GL11.glTexSubImage2D(target.value, 0, x, y, w, h, format.value, type.value, data);
 		undobind();
 	}
 	
@@ -127,7 +141,7 @@ public class TextureRectangle extends GLTexture2D implements FBOAttachable {
 	 */
 	@Override
 	public void attachToFBO(FBOAttachment attachment, int level, int layer) {
-		GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value, target(), id, 0);
+		GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value, target.value, id, 0);
 	}
 	
 	/**************************************************/
@@ -165,6 +179,7 @@ public class TextureRectangle extends GLTexture2D implements FBOAttachable {
 		Logging.unindent();
 		
 		Logging.unsetPad();
+		GL.flushErrors();
 	}
 	
 }

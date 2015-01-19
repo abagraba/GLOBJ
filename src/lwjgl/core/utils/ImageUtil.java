@@ -1,4 +1,4 @@
-package lwjgl.core.objects.textures;
+package lwjgl.core.utils;
 
 import java.awt.Color;
 import java.awt.Graphics;

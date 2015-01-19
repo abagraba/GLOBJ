@@ -1,29 +1,25 @@
 package lwjgl.core.objects.framebuffers;
 
-import java.util.ArrayList; 
-import java.util.HashMap;
-import java.util.List;
-
 import lwjgl.core.Context;
 import lwjgl.core.GL;
+import lwjgl.core.objects.BindTracker;
 import lwjgl.core.objects.BindableGLObject;
 import lwjgl.core.objects.framebuffers.values.FBOAttachment;
+import lwjgl.core.objects.framebuffers.values.FBOError;
 import lwjgl.core.objects.textures.GLTexture;
+import lwjgl.core.objects.textures.Textures;
 import lwjgl.core.objects.textures.values.CubemapTarget;
 import lwjgl.core.values.DataType;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL43;
 
 public class FBO extends BindableGLObject {
 	
-	protected static final HashMap<String, FBO> fboname = new HashMap<String, FBO>();
-	protected static final HashMap<Integer, FBO> fboid = new HashMap<Integer, FBO>();
-	protected static int currentFBOD = 0;
-	protected static int currentFBOR = 0;
-	private static int lastFBOD = 0;
-	private static int lastFBOR = 0;
+	private static BindTracker draw = new BindTracker();
+	private static BindTracker read = new BindTracker();
 	
 	private FBO(String name) {
 		super(name, GL30.glGenFramebuffers());
@@ -31,29 +27,18 @@ public class FBO extends BindableGLObject {
 	
 	/**************************************************/
 	
-	public static FBO create(String name) {
-		if (fboname.containsKey(name)) {
-			Logging.glError("Cannot create Framebuffer Object. Framebuffer Object [" + name + "] already exists.", null);
-			return null;
-		}
+	protected static FBO create(String name) {
 		FBO fbo = new FBO(name);
 		if (fbo.id == 0) {
 			Logging.glError("Cannot create Framebuffer Object. No ID could be allocated for Framebuffer Object [" + name + "].", null);
 			return null;
 		}
-		fboname.put(fbo.name, fbo);
-		fboid.put(fbo.id, fbo);
 		return fbo;
 	}
 	
-	public static void destroy(String name) {
-		if (!fboname.containsKey(name)) {
-			Logging.glWarning("Cannot delete Framebuffer Object. Framebuffer Object [" + name + "] does not exist.");
-			return;
-		}
-		FBO fbo = fboname.get(name);
-		boolean d = currentFBOD == fbo.id;
-		boolean r = currentFBOR == fbo.id;
+	protected void destroy() {
+		boolean d = draw.value() == id;
+		boolean r = read.value() == id;
 		if (d && r)
 			bind(0);
 		else {
@@ -62,44 +47,20 @@ public class FBO extends BindableGLObject {
 			if (r)
 				bindRead(0);
 		}
-		GL30.glDeleteFramebuffers(fbo.id);
-		fboname.remove(fbo.name);
-		fboid.remove(fbo.id);
-	}
-	
-	public static FBO get(String name) {
-		return fboname.get(name);
-	}
-	
-	protected static FBO get(int id) {
-		return fboid.get(id);
+		GL30.glDeleteFramebuffers(id);
 	}
 	
 	/**************************************************/
 	
-	static void bind(int fbo) {
-		if (fbo == currentFBOD && fbo == currentFBOR) {
-			lastFBOD = lastFBOR = fbo;
+	private static void bind(int fbo) {
+		if (fbo == draw.value() && fbo == read.value()) {
+			draw.update(fbo);
+			read.update(fbo);
 			return;
 		}
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, fbo);
-		lastFBOD = currentFBOD;
-		lastFBOR = currentFBOR;
-		currentFBOD = fbo;
-		currentFBOR = fbo;
-	}
-	
-	public static void bind(String name) {
-		if (name == null) {
-			bind(0);
-			return;
-		}
-		FBO f = get(name);
-		if (f == null) {
-			Logging.glError("Cannot bind FBO [" + name + "]. Does not exist.", null);
-			return;
-		}
-		f.bind();
+		draw.update(fbo);
+		read.update(fbo);
 	}
 	
 	public void bind() {
@@ -107,7 +68,7 @@ public class FBO extends BindableGLObject {
 	}
 	
 	protected void undobind() {
-		bind(lastFBOD);
+		bind(draw.last());
 	}
 	
 	@Override
@@ -116,26 +77,12 @@ public class FBO extends BindableGLObject {
 	}
 	
 	protected static void bindDraw(int fbo) {
-		if (fbo == currentFBOD) {
-			lastFBOD = fbo;
+		if (fbo == draw.value()) {
+			draw.update(fbo);
 			return;
 		}
 		GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, fbo);
-		lastFBOD = currentFBOD;
-		currentFBOD = fbo;
-	}
-	
-	public static void bindDraw(String name) {
-		if (name == null) {
-			bind(0);
-			return;
-		}
-		FBO f = get(name);
-		if (f == null) {
-			Logging.glError("Cannot bind FBO [" + name + "]. Does not exist.", null);
-			return;
-		}
-		f.bindDraw();
+		draw.update(fbo);
 	}
 	
 	public void bindDraw() {
@@ -143,30 +90,16 @@ public class FBO extends BindableGLObject {
 	}
 	
 	protected void unbindDraw() {
-		bindDraw(lastFBOD);
+		bindDraw(draw.last());
 	}
 	
 	protected static void bindRead(int fbo) {
-		if (fbo == currentFBOR) {
-			lastFBOR = fbo;
+		if (fbo == read.value()) {
+			read.update(fbo);
 			return;
 		}
 		GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, fbo);
-		lastFBOR = currentFBOR;
-		currentFBOR = fbo;
-	}
-	
-	public static void bindRead(String name) {
-		if (name == null) {
-			bind(0);
-			return;
-		}
-		FBO f = get(name);
-		if (f == null) {
-			Logging.glError("Cannot bind FBO [" + name + "]. Does not exist.", null);
-			return;
-		}
-		f.bindRead();
+		read.update(fbo);
 	}
 	
 	public void bindRead() {
@@ -174,7 +107,7 @@ public class FBO extends BindableGLObject {
 	}
 	
 	protected void unbindRead() {
-		bindRead(lastFBOR);
+		bindRead(read.last());
 	}
 	
 	/**************************************************/
@@ -220,88 +153,68 @@ public class FBO extends BindableGLObject {
 		unbindDraw();
 	}
 	
-	public static String[] constants() {
-		GL.flushErrors();
-		int rs = Context.intConst(GL30.GL_MAX_RENDERBUFFER_SIZE);
-		int ca = Context.intConst(GL30.GL_MAX_COLOR_ATTACHMENTS);
-		List<String> status = new ArrayList<String>();
-		List<String> errors = GL.readErrorsToList();
-		for (String error : errors)
-			status.add(Logging.logText("ERROR:", error, 0));
-		status.add(Logging.logText("FBO Constants:", "", 0));
-		status.add(Logging.logText(String.format("%-12s:\t%d", "Max Color Attachments", ca), 1));
-		status.add(Logging.logText(String.format("%-12s:\t%d", "Max Renderbuffer Size", rs), 1));
-		return status.toArray(new String[status.size()]);
-	}
-	
 	@Override
 	public void debug() {
 		GL.flushErrors();
-		//
-		// bindDraw();
-		// List<String> status = new ArrayList<String>();
-		// FBOError err =
-		// FBOError.get(GL30.glCheckFramebufferStatus(GL30.GL_DRAW_FRAMEBUFFER));
-		// if (err != FBOError.NONE) {
-		// unbindDraw();
-		// status.add(Logging.logText("FBO:", name, 0));
-		// status.add(Logging.logText("Framebuffer incomplete: " + err, 1));
-		// return status.toArray(new String[status.size()]);
-		// }
-		//
-		// int w = 0, h = 0, l = 0, s = 0, f = 0;
-		// if (GL.versionCheck(4, 3)) {
-		// w = GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER,
-		// GL43.GL_FRAMEBUFFER_DEFAULT_WIDTH);
-		// h = GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER,
-		// GL43.GL_FRAMEBUFFER_DEFAULT_HEIGHT);
-		// l = GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER,
-		// GL43.GL_FRAMEBUFFER_DEFAULT_LAYERS);
-		// s = GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER,
-		// GL43.GL_FRAMEBUFFER_DEFAULT_SAMPLES);
-		// f = GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER,
-		// GL43.GL_FRAMEBUFFER_DEFAULT_FIXED_SAMPLE_LOCATIONS);
-		// }
-		// status.add(Logging.logText("FBO:", name, 0));
-		// for (FBOAttachment attach : FBOAttachment.values())
-		// if (attach != FBOAttachment.DEPTH_STENCIL)
-		// statusBinding(status, attach);
-		// unbindDraw();
-		// if (GL.versionCheck(4, 3)) {
-		// status.add(Logging.logText(String.format("%-32s:\t%d x %d \t%d layers",
-		// "Default Dimensions", w, h, l), 1));
-		// status.add(Logging.logText(String.format("%-32s:\t%d",
-		// "Default Samples", s), 1));
-		// status.add(Logging.logText(String.format("%-32s:\t%d",
-		// "Default Fixed Sample Locations", f), 1));
-		// }
-		// List<String> errors = GL.readErrorsToList();
-		// for (String error : errors)
-		// status.add(Logging.logText("ERROR:", error, 0));
-		// return status.toArray(new String[status.size()]);
+		Logging.setPad(24);
+		
+		Logging.writeOut(Logging.fixedString("FBO:") + name);
+		Logging.indent();
+		
+		FBOError err = FBOError.get(GL30.glCheckFramebufferStatus(GL30.GL_DRAW_FRAMEBUFFER));
+		if (err != FBOError.NONE) {
+			Logging.writeOut(Logging.fixedString("Framebuffer incomplete:") + err);
+			Logging.unindent();
+			return;
+		}
+		int w = 0, h = 0, l = 0, s = 0, f = 0;
+		if (GL.versionCheck(4, 3)) {
+			w = GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER, GL43.GL_FRAMEBUFFER_DEFAULT_WIDTH);
+			h = GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER, GL43.GL_FRAMEBUFFER_DEFAULT_HEIGHT);
+			l = GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER, GL43.GL_FRAMEBUFFER_DEFAULT_LAYERS);
+			s = GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER, GL43.GL_FRAMEBUFFER_DEFAULT_SAMPLES);
+			f = GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER, GL43.GL_FRAMEBUFFER_DEFAULT_FIXED_SAMPLE_LOCATIONS);
+			
+			Logging.writeOut(Logging.fixedString("Default Size:") + String.format("(%d x %d) x %d", w, h, l));
+			Logging.writeOut(Logging.fixedString("Default Sample:") + s);
+			Logging.writeOut(Logging.fixedString("Default Sample Locations:") + f);
+			Logging.writeOut("");
+		}
+		
+		for (FBOAttachment attach : FBOAttachment.values())
+			if (attach != FBOAttachment.DEPTH_STENCIL)
+				debugBindingStatus(attach);
+		
+		Logging.unindent();
+		Logging.unsetPad();
+		GL.flushErrors();
 	}
 	
-	private void statusBinding(List<String> status, FBOAttachment attach) {
+	private void debugBindingStatus(FBOAttachment attach) {
 		int ca = Context.intConst(GL30.GL_MAX_COLOR_ATTACHMENTS);
 		if (attach.colorindex >= ca)
 			return;
 		int type = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE);
+		if (type == GL11.GL_NONE)
+			return;
+		Logging.writeOut(attach.toString() + ":");
 		switch (type) {
-			case GL11.GL_NONE:
-				return;
 			case GL11.GL_TEXTURE:
-				GLTexture tex = GLTexture.getTexture(GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value,
+				GLTexture tex = Textures.getTexture(GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value,
 						GL30.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME));
 				int level = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL);
 				int layer = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER);
-				status.add(Logging.logText(attach.toString(), 1));
-				status.add(Logging.logText(String.format("%-16s:\t%s", "Texture", tex), 2));
-				status.add(Logging.logText(String.format("%-16s:\t%d", "Layer", layer), 3));
-				status.add(Logging.logText(String.format("%-16s:\t%d", "Mipmap Level", level), 3));
+				Logging.indent();
+				Logging.writeOut(Logging.fixedString("Texture:") + tex.name);
+				Logging.indent();
+				Logging.writeOut(Logging.fixedString("Layer:") + layer);
+				Logging.writeOut(Logging.fixedString("Mipmap Level:") + level);
+				Logging.indent(-2);
 				return;
 			case GL30.GL_FRAMEBUFFER_DEFAULT:
-				status.add(Logging.logText(attach.toString(), 1));
-				status.add(Logging.logText("Default Framebuffer", 2));
+				Logging.indent();
+				Logging.writeOut(Logging.fixedString("Default Framebuffer:"));
+				Logging.unindent();
 				return;
 			case GL30.GL_RENDERBUFFER:
 				RBO rbo = RBO
@@ -315,12 +228,14 @@ public class FBO extends BindableGLObject {
 				DataType f = DataType.get(GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value,
 						GL30.GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE));
 				// TODO sRGB
-				status.add(Logging.logText(attach.toString(), 1));
-				status.add(Logging.logText(String.format("%-16s:\t%s", "Renderbuffer", rbo), 2));
-				status.add(Logging.logText(String.format("%-16s:\t(%d, %d, %d, %d)", "RGBA Size", r, g, b, a), 3));
-				status.add(Logging.logText(String.format("%-16s:\t%d", "Depth Size", d), 3));
-				status.add(Logging.logText(String.format("%-16s:\t%d", "Stencil Size", s), 3));
-				status.add(Logging.logText(String.format("%-16s:\t%s", "Data Format", f), 3));
+				Logging.indent();
+				Logging.writeOut(Logging.fixedString("Renderbuffer") + rbo.name);
+				Logging.indent();
+				Logging.writeOut(Logging.fixedString("RGBA Size") + String.format("(%d, %d, %d, %d)", r, g, b, a));
+				Logging.writeOut(Logging.fixedString("Depth Size") + d);
+				Logging.writeOut(Logging.fixedString("Stencil Size") + s);
+				Logging.writeOut(Logging.fixedString("Format") + f);
+				Logging.indent(-2);
 				return;
 		}
 	}

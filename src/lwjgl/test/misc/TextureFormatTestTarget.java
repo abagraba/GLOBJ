@@ -7,8 +7,6 @@ import org.lwjgl.opengl.GL11;
 import lwjgl.core.GL;
 import lwjgl.core.RenderCommand;
 import lwjgl.core.objects.textures.Texture2D;
-import lwjgl.core.objects.textures.values.MagnifyFilter;
-import lwjgl.core.objects.textures.values.MinifyFilter;
 import lwjgl.core.objects.textures.values.TextureFormat;
 import lwjgl.debug.Timer;
 
@@ -32,11 +30,12 @@ public class TextureFormatTestTarget extends RenderCommand {
 			TextureFormat format = t[i];
 			System.out.println();
 			System.out.println(format);
-			Texture2D tex = Texture2D.create("Test" + format);
-			tex.setFilter(MinifyFilter.NEAREST, MagnifyFilter.NEAREST);
+			for (int j = -16; j < 0; j++)
+				Texture2D.create("Test" + j + format, format, 256, 256, 1);
 			Timer.debug.mark();
-			tex.initializeTexture(256, 256, 1, format);
-			Timer.debug.measure("Load Texture " + format + ":");
+			for (int j = 0; j < 256; j++)
+				Texture2D.create("Test" + j + format, format, 256, 256, 1);
+			Timer.debug.measure("Load Texture " + format + ":", 256);
 		}
 		
 	}

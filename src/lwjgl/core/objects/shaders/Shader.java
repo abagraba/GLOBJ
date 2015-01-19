@@ -1,7 +1,6 @@
 package lwjgl.core.objects.shaders;
 
 import lwjgl.core.objects.GLObject;
-import lwjgl.core.objects.textures.Texture1D;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.opengl.GL11;

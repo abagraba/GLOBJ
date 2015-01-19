@@ -1,12 +1,13 @@
 package lwjgl.core.objects.textures;
 
-import java.nio.ByteBuffer; 
+import java.nio.ByteBuffer;
 
 import lwjgl.core.Context;
 import lwjgl.core.GL;
-import lwjgl.core.objects.GLObjectTracker;
+import lwjgl.core.objects.BindTracker;
 import lwjgl.core.objects.framebuffers.FBOAttachable;
 import lwjgl.core.objects.framebuffers.values.FBOAttachment;
+import lwjgl.core.objects.textures.values.ImageFormat;
 import lwjgl.core.objects.textures.values.TextureFormat;
 import lwjgl.core.objects.textures.values.TextureTarget;
 import lwjgl.core.values.DataType;
@@ -17,28 +18,23 @@ import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL42;
 
-public class Texture3D extends GLTexture3D implements FBOAttachable {
+public final class Texture3D extends GLTexture3D implements FBOAttachable {
 	
-	private static final GLObjectTracker<Texture3D> tracker = new GLObjectTracker<Texture3D>();
 	private static final BindTracker curr = new BindTracker();
 	
 	public final static TextureTarget target = TextureTarget.TEXTURE_3D;
 	
 	private int w, h, d, basemap, maxmap;
-
+	
 	private Texture3D(String name, TextureFormat texformat) {
 		super(name, texformat, target);
 	}
 	
-	public static Texture3D create(String name, TextureFormat texformat, int w, int h, int d, int mipmaps) {
+	protected static Texture3D create(String name, TextureFormat texformat, int w, int h, int d, int mipmaps) {
 		return create(name, texformat, w, h, d, 0, mipmaps - 1);
 	}
 	
-	public static Texture3D create(String name, TextureFormat texformat, int w, int h, int d, int basemap, int maxmap) {
-		if (tracker.contains(name)) {
-			Logging.globjError(Texture3D.class, name, "Cannot create", "Already exists");
-			return null;
-		}
+	protected static Texture3D create(String name, TextureFormat texformat, int w, int h, int d, int basemap, int maxmap) {
 		Texture3D tex = new Texture3D(name, texformat);
 		if (tex.id == 0) {
 			Logging.globjError(Texture3D.class, name, "Cannot create", "No ID could be allocated");
@@ -53,13 +49,13 @@ public class Texture3D extends GLTexture3D implements FBOAttachable {
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
 		if (!checkBounds(new int[] { w, h, d }, new int[] { max, max, max }, tex))
 			return null;
-
+		
 		tex.w = w;
 		tex.h = h;
 		tex.d = d;
 		tex.basemap = basemap;
 		tex.maxmap = maxmap;
-
+		
 		tex.bind();
 		if (bmap != 0)
 			GL11.glTexParameteri(target.value, GL12.GL_TEXTURE_BASE_LEVEL, bmap);
@@ -79,20 +75,7 @@ public class Texture3D extends GLTexture3D implements FBOAttachable {
 			}
 		}
 		tex.undobind();
-		tracker.add(tex);
 		return tex;
-	}
-	
-	public static Texture3D get(String name) {
-		return tracker.get(name);
-	}
-	
-	protected static Texture3D get(int id) {
-		return tracker.get(id);
-	}
-	
-	public int target() {
-		return GL12.GL_TEXTURE_3D;
 	}
 	
 	/**************************************************/
@@ -122,11 +105,9 @@ public class Texture3D extends GLTexture3D implements FBOAttachable {
 		if (curr.value() == id)
 			bindNone();
 		GL11.glDeleteTextures(id);
-		tracker.remove(this);
 	}
 	
 	/**************************************************/
-	
 	
 	/**
 	 * Sets the texel data in specified rectangle of mipmap level. Texture needs
@@ -136,7 +117,7 @@ public class Texture3D extends GLTexture3D implements FBOAttachable {
 	 */
 	public void setData(int x, int y, int z, int w, int h, int d, int map, ImageFormat format, DataType type, ByteBuffer data) {
 		bind();
-		GL12.glTexSubImage3D(target(), map, x, y, z, w, h, d, format.value, type.value, data);
+		GL12.glTexSubImage3D(target.value, map, x, y, z, w, h, d, format.value, type.value, data);
 		undobind();
 	}
 	
@@ -151,7 +132,7 @@ public class Texture3D extends GLTexture3D implements FBOAttachable {
 	 */
 	@Override
 	public void attachToFBO(FBOAttachment attachment, int level, int layer) {
-		GL30.glFramebufferTexture3D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value, target(), id, level, layer);
+		GL30.glFramebufferTexture3D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value, target.value, id, level, layer);
 	}
 	
 	/**************************************************/
@@ -177,7 +158,7 @@ public class Texture3D extends GLTexture3D implements FBOAttachable {
 		
 		if (minFilter.value().mipmaps && maxmap > 0)
 			Logging.writeOut(Logging.fixedString("Mipmap Range:") + String.format("[%d, %d]", basemap, maxmap));
-				
+		
 		tb = swizzleR.resolved() && swizzleG.resolved() && swizzleB.resolved() && swizzleA.resolved();
 		ts = Logging.fixedString("Texture Swizzle:")
 				+ String.format("[%s, %s, %s, %s]", swizzleR.value(), swizzleG.value(), swizzleB.value(), swizzleA.value());
@@ -192,6 +173,8 @@ public class Texture3D extends GLTexture3D implements FBOAttachable {
 		
 		Logging.unindent();
 		
-		Logging.unsetPad();	}
+		Logging.unsetPad();
+		GL.flushErrors();
+	}
 	
 }

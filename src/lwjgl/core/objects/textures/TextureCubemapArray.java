@@ -1,13 +1,14 @@
 package lwjgl.core.objects.textures;
 
-import java.nio.ByteBuffer; 
+import java.nio.ByteBuffer;
 
 import lwjgl.core.Context;
 import lwjgl.core.GL;
-import lwjgl.core.objects.GLObjectTracker;
+import lwjgl.core.objects.BindTracker;
 import lwjgl.core.objects.framebuffers.FBOAttachable;
 import lwjgl.core.objects.framebuffers.values.FBOAttachment;
 import lwjgl.core.objects.textures.values.CubemapTarget;
+import lwjgl.core.objects.textures.values.ImageFormat;
 import lwjgl.core.objects.textures.values.TextureFormat;
 import lwjgl.core.objects.textures.values.TextureTarget;
 import lwjgl.core.values.DataType;
@@ -21,28 +22,23 @@ import org.lwjgl.opengl.GL32;
 import org.lwjgl.opengl.GL40;
 import org.lwjgl.opengl.GL42;
 
-public class TextureCubemapArray extends GLTexture2D implements FBOAttachable {
+public final class TextureCubemapArray extends GLTexture2D implements FBOAttachable {
 	
-	private static final GLObjectTracker<TextureCubemapArray> tracker = new GLObjectTracker<TextureCubemapArray>();
 	private static final BindTracker curr = new BindTracker();
 	
 	public final static TextureTarget target = TextureTarget.TEXTURE_CUBEMAP_ARRAY;
-
+	
 	private int s, layers, basemap, maxmap;
-
+	
 	private TextureCubemapArray(String name, TextureFormat texformat) {
 		super(name, texformat, target);
 	}
 	
-	public static TextureCubemapArray create(String name, TextureFormat texformat, int s, int cubemaps, int mipmaps) {
+	protected static TextureCubemapArray create(String name, TextureFormat texformat, int s, int cubemaps, int mipmaps) {
 		return create(name, texformat, s, cubemaps, 0, mipmaps - 1);
 	}
 	
-	public static TextureCubemapArray create(String name, TextureFormat texformat, int s, int cubemaps, int basemap, int maxmap) {
-		if (tracker.contains(name)) {
-			Logging.globjError(TextureCubemapArray.class, name, "Cannot create", "Already exists");
-			return null;
-		}
+	protected static TextureCubemapArray create(String name, TextureFormat texformat, int s, int cubemaps, int basemap, int maxmap) {
 		TextureCubemapArray tex = new TextureCubemapArray(name, texformat);
 		if (tex.id == 0) {
 			Logging.globjError(TextureCubemapArray.class, name, "Cannot create", "No ID could be allocated");
@@ -79,20 +75,7 @@ public class TextureCubemapArray extends GLTexture2D implements FBOAttachable {
 			}
 		}
 		tex.undobind();
-		tracker.add(tex);
 		return tex;
-	}
-	
-	public static TextureCubemapArray get(String name) {
-		return tracker.get(name);
-	}
-	
-	protected static TextureCubemapArray get(int id) {
-		return tracker.get(id);
-	}
-	
-	public int target() {
-		return GL40.GL_TEXTURE_CUBE_MAP_ARRAY;
 	}
 	
 	/**************************************************/
@@ -118,11 +101,10 @@ public class TextureCubemapArray extends GLTexture2D implements FBOAttachable {
 		bind(curr.revert());
 	}
 	
-	public void destroy() {
+	protected void destroy() {
 		if (curr.value() == id)
 			bindNone();
 		GL11.glDeleteTextures(id);
-		tracker.remove(this);
 	}
 	
 	/**************************************************/
@@ -133,7 +115,7 @@ public class TextureCubemapArray extends GLTexture2D implements FBOAttachable {
 	public void makeSeamless(boolean seamless) {
 		if (GL.versionCheck(4, 4)) {
 			bind();
-			GL11.glTexParameteri(target(), GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS, seamless ? 1 : 0);
+			GL11.glTexParameteri(target.value, GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS, seamless ? 1 : 0);
 			undobind();
 		}
 		else
@@ -150,7 +132,7 @@ public class TextureCubemapArray extends GLTexture2D implements FBOAttachable {
 	// TODO make work for cubemaps
 	public void setData(int x, int y, int w, int h, int map, ImageFormat format, DataType type, ByteBuffer data) {
 		bind();
-		GL11.glTexSubImage2D(target(), map, x, y, w, h, format.value, type.value, data);
+		GL11.glTexSubImage2D(target.value, map, x, y, w, h, format.value, type.value, data);
 		undobind();
 	}
 	
@@ -166,7 +148,7 @@ public class TextureCubemapArray extends GLTexture2D implements FBOAttachable {
 	 */
 	@Override
 	public void attachToFBO(FBOAttachment attachment, int level, int layer) {
-		GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value, target(), id, level);
+		GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value, target.value, id, level);
 	}
 	
 	/**************************************************/
@@ -192,7 +174,7 @@ public class TextureCubemapArray extends GLTexture2D implements FBOAttachable {
 		
 		if (minFilter.value().mipmaps && maxmap > 0)
 			Logging.writeOut(Logging.fixedString("Mipmap Range:") + String.format("[%d, %d]", basemap, maxmap));
-				
+		
 		tb = swizzleR.resolved() && swizzleG.resolved() && swizzleB.resolved() && swizzleA.resolved();
 		ts = Logging.fixedString("Texture Swizzle:")
 				+ String.format("[%s, %s, %s, %s]", swizzleR.value(), swizzleG.value(), swizzleB.value(), swizzleA.value());
@@ -207,5 +189,6 @@ public class TextureCubemapArray extends GLTexture2D implements FBOAttachable {
 		Logging.unindent();
 		
 		Logging.unsetPad();
+		GL.flushErrors();
 	}
 }

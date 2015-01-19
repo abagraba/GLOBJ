@@ -20,11 +20,11 @@ public class GLObjectTracker<T extends GLObject> {
 	public T get(String name){
 		return this.name.get(name);
 	}
-
+	
 	public T get(int id){
 		return this.id.get(id);
 	}
-
+	
 	public boolean contains(String name){
 		return this.name.containsKey(name);
 	}

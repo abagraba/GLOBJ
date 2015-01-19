@@ -1,4 +1,4 @@
-package lwjgl.core.objects.textures;
+package lwjgl.core.objects;
 
 public class BindTracker {
 	

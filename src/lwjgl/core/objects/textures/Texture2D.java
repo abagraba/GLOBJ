@@ -5,11 +5,13 @@ import java.nio.ByteBuffer;
 
 import lwjgl.core.Context;
 import lwjgl.core.GL;
-import lwjgl.core.objects.GLObjectTracker;
+import lwjgl.core.objects.BindTracker;
 import lwjgl.core.objects.framebuffers.FBOAttachable;
 import lwjgl.core.objects.framebuffers.values.FBOAttachment;
+import lwjgl.core.objects.textures.values.ImageFormat;
 import lwjgl.core.objects.textures.values.TextureFormat;
 import lwjgl.core.objects.textures.values.TextureTarget;
+import lwjgl.core.utils.ImageUtil;
 import lwjgl.core.values.DataType;
 import lwjgl.debug.Logging;
 
@@ -18,9 +20,8 @@ import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL42;
 
-public class Texture2D extends GLTexture2D implements FBOAttachable {
+public final class Texture2D extends GLTexture2D implements FBOAttachable {
 	
-	private static final GLObjectTracker<Texture2D> tracker = new GLObjectTracker<Texture2D>();
 	private static final BindTracker curr = new BindTracker();
 	
 	public final static TextureTarget target = TextureTarget.TEXTURE_2D;
@@ -31,15 +32,7 @@ public class Texture2D extends GLTexture2D implements FBOAttachable {
 		super(name, texformat, target);
 	}
 	
-	public static Texture2D create(String name, TextureFormat texformat, int w, int h, int mipmaps) {
-		return create(name, texformat, w, h, 0, mipmaps - 1);
-	}
-	
-	public static Texture2D create(String name, TextureFormat texformat, int w, int h, int basemap, int maxmap) {
-		if (tracker.contains(name)) {
-			Logging.globjError(Texture2D.class, name, "Cannot create", "Already exists");
-			return null;
-		}
+	protected static Texture2D create(String name, TextureFormat texformat, int w, int h, int basemap, int maxmap) {
 		Texture2D tex = new Texture2D(name, texformat);
 		if (tex.id == 0) {
 			Logging.globjError(Texture2D.class, name, "Cannot create", "No ID could be allocated");
@@ -77,17 +70,12 @@ public class Texture2D extends GLTexture2D implements FBOAttachable {
 			}
 		}
 		tex.undobind();
-		tracker.add(tex);
 		return tex;
 	}
 	
-	public static Texture2D create(String name, BufferedImage image, int mipmaps) {
+	protected static Texture2D create(String name, BufferedImage image, int mipmaps) {
 		int w = image.getWidth();
 		int h = image.getHeight();
-		if (tracker.contains(name)) {
-			Logging.globjError(Texture2D.class, name, "Cannot create", "Already exists");
-			return null;
-		}
 		TextureFormat texformat = TextureFormat.RGBA8;
 		Texture2D tex = new Texture2D(name, texformat);
 		if (tex.id == 0) {
@@ -104,7 +92,7 @@ public class Texture2D extends GLTexture2D implements FBOAttachable {
 		tex.w = w;
 		tex.h = h;
 		tex.basemap = 0;
-		tex.maxmap = mipmaps - 1;
+		tex.maxmap = maps - 1;
 
 		tex.bind();
 		GL11.glTexParameteri(target.value, GL12.GL_TEXTURE_MAX_LEVEL, maps - 1);
@@ -119,19 +107,10 @@ public class Texture2D extends GLTexture2D implements FBOAttachable {
 			}
 		}
 		GL11.glTexSubImage2D(target.value, 0, 0, 0, w, h, ImageFormat.RGBA.value, DataType.UBYTE.value, ImageUtil.imageRGBAData(image));
-		if(mipmaps > 1)
+		if (mipmaps > 1)
 			GL30.glGenerateMipmap(target.value);
 		tex.undobind();
-		tracker.add(tex);
 		return tex;
-	}
-	
-	public static Texture2D get(String name) {
-		return tracker.get(name);
-	}
-	
-	protected static Texture2D get(int id) {
-		return tracker.get(id);
 	}
 	
 	/**************************************************/
@@ -158,11 +137,10 @@ public class Texture2D extends GLTexture2D implements FBOAttachable {
 			GL11.glBindTexture(target.value, curr.revert());
 	}
 	
-	public void destroy() {
+	protected void destroy() {
 		if (curr.value() == id)
 			bindNone();
 		GL11.glDeleteTextures(id);
-		tracker.remove(this);
 	}
 	
 	/**************************************************/
@@ -240,5 +218,6 @@ public class Texture2D extends GLTexture2D implements FBOAttachable {
 		Logging.unindent();
 		
 		Logging.unsetPad();
+		GL.flushErrors();
 	}
 }
