@@ -1,16 +1,14 @@
 package lwjgl.core.objects.framebuffers;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import lwjgl.core.Context;
 import lwjgl.core.GL;
 import lwjgl.core.objects.GLObject;
 import lwjgl.core.objects.framebuffers.values.FBOAttachment;
+import lwjgl.core.objects.textures.values.TextureFormat;
 import lwjgl.debug.Logging;
 
-import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
@@ -101,7 +99,7 @@ public class RBO extends GLObject implements FBOAttachable {
 	}
 	
 	public static void bind(String name) {
-		if (name == null){
+		if (name == null) {
 			bind(0);
 			return;
 		}
@@ -139,10 +137,6 @@ public class RBO extends GLObject implements FBOAttachable {
 	
 	@Override
 	public void debug() {
-		return;
-		/*
-		if (id == 0)
-			return new String[] { Logging.logText("RBO:", "Renderbuffer does not exist.", 0) };
 		GL.flushErrors();
 		bind();
 		int w = GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_WIDTH);
@@ -154,19 +148,18 @@ public class RBO extends GLObject implements FBOAttachable {
 		int d = GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_DEPTH_SIZE);
 		int s = GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_STENCIL_SIZE);
 		int n = GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_SAMPLES);
-		int f = GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_INTERNAL_FORMAT);
+		TextureFormat f = TextureFormat.get(GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_INTERNAL_FORMAT));
 		undobind();
-		List<String> status = new ArrayList<String>();
-		List<String> errors = GL.readErrorsToList();
-		for (String error : errors)
-			status.add(Logging.logText("ERROR:", error, 0));
-		status.add(Logging.logText("RBO:", name, 0));
-		status.add(Logging.logText(String.format("%dx%d Renderbuffer Object.", w, h), 1));
-		status.add(Logging.logText(String.format("%-12s:\t[%d, %d, %d, %d]", "RGBA", r, g, b, a), 1));
-		status.add(Logging.logText(String.format("%-12s:\t%d bits", "Depth", d), 1));
-		status.add(Logging.logText(String.format("%-12s:\t%d bits", "Stencil", s), 1));
-		status.add(Logging.logText(String.format("%-12s:\t%d bits", "Samples", n), 1));
-		status.add(Logging.logText(String.format("%-12s:\t%d", "Format", f), 1));
-		return status.toArray(new String[status.size()]);*/
+		
+		Logging.writeOut(Logging.fixedString("RBO:") + name);
+		Logging.indent();
+		Logging.writeOut(Logging.fixedString("Size:") + String.format("%dx%d", w, h));
+		Logging.writeOut(Logging.fixedString("RGBA:") + String.format("[%d, %d, %d, %d] bits", r, g, b, a));
+		Logging.writeOut(Logging.fixedString("Depth:") + String.format("%d bits", d));
+		Logging.writeOut(Logging.fixedString("Stencil:") + String.format("%d bits", s));
+		Logging.writeOut(Logging.fixedString("Samples:") + String.format("%d samples", n));
+		Logging.writeOut(Logging.fixedString("Format:") + f);
+		Logging.unindent();
+		GL.flushErrors();
 	}
 }

@@ -13,8 +13,7 @@ import org.lwjgl.opengl.GL15;
 
 public class VBO extends BindableGLObject{
 	
-	protected static final HashMap<String, VBO> vboname = new HashMap<String, VBO>();
-	protected static final HashMap<Integer, VBO> vboid = new HashMap<Integer, VBO>();
+	
 	protected static final HashMap<VBOTarget, Integer> current = new HashMap<VBOTarget, Integer>();
 	protected static final HashMap<VBOTarget, Integer> last = new HashMap<VBOTarget, Integer>();
 	
@@ -26,26 +25,12 @@ public class VBO extends BindableGLObject{
 	}
 	
 	public static VBO create(String name, VBOTarget target) {
-		if (vboname.containsKey(name)) {
-			Logging.glError("Cannot create VBO. VBO [" + name + "] already exists.", null);
-			return null;
-		}
 		VBO vbo = new VBO(name, target);
 		if (vbo.id == 0) {
 			Logging.glError("Cannot create VBO. No ID could be allocated for VBO [" + name + "].", null);
 			return null;
 		}
-		vboname.put(vbo.name, vbo);
-		vboid.put(vbo.id, vbo);
 		return vbo;
-	}
-	
-	public static VBO get(String name) {
-		return vboname.get(name);
-	}
-	
-	protected static VBO get(int id) {
-		return vboid.get(id);
 	}
 	
 	private static void bind(int vbo, VBOTarget target) {
@@ -59,19 +44,10 @@ public class VBO extends BindableGLObject{
 		current.put(target, vbo);
 	}
 
-	public static void bind(String name) {
-		VBO t = get(name);
-		if (t == null) {
-			Logging.glError("Cannot bind VBO [" + name + "]. Does not exist.", null);
-			return;
-		}
-		t.bind();
-	}
 	
 	@Override
 	public void bindNone() {
-		// TODO Auto-generated method stub
-		
+		bind(0, target);
 	}
 	public static void unbind(VBOTarget target){
 		bind(0, target);
@@ -86,20 +62,10 @@ public class VBO extends BindableGLObject{
 		bind(l, target);
 	}
 	
-	public void destroy() {
+	protected void destroy() {
 		if (current.get(target) == id)
 			bind(0, target);
 		GL15.glDeleteBuffers(id);
-		vboname.remove(name);
-		vboid.remove(id);
-	}
-	
-	public static void destroy(String name) {
-		VBO vbo = get(name);
-		if (vbo != null)
-			vbo.destroy();
-		else
-			Logging.glWarning("Cannot delete VBO. VBO [" + name + "] does not exist.");
 	}
 	
 	/**

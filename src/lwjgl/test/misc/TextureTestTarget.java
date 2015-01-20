@@ -1,5 +1,6 @@
 package lwjgl.test.misc;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -11,13 +12,13 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL15;
 
 import lwjgl.core.GL;
 import lwjgl.core.RenderCommand;
 import lwjgl.core.objects.bufferobjects.VBO;
 import lwjgl.core.objects.bufferobjects.VBOTarget;
 import lwjgl.core.objects.textures.Texture2D;
+import lwjgl.core.objects.textures.Textures;
 import lwjgl.core.objects.textures.values.MagnifyFilter;
 import lwjgl.core.objects.textures.values.MinifyFilter;
 import lwjgl.debug.Logging;
@@ -45,23 +46,26 @@ public class TextureTestTarget extends RenderCommand {
 		
 		FloatBuffer v = BufferUtils.createFloatBuffer(12);
 		FloatBuffer t = BufferUtils.createFloatBuffer(12);
-
+		
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		
+		BufferedImage img = null;
 		try {
-			Texture2D tex = Texture2D.create("Test");
-			tex.setFilter(MinifyFilter.NEAREST, MagnifyFilter.NEAREST);
-			Timer.debug.mark();
-			tex.setDataRGBA(ImageIO.read(new File("src/lwjgl/test/misc/Untitled.png")), 0);
-			Timer.debug.measure("Load Texture:");
-			
+			img = ImageIO.read(new File("src/lwjgl/test/misc/Untitled.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		Timer.debug.mark();
+		Texture2D tex = Textures.createTexture2D("Test", img, 1);
+		tex.setFilter(MinifyFilter.NEAREST, MagnifyFilter.NEAREST);
+		tex.update();
+		Timer.debug.measure("Load Texture:");
+		
 		v.put(new float[] { -1, -1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1 }).flip();
 		t.put(new float[] { 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0 }).flip();
 		
-		Logging.debug(Texture2D.get("Test"));
+		Logging.debug(tex);
 		
 		vertices = VBO.create("A", VBOTarget.ARRAY);
 		vertices.bufferData(v);
@@ -93,11 +97,10 @@ public class TextureTestTarget extends RenderCommand {
 		GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
 		GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
 		
-		Texture2D.get("Test").bind();
+		Textures.getTexture2D("Test").bind();
 		
 		GL11.glRotatef(theta, phi, 0, 1);
 		GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 6);
-		
 		
 		GL11.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
 		GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
