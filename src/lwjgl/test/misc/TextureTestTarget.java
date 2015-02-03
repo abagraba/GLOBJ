@@ -1,5 +1,14 @@
 package lwjgl.test.misc;
 
+import globj.core.GL;
+import globj.core.RenderCommand;
+import globj.objects.bufferobjects.VBO;
+import globj.objects.bufferobjects.VBOTarget;
+import globj.objects.textures.Texture2D;
+import globj.objects.textures.Textures;
+import globj.objects.textures.values.MagnifyFilter;
+import globj.objects.textures.values.MinifyFilter;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -13,14 +22,6 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
-import lwjgl.core.GL;
-import lwjgl.core.RenderCommand;
-import lwjgl.core.objects.bufferobjects.VBO;
-import lwjgl.core.objects.bufferobjects.VBOTarget;
-import lwjgl.core.objects.textures.Texture2D;
-import lwjgl.core.objects.textures.Textures;
-import lwjgl.core.objects.textures.values.MagnifyFilter;
-import lwjgl.core.objects.textures.values.MinifyFilter;
 import lwjgl.debug.Logging;
 import lwjgl.debug.Timer;
 

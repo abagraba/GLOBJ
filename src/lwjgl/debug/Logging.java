@@ -1,7 +1,7 @@
 package lwjgl.debug;
 
-import lwjgl.core.GLException;
-import lwjgl.core.objects.GLObject;
+import globj.core.GLException;
+import globj.objects.GLObject;
 
 public class Logging {
 	

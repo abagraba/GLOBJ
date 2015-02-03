@@ -1,11 +1,12 @@
 package lwjgl.test.misc;
 
+import globj.core.GL;
+import globj.core.RenderCommand;
+import globj.objects.framebuffers.RBO;
+
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.GL11;
 
-import lwjgl.core.GL;
-import lwjgl.core.RenderCommand;
-import lwjgl.core.objects.framebuffers.RBO;
 import lwjgl.debug.Logging;
 
 public class RBOTests extends RenderCommand {

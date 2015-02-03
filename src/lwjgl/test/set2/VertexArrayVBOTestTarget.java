@@ -1,5 +1,9 @@
 package lwjgl.test.set2;
 
+import globj.core.GL;
+import globj.core.RenderCommand;
+import globj.objects.bufferobjects.VBO;
+
 import java.nio.FloatBuffer;
 
 import org.lwjgl.BufferUtils;
@@ -9,10 +13,6 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.util.glu.GLU;
-
-import lwjgl.core.GL;
-import lwjgl.core.RenderCommand;
-import lwjgl.core.objects.bufferobjects.VBO;
 
 /**
  * Test Target to test functionality of Vertex Buffer Objects. <br/>

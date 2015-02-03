@@ -1,5 +1,15 @@
 package lwjgl.test.misc;
 
+import globj.core.GL;
+import globj.core.RenderCommand;
+import globj.objects.bufferobjects.VBO;
+import globj.objects.bufferobjects.VBOTarget;
+import globj.objects.framebuffers.FBO;
+import globj.objects.framebuffers.values.FBOAttachment;
+import globj.objects.textures.Texture2D;
+import globj.objects.textures.values.TextureFormat;
+import globj.objects.textures.values.TextureWrap;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -9,15 +19,6 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
-import lwjgl.core.GL;
-import lwjgl.core.RenderCommand;
-import lwjgl.core.objects.bufferobjects.VBO;
-import lwjgl.core.objects.bufferobjects.VBOTarget;
-import lwjgl.core.objects.framebuffers.FBO;
-import lwjgl.core.objects.framebuffers.values.FBOAttachment;
-import lwjgl.core.objects.textures.Texture2D;
-import lwjgl.core.objects.textures.values.TextureFormat;
-import lwjgl.core.objects.textures.values.TextureWrap;
 import lwjgl.debug.Logging;
 
 public class FBOTests extends RenderCommand {

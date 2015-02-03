@@ -1,13 +1,14 @@
 package lwjgl.test.misc;
 
+import globj.core.GL;
+import globj.core.RenderCommand;
+import globj.objects.textures.Texture2D;
+import globj.objects.textures.values.TextureFormat;
+
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
-import lwjgl.core.GL;
-import lwjgl.core.RenderCommand;
-import lwjgl.core.objects.textures.Texture2D;
-import lwjgl.core.objects.textures.values.TextureFormat;
 import lwjgl.debug.Timer;
 
 /**
