@@ -3,7 +3,7 @@ package lwjgl.debug;
 import globj.core.GLException;
 import globj.objects.GLObject;
 
-public class Logging {
+public class GLDebug {
 	
 	private static int indent = 0;
 	private static int lastindent = 0;
@@ -40,31 +40,31 @@ public class Logging {
 		indent = lastindent;
 	}
 	
-	public static void writeOut(String string) {
+	public static void write(String string) {
 		String s = "";
 		for (int i = 0; i < indent; i++)
 			s += '\t';
 		System.out.println(s + string);
 	}
 	
-	public static void writeOut(Object o) {
-		writeOut(o.toString());
+	public static void write(Object o) {
+		write(o.toString());
 	}
 	
 	public static void glWarning(String error) {
 		setIndent(0);
-		writeOut("WARNING:");
+		write("WARNING:");
 		indent();
-		writeOut(error);
+		write(error);
 		unsetIndent();
 	}
 	
 	public static void glError(String error, GLObject obj) {
 		GLException e = new GLException(error, obj);
 		setIndent(0);
-		writeOut("ERROR:");
+		write("ERROR:");
 		indent();
-		writeOut(error);
+		write(error);
 		indent();
 		if (obj != null)
 			obj.debug();
@@ -91,7 +91,7 @@ public class Logging {
 		return String.format("%-" + pad + "s", s);
 	}
 	
-	public static String logText(String message, int indent) {
+	public static String logMessage(String message, int indent) {
 		String f = "            \t";
 		for (int i = 0; i < indent; i++)
 			f += '\t';
@@ -99,7 +99,7 @@ public class Logging {
 		return String.format(f, message);
 	}
 	
-	public static String logText(String pre, String message, int indent) {
+	public static String logMessage(String pre, String message, int indent) {
 		String f = "%-12s\t";
 		for (int i = 0; i < indent; i++)
 			f += '\t';

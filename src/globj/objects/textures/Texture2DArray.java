@@ -1,18 +1,18 @@
 package globj.objects.textures;
- 
+
 import globj.core.Context;
 import globj.core.GL;
 import globj.objects.BindTracker;
 import globj.objects.framebuffers.FBOAttachable;
 import globj.objects.framebuffers.values.FBOAttachment;
+import globj.objects.textures.values.ImageDataType;
 import globj.objects.textures.values.ImageFormat;
 import globj.objects.textures.values.TextureFormat;
 import globj.objects.textures.values.TextureTarget;
 
 import java.nio.ByteBuffer;
 
-import lwjgl.core.values.DataType;
-import lwjgl.debug.Logging;
+import lwjgl.debug.GLDebug;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
@@ -21,16 +21,12 @@ import org.lwjgl.opengl.GL42;
 
 public final class Texture2DArray extends GLTexture2D implements FBOAttachable {
 	
-	private static final BindTracker curr = new BindTracker();
-	
-	public final static TextureTarget target = TextureTarget.TEXTURE_2D_ARRAY;
-	
 	private int w, h, layers, basemap, maxmap;
 	
 	private Texture2DArray(String name, TextureFormat texformat) {
-		super(name, texformat, target);
+		super(name, texformat, TextureTarget.TEXTURE_2D_ARRAY);
 	}
-
+	
 	protected static Texture2DArray create(String name, TextureFormat texformat, int w, int h, int layers, int mipmaps) {
 		return create(name, texformat, w, h, layers, 0, mipmaps - 1);
 	}
@@ -38,13 +34,9 @@ public final class Texture2DArray extends GLTexture2D implements FBOAttachable {
 	protected static Texture2DArray create(String name, TextureFormat texformat, int w, int h, int layers, int basemap, int maxmap) {
 		Texture2DArray tex = new Texture2DArray(name, texformat);
 		if (tex.id == 0) {
-			Logging.globjError(Texture2DArray.class, name, "Cannot create", "No ID could be allocated");
+			GLDebug.globjError(Texture2DArray.class, name, "Cannot create", "No ID could be allocated");
 			return null;
 		}
-		if (maxmap < basemap)
-			maxmap = basemap;
-		int bmap = Math.max(0, Math.min(basemap, levels(Math.max(w, h))));
-		int mmap = Math.max(0, Math.min(maxmap, levels(Math.max(w, h))));
 		
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
 		int maxlayers = Context.intConst(GL30.GL_MAX_ARRAY_TEXTURE_LAYERS);
@@ -54,21 +46,19 @@ public final class Texture2DArray extends GLTexture2D implements FBOAttachable {
 		tex.w = w;
 		tex.h = h;
 		tex.layers = layers;
-		tex.basemap = basemap;
-		tex.maxmap = maxmap;
-
+		tex.basemap = Math.min(Math.max(0, basemap), levels(Math.max(w, h)));
+		tex.maxmap = Math.min(Math.max(tex.basemap, maxmap), levels(Math.max(w, h)));
+		
 		tex.bind();
-		if (bmap != 0)
-			GL11.glTexParameteri(target.value, GL12.GL_TEXTURE_BASE_LEVEL, bmap);
-		GL11.glTexParameteri(target.value, GL12.GL_TEXTURE_MAX_LEVEL, mmap);
+		setMipmaps(tex.target, tex.basemap, tex.maxmap);
 		if (GL.versionCheck(4, 2)) {
-			GL42.glTexStorage3D(target.value, mmap + 1, texformat.value, w, h, layers);
+			GL42.glTexStorage3D(tex.target.value, tex.maxmap + 1, texformat.value, w, h, layers);
 		}
 		else {
-			w = Math.max(1, w >> bmap);
-			h = Math.max(1, h >> bmap);
-			for (int i = bmap; i <= mmap; i++) {
-				GL12.glTexImage3D(target.value, i, texformat.value, w, h, layers, 0, texformat.base, DataType.UBYTE.value, (ByteBuffer) null);
+			w = Math.max(1, w >> tex.basemap);
+			h = Math.max(1, h >> tex.basemap);
+			for (int i = tex.basemap; i <= tex.maxmap; i++) {
+				GL12.glTexImage3D(tex.target.value, i, texformat.value, w, h, layers, 0, texformat.base, ImageDataType.UBYTE.value, (ByteBuffer) null);
 				w = Math.max(1, w / 2);
 				h = Math.max(1, h / 2);
 			}
@@ -81,33 +71,14 @@ public final class Texture2DArray extends GLTexture2D implements FBOAttachable {
 	/********************** Bind **********************/
 	/**************************************************/
 	
-	private static void bind(int tex) {
-		curr.update(tex);
-		if (tex == curr.last())
-			return;
-		GL11.glBindTexture(GL30.GL_TEXTURE_2D_ARRAY, tex);
-	}
+	private static final BindTracker bindTracker = new BindTracker();
 	
-	public void bind() {
-		bind(id);
-	}
-	
-	public void bindNone() {
-		bind(0);
-	}
-	
-	protected void undobind() {
-		bind(curr.revert());
-	}
-	
-	public void destroy() {
-		if (curr.value() == id)
-			bindNone();
-		GL11.glDeleteTextures(id);
+	@Override
+	protected BindTracker bindingTracker() {
+		return bindTracker;
 	}
 	
 	/**************************************************/
-	
 	
 	/**
 	 * Sets the texel data in specified rectangle of mipmap level. Texture needs
@@ -115,7 +86,7 @@ public final class Texture2DArray extends GLTexture2D implements FBOAttachable {
 	 * {@link #initializeTexture(int, int, int, TextureFormat)}. Rectangle must
 	 * be within the bounds of the texture. [GL_TEXTURE_BASE_LEVEL + map].
 	 */
-	public void setData(int x, int y, int w, int h, int layeri, int layerf, int map, ImageFormat format, DataType type, ByteBuffer data) {
+	public void setData(int x, int y, int w, int h, int layeri, int layerf, int map, ImageFormat format, ImageDataType type, ByteBuffer data) {
 		bind();
 		GL12.glTexSubImage3D(target.value, map, x, y, layeri, w, h, layerf, format.value, type.value, data);
 		undobind();
@@ -140,39 +111,39 @@ public final class Texture2DArray extends GLTexture2D implements FBOAttachable {
 	@Override
 	public void debug() {
 		GL.flushErrors();
-		Logging.setPad(32);
+		GLDebug.setPad(32);
 		
-		Logging.writeOut(Logging.fixedString(target + ":") + String.format("%s\t(%d x %d) x %d", name, w, h, layers));
-		Logging.indent();
+		GLDebug.write(GLDebug.fixedString(target + ":") + String.format("%s\t(%d x %d) x %d", name, w, h, layers));
+		GLDebug.indent();
 		
-		Logging.writeOut(Logging.fixedString("Texture Format:") + texformat);
+		GLDebug.write(GLDebug.fixedString("Texture Format:") + texformat);
 		
-		Logging.writeOut(minFilter);
-		Logging.writeOut(magFilter);
+		GLDebug.write(minFilter);
+		GLDebug.write(magFilter);
 		
 		boolean tb = lodMin.resolved() && lodMax.resolved() && lodBias.resolved();
-		String ts = Logging.fixedString("LOD Range:") + String.format("[%4f, %4f] + %4f", lodMin.value(), lodMax.value(), lodBias.value());
+		String ts = GLDebug.fixedString("LOD Range:") + String.format("[%4f, %4f] + %4f", lodMin.value(), lodMax.value(), lodBias.value());
 		if (!tb)
 			ts += "\tUnresolved:\t" + String.format("[%4f, %4f] + %4f", lodMin.state(), lodMax.state(), lodBias.state());
-		Logging.writeOut(ts);
+		GLDebug.write(ts);
 		
 		if (minFilter.value().mipmaps && maxmap > 0)
-			Logging.writeOut(Logging.fixedString("Mipmap Range:") + String.format("[%d, %d]", basemap, maxmap));
-				
+			GLDebug.write(GLDebug.fixedString("Mipmap Range:") + String.format("[%d, %d]", basemap, maxmap));
+		
 		tb = swizzleR.resolved() && swizzleG.resolved() && swizzleB.resolved() && swizzleA.resolved();
-		ts = Logging.fixedString("Texture Swizzle:")
+		ts = GLDebug.fixedString("Texture Swizzle:")
 				+ String.format("[%s, %s, %s, %s]", swizzleR.value(), swizzleG.value(), swizzleB.value(), swizzleA.value());
 		if (!tb)
 			ts += "\tUnresolved:\t" + String.format("[%s, %s, %s, %s]", swizzleR.state(), swizzleG.state(), swizzleB.state(), swizzleA.state());
-		Logging.writeOut(ts);
+		GLDebug.write(ts);
 		
-		Logging.writeOut(border);
-		Logging.writeOut(sWrap);
-		Logging.writeOut(tWrap);
+		GLDebug.write(border);
+		GLDebug.write(sWrap);
+		GLDebug.write(tWrap);
 		
-		Logging.unindent();
+		GLDebug.unindent();
 		
-		Logging.unsetPad();
+		GLDebug.unsetPad();
 		GL.flushErrors();
 	}
 	

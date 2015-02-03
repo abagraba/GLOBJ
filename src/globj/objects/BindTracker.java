@@ -1,5 +1,8 @@
 package globj.objects;
 
+import lwjgl.debug.GLDebug;
+
+
 public class BindTracker {
 	
 	private int current = 0;
@@ -18,6 +21,20 @@ public class BindTracker {
 	}
 	
 	public int revert(){
-		return current = last;
+		current = last;
+		last = -1;
+		if (current == -1){
+			GLDebug.glWarning("Attempted to revert object binding twice. Binding default instead.");
+			return 0;
+		}
+		return current;
+	}
+	
+	public boolean changed(){
+		return last != current;
+	}
+
+	public void clear() {
+		current = last = 0;
 	}
 }

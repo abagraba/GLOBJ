@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 import org.lwjgl.opengl.GL20;
 
-import lwjgl.debug.Logging;
+import lwjgl.debug.GLDebug;
 
 public class Shaders {
 	
@@ -18,7 +18,7 @@ public class Shaders {
 	
 	public static Shader createShader(String name, ShaderType type) {
 		if (tracker.contains(name)) {
-			Logging.globjError(Shader.class, name, "Cannot create", "Already exists");
+			GLDebug.globjError(Shader.class, name, "Cannot create", "Already exists");
 			return null;
 		}
 		Shader s = Shader.create(name, type);
@@ -29,7 +29,7 @@ public class Shaders {
 	
 	public static Shader createShader(String name, ShaderType type, InputStream in) throws IOException {
 		if (tracker.contains(name)) {
-			Logging.globjError(Shader.class, name, "Cannot create", "Already exists");
+			GLDebug.globjError(Shader.class, name, "Cannot create", "Already exists");
 			return null;
 		}
 		Shader s = Shader.create(name, type);
@@ -53,7 +53,7 @@ public class Shaders {
 
 	public static void destroyShader(String name) {
 		if (!tracker.contains(name)) {
-			Logging.globjError(Shader.class, name, "Cannot destroy", "Does not exist");
+			GLDebug.globjError(Shader.class, name, "Cannot destroy", "Does not exist");
 			return;
 		}
 		destroyShader(tracker.get(name));

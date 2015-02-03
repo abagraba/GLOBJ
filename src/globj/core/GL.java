@@ -3,7 +3,7 @@ package globj.core;
 import java.util.ArrayList;
 import java.util.List;
 
-import lwjgl.debug.Logging;
+import lwjgl.debug.GLDebug;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.ContextAttribs;
@@ -182,17 +182,17 @@ public class GL {
 		List<String> status = new ArrayList<String>();
 		List<String> errors = GL.readErrorsToList();
 		for (String error : errors)
-			status.add(Logging.logText("ERROR:", error, 0));
-		status.add(Logging.logText("OpenGL Context Status:", "", 0));
-		status.add(Logging.logText(String.format("%-16s:\t%s", "Vendor", vendor), 1));
-		status.add(Logging.logText(String.format("%-16s:\t%s", "Renderer", renderer), 1));
-		status.add(Logging.logText(String.format("%-16s:\t%d.%d", "Version", major, minor), 1));
-		status.add(Logging.logText("Supported GLSL Versions", 1));
+			status.add(GLDebug.logMessage("ERROR:", error, 0));
+		status.add(GLDebug.logMessage("OpenGL Context Status:", "", 0));
+		status.add(GLDebug.logMessage(String.format("%-16s:\t%s", "Vendor", vendor), 1));
+		status.add(GLDebug.logMessage(String.format("%-16s:\t%s", "Renderer", renderer), 1));
+		status.add(GLDebug.logMessage(String.format("%-16s:\t%d.%d", "Version", major, minor), 1));
+		status.add(GLDebug.logMessage("Supported GLSL Versions", 1));
 		for (int i = 0; i < glsls.length; i++)
-			status.add(Logging.logText(String.format("%-16s:\t%s", "", glsls[i]), 1));
-		status.add(Logging.logText("Supported Extensions", 1));
+			status.add(GLDebug.logMessage(String.format("%-16s:\t%s", "", glsls[i]), 1));
+		status.add(GLDebug.logMessage("Supported Extensions", 1));
 		for (int i = 0; i < exts.length; i++)
-			status.add(Logging.logText(String.format("%-16s:\t%s", "", exts[i]), 1));
+			status.add(GLDebug.logMessage(String.format("%-16s:\t%s", "", exts[i]), 1));
 		return status.toArray(new String[status.size()]);
 	}
 }

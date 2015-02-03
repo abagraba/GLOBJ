@@ -5,6 +5,7 @@ import globj.core.GL;
 import globj.objects.BindTracker;
 import globj.objects.framebuffers.FBOAttachable;
 import globj.objects.framebuffers.values.FBOAttachment;
+import globj.objects.textures.values.ImageDataType;
 import globj.objects.textures.values.ImageFormat;
 import globj.objects.textures.values.TextureFormat;
 import globj.objects.textures.values.TextureTarget;
@@ -13,30 +14,24 @@ import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 
 import lwjgl.core.utils.ImageUtil;
-import lwjgl.core.values.DataType;
-import lwjgl.debug.Logging;
+import lwjgl.debug.GLDebug;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.GL42;
 
 public final class TextureRectangle extends GLTexture2D implements FBOAttachable {
 	
-	private static final BindTracker curr = new BindTracker();
-	
-	public final static TextureTarget target = TextureTarget.TEXTURE_RECTANGLE;
-	
 	private int w, h;
 	
 	private TextureRectangle(String name, TextureFormat texformat) {
-		super(name, texformat, target);
+		super(name, texformat, TextureTarget.TEXTURE_RECTANGLE);
 	}
 	
 	protected static TextureRectangle create(String name, TextureFormat texformat, int w, int h) {
 		TextureRectangle tex = new TextureRectangle(name, texformat);
 		if (tex.id == 0) {
-			Logging.globjError(TextureRectangle.class, name, "Cannot create", "No ID could be allocated");
+			GLDebug.globjError(TextureRectangle.class, name, "Cannot create", "No ID could be allocated");
 			return null;
 		}
 		
@@ -49,10 +44,10 @@ public final class TextureRectangle extends GLTexture2D implements FBOAttachable
 		
 		tex.bind();
 		if (GL.versionCheck(4, 2)) {
-			GL42.glTexStorage2D(target.value, 0, texformat.value, w, h);
+			GL42.glTexStorage2D(tex.target.value, 0, texformat.value, w, h);
 		}
 		else {
-			GL11.glTexImage2D(target.value, 0, texformat.value, w, h, 0, texformat.base, DataType.UBYTE.value, (ByteBuffer) null);
+			GL11.glTexImage2D(tex.target.value, 0, texformat.value, w, h, 0, texformat.base, ImageDataType.UBYTE.value, (ByteBuffer) null);
 		}
 		tex.undobind();
 		return tex;
@@ -64,7 +59,7 @@ public final class TextureRectangle extends GLTexture2D implements FBOAttachable
 		TextureFormat texformat = TextureFormat.RGBA8;
 		TextureRectangle tex = new TextureRectangle(name, texformat);
 		if (tex.id == 0) {
-			Logging.globjError(TextureRectangle.class, name, "Cannot create", "No ID could be allocated");
+			GLDebug.globjError(TextureRectangle.class, name, "Cannot create", "No ID could be allocated");
 			return null;
 		}
 		
@@ -77,13 +72,13 @@ public final class TextureRectangle extends GLTexture2D implements FBOAttachable
 		
 		tex.bind();
 		if (GL.versionCheck(4, 2)) {
-			GL42.glTexStorage2D(target.value, 0, texformat.value, w, h);
+			GL42.glTexStorage2D(tex.target.value, 0, texformat.value, w, h);
 		}
 		else {
-			GL11.glTexImage2D(target.value, 0, texformat.value, w, h, 0, texformat.base, DataType.UBYTE.value, (ByteBuffer) null);
+			GL11.glTexImage2D(tex.target.value, 0, texformat.value, w, h, 0, texformat.base, ImageDataType.UBYTE.value, (ByteBuffer) null);
 		}
 		// TODO BGRA more efficient?
-		GL11.glTexSubImage2D(target.value, 0, 0, 0, w, h, ImageFormat.RGBA.value, DataType.UBYTE.value, ImageUtil.imageRGBAData(image));
+		GL11.glTexSubImage2D(tex.target.value, 0, 0, 0, w, h, ImageFormat.RGBA.value, ImageDataType.UBYTE.value, ImageUtil.imageRGBAData(image));
 		tex.undobind();
 		return tex;
 	}
@@ -92,29 +87,11 @@ public final class TextureRectangle extends GLTexture2D implements FBOAttachable
 	/********************** Bind **********************/
 	/**************************************************/
 	
-	private static void bind(int tex) {
-		curr.update(tex);
-		if (tex == curr.last())
-			return;
-		GL11.glBindTexture(GL31.GL_TEXTURE_RECTANGLE, tex);
-	}
-	
-	public void bind() {
-		bind(id);
-	}
-	
-	public void bindNone() {
-		bind(0);
-	}
-	
-	protected void undobind() {
-		bind(curr.revert());
-	}
-	
-	protected void destroy() {
-		if (curr.value() == id)
-			bindNone();
-		GL11.glDeleteTextures(id);
+	private static final BindTracker bindTracker = new BindTracker();
+
+	@Override
+	protected BindTracker bindingTracker() {
+		return bindTracker;
 	}
 	
 	/**************************************************/
@@ -125,7 +102,7 @@ public final class TextureRectangle extends GLTexture2D implements FBOAttachable
 	 * {@link #initializeTexture(int, int, int, TextureFormat)}. Rectangle must
 	 * be within the bounds of the texture. [GL_TEXTURE_BASE_LEVEL + map].
 	 */
-	public void setData(int x, int y, int w, int h, ImageFormat format, DataType type, ByteBuffer data) {
+	public void setData(int x, int y, int w, int h, ImageFormat format, ImageDataType type, ByteBuffer data) {
 		bind();
 		GL11.glTexSubImage2D(target.value, 0, x, y, w, h, format.value, type.value, data);
 		undobind();
@@ -150,36 +127,36 @@ public final class TextureRectangle extends GLTexture2D implements FBOAttachable
 	@Override
 	public void debug() {
 		GL.flushErrors();
-		Logging.setPad(32);
+		GLDebug.setPad(32);
 		
-		Logging.writeOut(Logging.fixedString(target + ":") + String.format("%s\t(%d x %d)", name, w, h));
-		Logging.indent();
+		GLDebug.write(GLDebug.fixedString(target + ":") + String.format("%s\t(%d x %d)", name, w, h));
+		GLDebug.indent();
 		
-		Logging.writeOut(Logging.fixedString("Texture Format:") + texformat);
+		GLDebug.write(GLDebug.fixedString("Texture Format:") + texformat);
 		
-		Logging.writeOut(minFilter);
-		Logging.writeOut(magFilter);
+		GLDebug.write(minFilter);
+		GLDebug.write(magFilter);
 		
 		boolean tb = lodMin.resolved() && lodMax.resolved() && lodBias.resolved();
-		String ts = Logging.fixedString("LOD Range:") + String.format("[%4f, %4f] + %4f", lodMin.value(), lodMax.value(), lodBias.value());
+		String ts = GLDebug.fixedString("LOD Range:") + String.format("[%4f, %4f] + %4f", lodMin.value(), lodMax.value(), lodBias.value());
 		if (!tb)
 			ts += "\tUnresolved:\t" + String.format("[%4f, %4f] + %4f", lodMin.state(), lodMax.state(), lodBias.state());
-		Logging.writeOut(ts);
+		GLDebug.write(ts);
 		
 		tb = swizzleR.resolved() && swizzleG.resolved() && swizzleB.resolved() && swizzleA.resolved();
-		ts = Logging.fixedString("Texture Swizzle:")
+		ts = GLDebug.fixedString("Texture Swizzle:")
 				+ String.format("[%s, %s, %s, %s]", swizzleR.value(), swizzleG.value(), swizzleB.value(), swizzleA.value());
 		if (!tb)
 			ts += "\tUnresolved:\t" + String.format("[%s, %s, %s, %s]", swizzleR.state(), swizzleG.state(), swizzleB.state(), swizzleA.state());
-		Logging.writeOut(ts);
+		GLDebug.write(ts);
 		
-		Logging.writeOut(border);
-		Logging.writeOut(sWrap);
-		Logging.writeOut(tWrap);
+		GLDebug.write(border);
+		GLDebug.write(sWrap);
+		GLDebug.write(tWrap);
 		
-		Logging.unindent();
+		GLDebug.unindent();
 		
-		Logging.unsetPad();
+		GLDebug.unsetPad();
 		GL.flushErrors();
 	}
 	

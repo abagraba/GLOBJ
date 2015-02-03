@@ -4,7 +4,7 @@ import globj.objects.GLObjectTracker;
 
 import org.lwjgl.opengl.GL20;
 
-import lwjgl.debug.Logging;
+import lwjgl.debug.GLDebug;
 
 public class Programs {
 	
@@ -12,7 +12,7 @@ public class Programs {
 	
 	public static Program createProgram(String name, Shader... shaders) {
 		if (tracker.contains(name)) {
-			Logging.globjError(Program.class, name, "Cannot create", "Already exists");
+			GLDebug.globjError(Program.class, name, "Cannot create", "Already exists");
 			return null;
 		}
 		Program p = Program.create(name, shaders);
@@ -23,7 +23,7 @@ public class Programs {
 	
 	public static Program createProgram(String name, String... shaders) {
 		if (tracker.contains(name)) {
-			Logging.globjError(Program.class, name, "Cannot create", "Already exists");
+			GLDebug.globjError(Program.class, name, "Cannot create", "Already exists");
 			return null;
 		}
 		Program p = Program.create(name, shaders);
@@ -31,7 +31,7 @@ public class Programs {
 			tracker.add(p);
 		return p;
 	}
-
+	
 	public static Program destroyProgram(Program p) {
 		if (p != null) {
 			GL20.glDeleteProgram(p.id);
@@ -42,7 +42,7 @@ public class Programs {
 	
 	public static Program destroyProgram(String name) {
 		if (!tracker.contains(name)) {
-			Logging.globjError(Program.class, name, "Cannot destroy", "Does not exist");
+			GLDebug.globjError(Program.class, name, "Cannot destroy", "Does not exist");
 			return null;
 		}
 		return destroyProgram(tracker.get(name));
@@ -52,8 +52,8 @@ public class Programs {
 		return tracker.get(name);
 	}
 	
-	public static Program current(){
-		return tracker.get(Program.bind.value());
+	public static Program current() {
+		return tracker.get(Program.bindTracker.value());
 	}
 	
 }

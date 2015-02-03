@@ -8,7 +8,7 @@ import globj.objects.textures.values.TextureFormat;
 
 import java.util.HashMap;
 
-import lwjgl.debug.Logging;
+import lwjgl.debug.GLDebug;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
@@ -26,12 +26,12 @@ public class RBO extends GLObject implements FBOAttachable {
 	
 	public static RBO create(String name, int w, int h, int format) {
 		if (rboname.containsKey(name)) {
-			Logging.glError("Cannot create Renderbuffer Object. Renderbuffer Object [" + name + "] already exists.", null);
+			GLDebug.glError("Cannot create Renderbuffer Object. Renderbuffer Object [" + name + "] already exists.", null);
 			return null;
 		}
 		RBO rbo = new RBO(name);
 		if (rbo.id == 0) {
-			Logging.glError("Cannot create Renderbuffer Object. No ID could be allocated for Renderbuffer Object [" + name + "].", null);
+			GLDebug.glError("Cannot create Renderbuffer Object. No ID could be allocated for Renderbuffer Object [" + name + "].", null);
 			return null;
 		}
 		
@@ -52,15 +52,15 @@ public class RBO extends GLObject implements FBOAttachable {
 		while (err != GL11.GL_NO_ERROR) {
 			switch (err) {
 				case GL11.GL_INVALID_ENUM:
-					Logging.glError("Cannot create Renderbuffer Object. Invalid format.", null);
+					GLDebug.glError("Cannot create Renderbuffer Object. Invalid format.", null);
 					return true;
 				case GL11.GL_INVALID_VALUE:
-					Logging.glError(
+					GLDebug.glError(
 							"Cannot create Renderbuffer Object. Renderbuffer Object too large. Max Size is " + Context.intConst(GL30.GL_MAX_RENDERBUFFER_SIZE)
 									+ " pixels.", null);
 					return true;
 				case GL11.GL_OUT_OF_MEMORY:
-					Logging.glError("Cannot create Renderbuffer Object. Out of Memory.", null);
+					GLDebug.glError("Cannot create Renderbuffer Object. Out of Memory.", null);
 					return true;
 			}
 			err = GL.nextError();
@@ -70,7 +70,7 @@ public class RBO extends GLObject implements FBOAttachable {
 	
 	public static void destroy(String name) {
 		if (!rboname.containsKey(name)) {
-			Logging.glWarning("Cannot delete Renderbuffer Object. Renderbuffer Object [" + name + "] does not exist.");
+			GLDebug.glWarning("Cannot delete Renderbuffer Object. Renderbuffer Object [" + name + "] does not exist.");
 			return;
 		}
 		RBO rbo = rboname.get(name);
@@ -106,7 +106,7 @@ public class RBO extends GLObject implements FBOAttachable {
 		}
 		RBO r = get(name);
 		if (r == null) {
-			Logging.glError("Cannot bind RBO [" + name + "]. Does not exist.", null);
+			GLDebug.glError("Cannot bind RBO [" + name + "]. Does not exist.", null);
 			return;
 		}
 		r.bind();
@@ -152,15 +152,15 @@ public class RBO extends GLObject implements FBOAttachable {
 		TextureFormat f = TextureFormat.get(GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_INTERNAL_FORMAT));
 		undobind();
 		
-		Logging.writeOut(Logging.fixedString("RBO:") + name);
-		Logging.indent();
-		Logging.writeOut(Logging.fixedString("Size:") + String.format("%dx%d", w, h));
-		Logging.writeOut(Logging.fixedString("RGBA:") + String.format("[%d, %d, %d, %d] bits", r, g, b, a));
-		Logging.writeOut(Logging.fixedString("Depth:") + String.format("%d bits", d));
-		Logging.writeOut(Logging.fixedString("Stencil:") + String.format("%d bits", s));
-		Logging.writeOut(Logging.fixedString("Samples:") + String.format("%d samples", n));
-		Logging.writeOut(Logging.fixedString("Format:") + f);
-		Logging.unindent();
+		GLDebug.write(GLDebug.fixedString("RBO:") + name);
+		GLDebug.indent();
+		GLDebug.write(GLDebug.fixedString("Size:") + String.format("%dx%d", w, h));
+		GLDebug.write(GLDebug.fixedString("RGBA:") + String.format("[%d, %d, %d, %d] bits", r, g, b, a));
+		GLDebug.write(GLDebug.fixedString("Depth:") + String.format("%d bits", d));
+		GLDebug.write(GLDebug.fixedString("Stencil:") + String.format("%d bits", s));
+		GLDebug.write(GLDebug.fixedString("Samples:") + String.format("%d samples", n));
+		GLDebug.write(GLDebug.fixedString("Format:") + f);
+		GLDebug.unindent();
 		GL.flushErrors();
 	}
 }

@@ -1,6 +1,6 @@
 package lwjgl.core.states;
 
-import lwjgl.debug.Logging;
+import lwjgl.debug.GLDebug;
 
 public class State<T> {
 	
@@ -63,7 +63,7 @@ public class State<T> {
 	}
 	
 	public String toString() {
-		String s = Logging.fixedString(name + ':') + value();
+		String s = GLDebug.fixedString(name + ':') + value();
 		if (!resolved())
 			s += "\tUnresolved:\t" + state();
 		return s;

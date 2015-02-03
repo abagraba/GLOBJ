@@ -19,7 +19,7 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
-import lwjgl.debug.Logging;
+import lwjgl.debug.GLDebug;
 
 public class FBOTests extends RenderCommand {
 	
@@ -52,14 +52,14 @@ public class FBOTests extends RenderCommand {
 		}
 		tex.setWrap(TextureWrap.CLAMP_EDGE, TextureWrap.CLAMP_EDGE);
 		tex.update();
-		Logging.debug(tex);
+		GLDebug.debug(tex);
 		
 		try {
 			tex.setDataRGBA(ImageIO.read(file), 1);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Logging.debug(tex);
+		GLDebug.debug(tex);
 		
 		vbo.bufferData(new float[] { 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0 });
 		
@@ -71,11 +71,11 @@ public class FBOTests extends RenderCommand {
 		c0 = Texture2D.create("Color 0", TextureFormat.RGBA8, 1024, 1024, 1);
 		Texture2D d = Texture2D.create("Depth", TextureFormat.D16, 1024, 1024, 1);
 		
-		Logging.debug(fbo);
+		GLDebug.debug(fbo);
 		fbo.attach(c0, FBOAttachment.COLOR0, 0, 0);
-		Logging.debug(fbo);
+		GLDebug.debug(fbo);
 		fbo.attach(d, FBOAttachment.DEPTH, 0, 0);
-		Logging.debug(fbo);
+		GLDebug.debug(fbo);
 	}
 	
 	@Override

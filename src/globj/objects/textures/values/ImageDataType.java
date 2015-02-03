@@ -1,11 +1,11 @@
-package lwjgl.core.values;
+package globj.objects.textures.values;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
 
-public enum DataType {
+public enum ImageDataType {
 	
 	UBYTE("Unsigned Byte", GL11.GL_UNSIGNED_BYTE),
 	BYTE("Byte", GL11.GL_BYTE),
@@ -36,13 +36,13 @@ public enum DataType {
 	public final String name;
 	public final int value;
 	
-	private DataType(String name, int value) {
+	private ImageDataType(String name, int value) {
 		this.name = name;
 		this.value = value;
 	}
 	
-	public static DataType get(int i) {
-		for (DataType type : values())
+	public static ImageDataType get(int i) {
+		for (ImageDataType type : values())
 			if (type.value == i)
 				return type;
 		return null;

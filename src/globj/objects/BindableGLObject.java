@@ -5,11 +5,34 @@ public abstract class BindableGLObject extends GLObject {
 	public BindableGLObject(String name, int id) {
 		super(name, id);
 	}
+
+	protected abstract BindTracker bindingTracker();
+	protected abstract void bindOP(int id);
+	protected abstract void destroyOP();
 	
-	public abstract void bind();
+	protected void bind() {
+		bindingTracker().update(id);
+		if (!bindingTracker().changed())
+			return;
+		bindOP(id);
+	}
 	
-	public abstract void bindNone();
+	protected void bindNone() {
+		bindingTracker().update(0);
+		if (!bindingTracker().changed())
+			return;
+		bindOP(0);
+	}
 	
-	protected abstract void undobind();
+	protected void undobind() {
+		if (bindingTracker().changed())
+			bindOP(bindingTracker().revert());
+	}
+	
+	protected void destroy() {
+		if (bindingTracker().value() == id)
+			bindingTracker().clear();
+		destroyOP();
+	}
 	
 }

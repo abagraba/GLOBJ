@@ -22,7 +22,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
-import lwjgl.debug.Logging;
+import lwjgl.debug.GLDebug;
 import lwjgl.debug.Timer;
 
 /**
@@ -66,7 +66,7 @@ public class TextureTestTarget extends RenderCommand {
 		v.put(new float[] { -1, -1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1 }).flip();
 		t.put(new float[] { 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0 }).flip();
 		
-		Logging.debug(tex);
+		GLDebug.debug(tex);
 		
 		vertices = VBO.create("A", VBOTarget.ARRAY);
 		vertices.bufferData(v);

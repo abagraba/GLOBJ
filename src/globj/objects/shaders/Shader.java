@@ -2,7 +2,7 @@ package globj.objects.shaders;
 
 import globj.core.GL;
 import globj.objects.GLObject;
-import lwjgl.debug.Logging;
+import lwjgl.debug.GLDebug;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -19,7 +19,7 @@ public class Shader extends GLObject {
 	public static Shader create(String name, ShaderType type) {
 		Shader s = new Shader(name, type);
 		if (s.id == 0) {
-			Logging.globjError(Shader.class, name, "Cannot create", "No ID could be allocated");
+			GLDebug.globjError(Shader.class, name, "Cannot create", "No ID could be allocated");
 			return null;
 		}
 		return s;
@@ -31,7 +31,7 @@ public class Shader extends GLObject {
 		String[] errors = getErrors();
 		if (errors != null)
 			for (String error : errors)
-				Logging.writeOut(error);
+				GLDebug.write(error);
 	}
 	
 	public String[] getErrors() {
@@ -44,28 +44,28 @@ public class Shader extends GLObject {
 	@Override
 	public void debug() {
 		GL.flushErrors();
-		Logging.setPad(24);
+		GLDebug.setPad(24);
 		
-		Logging.writeOut(Logging.fixedString("Shader:") + name);
-		Logging.indent();
+		GLDebug.write(GLDebug.fixedString("Shader:") + name);
+		GLDebug.indent();
 		
-		Logging.writeOut(Logging.fixedString("Type:") + type);
-		Logging.indent();
+		GLDebug.write(GLDebug.fixedString("Type:") + type);
+		GLDebug.indent();
 		
 		String[] errors = getErrors();
 		if (errors != null)
 			for (String error : errors)
-				Logging.writeOut(error);
+				GLDebug.write(error);
 		/*
 		 * int length = GL20.glGetShaderi(id, GL20.GL_SHADER_SOURCE_LENGTH);
 		 * String[] src = GL20.glGetShaderSource(id, length).split("\n");
 		 * Logging.logInfo(src);
 		 */
 		
-		Logging.unindent();
+		GLDebug.unindent();
 		
-		Logging.unindent();
-		Logging.unsetPad();
+		GLDebug.unindent();
+		GLDebug.unsetPad();
 		GL.flushErrors();
 		
 	}

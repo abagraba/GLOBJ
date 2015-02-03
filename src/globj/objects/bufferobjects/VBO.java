@@ -7,7 +7,7 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.HashMap;
 
-import lwjgl.debug.Logging;
+import lwjgl.debug.GLDebug;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL15;
@@ -18,7 +18,7 @@ public class VBO extends BindableGLObject{
 	protected static final HashMap<VBOTarget, Integer> current = new HashMap<VBOTarget, Integer>();
 	protected static final HashMap<VBOTarget, Integer> last = new HashMap<VBOTarget, Integer>();
 	
-	protected final VBOTarget target;
+	public final VBOTarget target;
 	
 	private VBO(String name, VBOTarget target) {
 		super(name, GL15.glGenBuffers());
@@ -28,7 +28,7 @@ public class VBO extends BindableGLObject{
 	public static VBO create(String name, VBOTarget target) {
 		VBO vbo = new VBO(name, target);
 		if (vbo.id == 0) {
-			Logging.glError("Cannot create VBO. No ID could be allocated for VBO [" + name + "].", null);
+			GLDebug.glError("Cannot create VBO. No ID could be allocated for VBO [" + name + "].", null);
 			return null;
 		}
 		return vbo;
@@ -45,19 +45,17 @@ public class VBO extends BindableGLObject{
 		current.put(target, vbo);
 	}
 
-	
 	@Override
-	public void bindNone() {
-		bind(0, target);
-	}
-	public static void unbind(VBOTarget target){
-		bind(0, target);
-	}
-	
-	public void bind() {
+	protected void bind() {
 		bind(id, target);
 	}
-
+	
+	@Override
+	protected void bindNone() {
+		bind(0, target);
+	}
+	
+	@Override
 	protected void undobind(){
 		int l = last.containsKey(target) ? last.get(target) : 0;
 		bind(l, target);

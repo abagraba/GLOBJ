@@ -8,7 +8,7 @@ import globj.objects.BindableGLObject;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 
-import lwjgl.debug.Logging;
+import lwjgl.debug.GLDebug;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -20,7 +20,6 @@ import org.lwjgl.util.vector.Matrix4f;
 
 public class Program extends BindableGLObject {
 	
-	protected static final BindTracker bind = new BindTracker();
 	private final HashMap<String, Integer> uniforms = new HashMap<String, Integer>();
 	
 	private Shader[] shaders;
@@ -32,7 +31,7 @@ public class Program extends BindableGLObject {
 	public static Program create(String name, Shader[] shaders) {
 		Program prog = new Program(name);
 		if (prog.id == 0) {
-			Logging.globjError(Program.class, name, "Cannot create", "No ID could be allocated");
+			GLDebug.globjError(Program.class, name, "Cannot create", "No ID could be allocated");
 			return null;
 		}
 		prog.setShaders(shaders);
@@ -47,25 +46,45 @@ public class Program extends BindableGLObject {
 		for (int i = 0; i < shaders.length; i++) {
 			s[i] = Shaders.getShader(shaders[i]);
 			if (s[i] == null) {
-				Logging.globjError(Program.class, name, "Cannot create program", "Cannot find shader [" + shaders[i] + "]");
+				GLDebug.globjError(Program.class, name, "Cannot create program", "Cannot find shader [" + shaders[i] + "]");
 				return null;
 			}
 		}
 		return create(name, s);
 	}
 	
-	protected void setShaders(Shader[] shaders) {
+	private void setShaders(Shader[] shaders) {
 		for (Shader shader : shaders)
 			GL20.glAttachShader(id, shader.id);
 		GL20.glLinkProgram(id);
 	}
 	
 	/**************************************************/
+	/********************** Bind **********************/
+	/**************************************************/
 	
+	protected static final BindTracker bindTracker = new BindTracker();
+	
+	@Override
+	protected BindTracker bindingTracker() {
+		return bindTracker;
+	}
+	
+	@Override
+	protected void bindOP(int id) {
+		GL20.glUseProgram(0);
+	}
+	
+	@Override
+	protected void destroyOP() {
+		GL20.glDeleteProgram(id);
+	}
+	
+	/**************************************************/
 	public void setUniform(String uniform, Matrix4f mat, boolean transpose) {
 		int uni = uniformLocation(uniform);
 		if (uni == -1) {
-			Logging.globjError(this, "Could not set uniform for ", "Could not locate uniform [" + uniform + "]");
+			GLDebug.globjError(this, "Could not set uniform for ", "Could not locate uniform [" + uniform + "]");
 			return;
 		}
 		FloatBuffer buff = BufferUtils.createFloatBuffer(16);
@@ -96,28 +115,28 @@ public class Program extends BindableGLObject {
 	
 	public void debug() {
 		GL.flushErrors();
-		Logging.setPad(32);
-		Logging.writeOut(Logging.fixedString("Program:") + name);
-		Logging.indent();
+		GLDebug.setPad(32);
+		GLDebug.write(GLDebug.fixedString("Program:") + name);
+		GLDebug.indent();
 		
 		String[] errors = getErrors();
 		if (errors != null) {
 			for (String error : errors)
-				Logging.writeOut(error);
-			Logging.unindent();
+				GLDebug.write(error);
+			GLDebug.unindent();
 			return;
 		}
 		
 		boolean geo = false;
 		
-		Logging.writeOut(Logging.fixedString("Shaders:") + GL20.glGetProgrami(id, GL20.GL_ATTACHED_SHADERS));
-		Logging.indent();
+		GLDebug.write(GLDebug.fixedString("Shaders:") + GL20.glGetProgrami(id, GL20.GL_ATTACHED_SHADERS));
+		GLDebug.indent();
 		for (Shader shader : this.shaders) {
-			Logging.writeOut(shader.name);
+			GLDebug.write(shader.name);
 			if (shader.type == ShaderType.GEOMETRY)
 				geo = true;
 		}
-		Logging.unindent();
+		GLDebug.unindent();
 		
 		int geomax = 0, geoin = 0, geoout = 0;
 		if (geo) {
@@ -126,41 +145,22 @@ public class Program extends BindableGLObject {
 			geoout = GL20.glGetProgrami(id, GL32.GL_GEOMETRY_OUTPUT_TYPE);
 		}
 		
-		Logging.writeOut(Logging.fixedString("Attributes:")
+		GLDebug.write(GLDebug.fixedString("Attributes:")
 				+ String.format("%d (%d)", GL20.glGetProgrami(id, GL20.GL_ACTIVE_ATTRIBUTES), Context.intConst(GL20.GL_MAX_VERTEX_ATTRIBS)));
-		Logging.writeOut(Logging.fixedString("Uniforms:") + GL20.glGetProgrami(id, GL20.GL_ACTIVE_UNIFORMS));
+		GLDebug.write(GLDebug.fixedString("Uniforms:") + GL20.glGetProgrami(id, GL20.GL_ACTIVE_UNIFORMS));
 		if (GL.versionCheck(4, 2))
-			Logging.writeOut(Logging.fixedString("Atomic Counter Buffers:") + GL20.glGetProgrami(id, GL42.GL_ACTIVE_ATOMIC_COUNTER_BUFFERS));
+			GLDebug.write(GLDebug.fixedString("Atomic Counter Buffers:") + GL20.glGetProgrami(id, GL42.GL_ACTIVE_ATOMIC_COUNTER_BUFFERS));
 		
-		Logging.writeOut(Logging.fixedString("Transform Feedback Mode:") + GL20.glGetProgrami(id, GL30.GL_TRANSFORM_FEEDBACK_BUFFER_MODE));
-		Logging.writeOut(Logging.fixedString("Transform Feedback Varyings:") + GL20.glGetProgrami(id, GL30.GL_TRANSFORM_FEEDBACK_VARYINGS));
+		GLDebug.write(GLDebug.fixedString("Transform Feedback Mode:") + GL20.glGetProgrami(id, GL30.GL_TRANSFORM_FEEDBACK_BUFFER_MODE));
+		GLDebug.write(GLDebug.fixedString("Transform Feedback Varyings:") + GL20.glGetProgrami(id, GL30.GL_TRANSFORM_FEEDBACK_VARYINGS));
 		
 		if (geo) {
-			Logging.writeOut(Logging.fixedString("Geometry I/O:") + geoin + " -> Geometry Shader -> " + geoout);
-			Logging.writeOut(Logging.fixedString("Geometry Shader Max Vertices:") + geomax);
+			GLDebug.write(GLDebug.fixedString("Geometry I/O:") + geoin + " -> Geometry Shader -> " + geoout);
+			GLDebug.write(GLDebug.fixedString("Geometry Shader Max Vertices:") + geomax);
 		}
-		Logging.unindent();
-		Logging.unsetPad();
+		GLDebug.unindent();
+		GLDebug.unsetPad();
 		GL.flushErrors();
-	}
-	
-	@Override
-	public void bind() {
-		bind.update(id);
-		if (bind.last() != id)
-			GL20.glUseProgram(id);
-	}
-	
-	@Override
-	public void bindNone() {
-		bind.update(0);
-		if (bind.last() != 0)
-			GL20.glUseProgram(0);
-	}
-	
-	@Override
-	protected void undobind() {
-		GL20.glUseProgram(bind.revert());
 	}
 	
 }

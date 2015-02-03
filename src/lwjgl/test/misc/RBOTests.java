@@ -7,7 +7,7 @@ import globj.objects.framebuffers.RBO;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.GL11;
 
-import lwjgl.debug.Logging;
+import lwjgl.debug.GLDebug;
 
 public class RBOTests extends RenderCommand {
 	
@@ -39,10 +39,10 @@ public class RBOTests extends RenderCommand {
 	@Override
 	public void render() {
 		if (r) {
-			Logging.debug(RBO.create("Test RBO", 100, 800, GL11.GL_DEPTH_COMPONENT));
-			Logging.debug(RBO.create("Rocks", 1000, 800, GL11.GL_RGBA));
-			Logging.debug(RBO.create("Coconut", 18000, 800, GL11.GL_RGBA));
-			Logging.debug(RBO.create("Test RBO", 100, 800, GL11.GL_DEPTH_COMPONENT));
+			GLDebug.debug(RBO.create("Test RBO", 100, 800, GL11.GL_DEPTH_COMPONENT));
+			GLDebug.debug(RBO.create("Rocks", 1000, 800, GL11.GL_RGBA));
+			GLDebug.debug(RBO.create("Coconut", 18000, 800, GL11.GL_RGBA));
+			GLDebug.debug(RBO.create("Test RBO", 100, 800, GL11.GL_DEPTH_COMPONENT));
 		}
 		r = false;
 	}

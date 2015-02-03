@@ -15,7 +15,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import lwjgl.core.states.State;
-import lwjgl.debug.Logging;
+import lwjgl.debug.GLDebug;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -45,51 +45,6 @@ public abstract class GLTexture extends BindableGLObject {
 	
 	protected final TextureFormat texformat;
 	protected final TextureTarget target;
-	
-	protected static int levels(int x) {
-		int log = 0;
-		if ((x & 0xffff0000) != 0) {
-			x >>>= 16;
-			log = 16;
-		}
-		if ((x & 0xff00) != 0) {
-			x >>>= 8;
-			log += 8;
-		}
-		if ((x & 0xf0) != 0) {
-			x >>>= 4;
-			log += 4;
-		}
-		if ((x & 0xc) != 0) {
-			x >>>= 2;
-			log += 2;
-		}
-		return log + (x >>> 1);
-	}
-	
-	protected static boolean checkBounds(int[] args, int[] limits, GLTexture tex) {
-		for (int i = 0; i < args.length; i++)
-			if (args[i] < 0) {
-				Logging.globjError(tex, "Cannot initialize", "Dimensions " + dimensions(args) + " must be non-negative.");
-				return false;
-			}
-		for (int i = 0; i < args.length; i++)
-			if (args[i] > limits[i]) {
-				Logging.globjError(tex, "Cannot initialize", "Dimensions " + dimensions(args) + " too large. Device only supports textures up to "
-						+ dimensions(limits) + ".");
-				return false;
-			}
-		return true;
-	}
-	
-	private static String dimensions(int[] values) {
-		if (values.length == 0)
-			return "()";
-		String s = "(" + values[0];
-		for (int i = 1; i < values.length; i++)
-			s += ", " + values[i];
-		return s + ")";
-	}
 	
 	public void update() {
 		bind();
@@ -166,8 +121,6 @@ public abstract class GLTexture extends BindableGLObject {
 		this.texformat = texformat;
 		this.target = target;
 	}
-	
-	protected abstract void destroy();
 	
 	public void genMipmaps() {
 		// GL30.glGenerateMipmap(target());
@@ -263,5 +216,82 @@ public abstract class GLTexture extends BindableGLObject {
 		comparison.setState(func);
 	}
 	
+	/**************************************************/
+	/********************** Bind **********************/
+	/**************************************************/
 	
+	@Override
+	protected void bindOP(int id) {
+		GL11.glBindTexture(target.value, id);
+	}
+	
+	@Override
+	protected void destroyOP() {
+		GL11.glDeleteTextures(id);
+	}
+	
+	protected void destroy() {
+		super.destroy();
+	}
+
+	
+	/**************************************************/
+	/***************** Helper Methods *****************/
+	/**************************************************/
+	
+	protected static int levels(int x) {
+		if (x <= 0)
+			return 0;
+		int log = 0;
+		if ((x & 0xffff0000) != 0) {
+			x >>>= 16;
+			log = 16;
+		}
+		if ((x & 0xff00) != 0) {
+			x >>>= 8;
+			log += 8;
+		}
+		if ((x & 0xf0) != 0) {
+			x >>>= 4;
+			log += 4;
+		}
+		if ((x & 0xc) != 0) {
+			x >>>= 2;
+			log += 2;
+		}
+		return log + (x >>> 1);
+	}
+	
+	protected static boolean checkBounds(int[] args, int[] limits, GLTexture tex) {
+		for (int i = 0; i < args.length; i++)
+			if (args[i] < 0) {
+				GLDebug.globjError(tex, "Cannot initialize", "Dimensions " + dimensions(args) + " must be non-negative.");
+				return false;
+			}
+		for (int i = 0; i < args.length; i++)
+			if (args[i] > limits[i]) {
+				GLDebug.globjError(tex, "Cannot initialize", "Dimensions " + dimensions(args) + " too large. Device only supports textures up to "
+						+ dimensions(limits) + ".");
+				return false;
+			}
+		return true;
+	}
+	
+	protected static void setMipmaps(TextureTarget target, int base, int max) {
+		if (base != 0)
+			GL11.glTexParameteri(target.value, GL12.GL_TEXTURE_BASE_LEVEL, base);
+		GL11.glTexParameteri(target.value, GL12.GL_TEXTURE_MAX_LEVEL, max);
+		
+	}
+	
+	private static String dimensions(int[] values) {
+		if (values.length == 0)
+			return "()";
+		String s = "(" + values[0];
+		for (int i = 1; i < values.length; i++)
+			s += ", " + values[i];
+		return s + ")";
+	}
+	
+	/**************************************************/
 }
