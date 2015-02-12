@@ -1,7 +1,7 @@
 package globj.camera;
 
 
-import lwjgl.core.utils.V3f;
+import globj.core.utils.V3f;
 
 public class OrbitController extends CameraController {
 	

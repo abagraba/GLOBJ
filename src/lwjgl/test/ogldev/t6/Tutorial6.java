@@ -2,6 +2,7 @@ package lwjgl.test.ogldev.t6;
 
 import globj.core.GL;
 import globj.core.RenderCommand;
+import globj.objects.bufferobjects.StaticVBO;
 import globj.objects.bufferobjects.VBO;
 import globj.objects.bufferobjects.VBOTarget;
 import globj.objects.bufferobjects.VBOs;
@@ -32,8 +33,8 @@ public class Tutorial6 extends RenderCommand {
 	
 	@Override
 	public void init() {
-		vbo = VBOs.createVBO("Test VBO", VBOTarget.ARRAY);
-		vbo.bufferData(new float[] { -1, -1, 0, 1, -1, 0, 0, 1, 0 });
+		float[] vertices = new float[] { -1, -1, 0, 1, -1, 0, 0, 1, 0 };
+		vbo = new StaticVBO("Test VBO", VBOTarget.ARRAY, vertices);
 		GL11.glClearColor(0, 0, 0, 0);
 		
 		InputStream vin;
@@ -72,6 +73,7 @@ public class Tutorial6 extends RenderCommand {
 		vbo.bind();
 		GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0);
 		GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 3);
+		vbo.bindNone();
 		GL20.glDisableVertexAttribArray(0);
 	}
 	

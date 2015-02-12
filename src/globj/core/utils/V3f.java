@@ -1,4 +1,4 @@
-package lwjgl.core.utils;
+package globj.core.utils;
 
 public class V3f {
 	

@@ -5,14 +5,14 @@ import globj.objects.BindTracker;
 import globj.objects.BindableGLObject;
 import globj.objects.bufferobjects.VBO;
 import globj.objects.shaders.Attribute;
+import lwjgl.debug.GLDebug;
 import lwjgl.debug.Logging;
 
 import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
 public class VAO extends BindableGLObject{
-	
-	private static final BindTracker curr = new BindTracker();
 	
 	private VAO(String name) {
 		super(name, GL15.glGenBuffers());
@@ -21,7 +21,7 @@ public class VAO extends BindableGLObject{
 	public static VAO create(String name) {
 		VAO vao = new VAO(name);
 		if (vao.id == 0) {
-			Logging.glError("Cannot create VAO. No ID could be allocated for VAO [" + name + "].", null);
+			GLDebug.glError("Cannot create VAO. No ID could be allocated for VAO [" + name + "].", null);
 			return null;
 		}
 		return vao;
@@ -31,32 +31,20 @@ public class VAO extends BindableGLObject{
 	/********************** Bind **********************/
 	/**************************************************/
 	
-	private static void bind(int vao) {
-		curr.update(vao);
-		if (!curr.changed())
-			return;
-		GL30.glBindVertexArray(vao);
-	}
-
+	protected static final BindTracker bindTracker = new BindTracker();
+	
 	@Override
-	protected void bind() {
-		bind(id);
+	protected BindTracker bindingTracker() {
+		return bindTracker;
 	}
 	
 	@Override
-	protected void bindNone() {
-		bind(0);
+	protected void bindOP(int id) {
+		GL30.glBindVertexArray(id);
 	}
 	
 	@Override
-	protected void undobind() {
-		if (curr.changed())
-			GL30.glBindVertexArray(curr.revert());
-	}
-	
-	protected void destroy() {
-		if (curr.value() == id)
-			bindNone();
+	protected void destroyOP() {		
 		GL30.glDeleteVertexArrays(id);
 	}
 	
@@ -64,7 +52,7 @@ public class VAO extends BindableGLObject{
 	
 	
 	public void attach(VBO vbo, VBOFormat format, Attribute attribute){
-		vbo.bind();
+		VBOs.vbo.bind();
 		GL30.glVertexAttribIPointer(attribute.location, format.type.bytes, format.type.value, format.type.bytes * format.components, format.type.bytes * format.offset);
 		vbo.un
 	}

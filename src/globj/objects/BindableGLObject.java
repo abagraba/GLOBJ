@@ -10,14 +10,14 @@ public abstract class BindableGLObject extends GLObject {
 	protected abstract void bindOP(int id);
 	protected abstract void destroyOP();
 	
-	protected void bind() {
+	public void bind() {
 		bindingTracker().update(id);
 		if (!bindingTracker().changed())
 			return;
 		bindOP(id);
 	}
 	
-	protected void bindNone() {
+	public void bindNone() {
 		bindingTracker().update(0);
 		if (!bindingTracker().changed())
 			return;

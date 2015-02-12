@@ -45,7 +45,7 @@ public class Programs {
 			GLDebug.globjError(Program.class, name, "Cannot destroy", "Does not exist");
 			return null;
 		}
-		return destroyProgram(tracker.get(name));
+		return destroyProgram(getProgram(name));
 	}
 	
 	public static Program getProgram(String name) {

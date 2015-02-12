@@ -4,6 +4,9 @@ import globj.camera.PerspectiveCamera;
 import globj.camera.Screen;
 import globj.core.GL;
 import globj.core.SceneCommand;
+import globj.core.utils.Transform;
+import globj.core.utils.UnitQuaternion;
+import globj.core.utils.V3f;
 import globj.objects.bufferobjects.VBO;
 import globj.objects.bufferobjects.VBOTarget;
 import globj.objects.bufferobjects.VBOs;
@@ -23,10 +26,6 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
-
-import lwjgl.core.utils.Transform;
-import lwjgl.core.utils.UnitQuaternion;
-import lwjgl.core.utils.V3f;
 
 public class Tutorial14 extends SceneCommand {
 	

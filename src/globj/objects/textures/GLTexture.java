@@ -230,6 +230,7 @@ public abstract class GLTexture extends BindableGLObject {
 		GL11.glDeleteTextures(id);
 	}
 	
+	@Override
 	protected void destroy() {
 		super.destroy();
 	}

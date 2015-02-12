@@ -1,4 +1,4 @@
-package lwjgl.core.utils;
+package globj.core.utils;
 
 import org.lwjgl.util.vector.Matrix4f;
 

@@ -2,9 +2,9 @@ package globj.camera;
 
 
 import globj.core.V4f;
-import lwjgl.core.utils.Transform;
-import lwjgl.core.utils.UnitQuaternion;
-import lwjgl.core.utils.V3f;
+import globj.core.utils.Transform;
+import globj.core.utils.UnitQuaternion;
+import globj.core.utils.V3f;
 
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Matrix4f;

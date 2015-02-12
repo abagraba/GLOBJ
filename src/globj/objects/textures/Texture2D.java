@@ -2,6 +2,7 @@ package globj.objects.textures;
 
 import globj.core.Context;
 import globj.core.GL;
+import globj.core.utils.ImageUtil;
 import globj.objects.BindTracker;
 import globj.objects.framebuffers.FBOAttachable;
 import globj.objects.framebuffers.values.FBOAttachment;
@@ -13,7 +14,6 @@ import globj.objects.textures.values.TextureTarget;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 
-import lwjgl.core.utils.ImageUtil;
 import lwjgl.debug.GLDebug;
 
 import org.lwjgl.opengl.GL11;

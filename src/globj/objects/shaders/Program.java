@@ -2,10 +2,13 @@ package globj.objects.shaders;
 
 import globj.core.Context;
 import globj.core.GL;
+import globj.core.utils.LWJGLBuffers;
 import globj.objects.BindTracker;
 import globj.objects.BindableGLObject;
 
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import lwjgl.debug.GLDebug;
@@ -16,6 +19,8 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL32;
 import org.lwjgl.opengl.GL42;
+import org.lwjgl.opengl.GL43;
+import org.lwjgl.opengl.GL44;
 import org.lwjgl.util.vector.Matrix4f;
 
 public class Program extends BindableGLObject {
@@ -72,7 +77,7 @@ public class Program extends BindableGLObject {
 	
 	@Override
 	protected void bindOP(int id) {
-		GL20.glUseProgram(0);
+		GL20.glUseProgram(id);
 	}
 	
 	@Override
@@ -81,6 +86,7 @@ public class Program extends BindableGLObject {
 	}
 	
 	/**************************************************/
+	
 	public void setUniform(String uniform, Matrix4f mat, boolean transpose) {
 		int uni = uniformLocation(uniform);
 		if (uni == -1) {
@@ -145,9 +151,12 @@ public class Program extends BindableGLObject {
 			geoout = GL20.glGetProgrami(id, GL32.GL_GEOMETRY_OUTPUT_TYPE);
 		}
 		
-		GLDebug.write(GLDebug.fixedString("Attributes:")
-				+ String.format("%d (%d)", GL20.glGetProgrami(id, GL20.GL_ACTIVE_ATTRIBUTES), Context.intConst(GL20.GL_MAX_VERTEX_ATTRIBS)));
-		GLDebug.write(GLDebug.fixedString("Uniforms:") + GL20.glGetProgrami(id, GL20.GL_ACTIVE_UNIFORMS));
+		GLDebug.write("");
+		printUniforms();
+		GLDebug.write("");
+		printAttributes();
+		GLDebug.write("");
+		
 		if (GL.versionCheck(4, 2))
 			GLDebug.write(GLDebug.fixedString("Atomic Counter Buffers:") + GL20.glGetProgrami(id, GL42.GL_ACTIVE_ATOMIC_COUNTER_BUFFERS));
 		
@@ -161,6 +170,86 @@ public class Program extends BindableGLObject {
 		GLDebug.unindent();
 		GLDebug.unsetPad();
 		GL.flushErrors();
+	}
+	
+	private int numResources(int target) {
+		return GL43.glGetProgramInterfacei(id, target, GL43.GL_ACTIVE_RESOURCES);
+	}
+	
+	private IntBuffer getResource(int target, int[] args, int index, int results) {
+		IntBuffer req = LWJGLBuffers.intBuffer(args);
+		IntBuffer res = LWJGLBuffers.intBuffer(results);
+		GL43.glGetProgramResource(id, target, index, req, null, res);
+		return res;
+	}
+	
+	private void printUniforms() {
+		if (GL.versionCheck(4, 3))
+			printUniforms43();
+		else
+			GLDebug.write("Uniforms\t:" + GL20.glGetProgrami(id, GL20.GL_ACTIVE_UNIFORMS));
+	}
+	
+	private void printUniforms43() {
+		int uniforms = numResources(GL43.GL_UNIFORM);
+		GLDebug.write("Uniforms:\t" + uniforms);
+		GLDebug.indent();
+		GLDebug.write("Default:");
+		GLDebug.indent();
+		for (int i = 0; i < uniforms; i++) {
+			int block = getResource(GL43.GL_UNIFORM, new int[] { GL43.GL_BLOCK_INDEX }, i, 1).get();
+			if (block == -1) {
+				IntBuffer res = getResource(GL43.GL_UNIFORM, new int[] { GL43.GL_NAME_LENGTH, GL43.GL_LOCATION, GL43.GL_TYPE, GL43.GL_ARRAY_SIZE }, i, 4);
+				String uniformName = GL43.glGetProgramResourceName(id, GL43.GL_UNIFORM, i, res.get());
+				res.get();
+				GLDebug.write("[" + res.get() + "]\t" + uniformName + "\t" + res.get() + "bytes");
+			}
+		}
+		GLDebug.unindent();
+		for (int i = 0; i < numResources(GL43.GL_UNIFORM_BLOCK); i++)
+			printUniformBlock43(i);
+		GLDebug.unindent();
+	}
+	
+	private void printUniformBlock43(int blockindex) {
+		int numvars = getResource(GL43.GL_UNIFORM_BLOCK, new int[] { GL43.GL_NUM_ACTIVE_VARIABLES }, blockindex, 1).get();
+		IntBuffer vars = getResource(GL43.GL_UNIFORM_BLOCK, new int[] { GL43.GL_ACTIVE_VARIABLES }, blockindex, numvars);
+		
+		int namelength = getResource(GL43.GL_UNIFORM_BLOCK, new int[] { GL43.GL_NAME_LENGTH }, blockindex, 1).get();
+		String blockName = GL43.glGetProgramResourceName(id, GL43.GL_UNIFORM_BLOCK, blockindex, namelength);
+		GLDebug.write("Block:\t" + blockName);
+		GLDebug.indent();
+		for (int v = 0; v < numvars; v++) {
+			int uniformIndex = vars.get();
+			IntBuffer res = getResource(GL43.GL_UNIFORM, new int[] { GL43.GL_NAME_LENGTH, GL43.GL_TYPE, GL43.GL_ARRAY_SIZE }, uniformIndex, 3);
+			String uniformName = GL43.glGetProgramResourceName(id, GL43.GL_UNIFORM, uniformIndex, res.get());
+			res.get();
+			GLDebug.write("\t" + uniformName + "\t" + res.get() + "bytes");
+		}
+		GLDebug.unindent();
+	}
+	
+	private void printAttributes() {
+		if (GL.versionCheck(4, 3))
+			printAttributes43();
+		else
+			GLDebug.write("Attributes:\t"
+					+ String.format("%d\tMax: %d", GL20.glGetProgrami(id, GL20.GL_ACTIVE_ATTRIBUTES), Context.intConst(GL20.GL_MAX_VERTEX_ATTRIBS)));
+	}
+	
+	private void printAttributes43() {
+		int attributes = numResources(GL43.GL_PROGRAM_INPUT);
+		GLDebug.write("Attributes:\t" + attributes + "\tMax: " + Context.intConst(GL20.GL_MAX_VERTEX_ATTRIBS));
+		GLDebug.indent();
+		for (int i = 0; i < attributes; i++) {
+			IntBuffer res = getResource(GL43.GL_PROGRAM_INPUT, new int[] { GL43.GL_NAME_LENGTH, GL43.GL_TYPE, GL43.GL_LOCATION, GL43.GL_ARRAY_SIZE,
+					GL43.GL_IS_PER_PATCH, GL44.GL_LOCATION_COMPONENT }, i, 6);
+			String uniformName = GL43.glGetProgramResourceName(id, GL43.GL_UNIFORM, i, res.get());
+			res.get();
+			GLDebug.write("[" + res.get() + "]\t" + uniformName + "\t" + res.get() + " bytes");
+			GLDebug.write(res.get() + " per patch\t" + res.get() + " location component");
+		}
+		GLDebug.unindent();
 	}
 	
 }

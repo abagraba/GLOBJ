@@ -23,14 +23,24 @@ public class FBOs {
 		return fbo;
 	}
 	
-	public static FBO getFBO(String name){
+	public static FBO getFBO(String name) {
 		return tracker.get(name);
 	}
 	
-	public static void destroyFBO(String name){
-		FBO fbo = getFBO(name);
-		if (fbo != null)
+	public static FBO destroyFBO(FBO fbo) {
+		if (fbo != null) {
+			tracker.remove(fbo);
 			fbo.destroy();
+		}
+		return null;
+	}
+	
+	public static FBO destroyFBO(String name) {
+		if (!tracker.contains(name)) {
+			GLDebug.globjError(FBO.class, name, "Cannot destroy", "Does not exist");
+			return null;
+		}
+		return destroyFBO(getFBO(name));
 	}
 	
 	public static void constants() {

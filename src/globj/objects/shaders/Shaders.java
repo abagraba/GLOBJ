@@ -44,19 +44,20 @@ public class Shaders {
 		return s;
 	}
 	
-	public static void destroyShader(Shader shader) {
+	public static Shader destroyShader(Shader shader) {
 		if (shader != null) {
 			GL20.glDeleteShader(shader.id);
 			tracker.remove(shader);
 		}
+		return null;
 	}
 
-	public static void destroyShader(String name) {
+	public static Shader destroyShader(String name) {
 		if (!tracker.contains(name)) {
 			GLDebug.globjError(Shader.class, name, "Cannot destroy", "Does not exist");
-			return;
+			return null;
 		}
-		destroyShader(tracker.get(name));
+		return destroyShader(getShader(name));
 	}
 	
 	public static Shader getShader(String name) {

@@ -88,6 +88,8 @@ public class GLDebug {
 	}
 
 	public static String fixedString(String s){
+		if (s.length() >= pad)
+			return s;
 		return String.format("%-" + pad + "s", s);
 	}
 	

@@ -1,11 +1,10 @@
 package globj.camera;
 
 import globj.core.V4f;
+import globj.core.utils.Transform;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
-
-import lwjgl.core.utils.Transform;
 
 public abstract class Camera {
 	// TODO make protected
