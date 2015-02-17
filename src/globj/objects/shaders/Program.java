@@ -2,14 +2,14 @@ package globj.objects.shaders;
 
 import globj.core.Context;
 import globj.core.GL;
-import globj.core.utils.LWJGLBuffers;
 import globj.objects.BindTracker;
 import globj.objects.BindableGLObject;
+import globj.objects.GLObjectTracker;
 
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Set;
+import java.util.TreeSet;
 
 import lwjgl.debug.GLDebug;
 
@@ -20,14 +20,18 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL32;
 import org.lwjgl.opengl.GL42;
 import org.lwjgl.opengl.GL43;
-import org.lwjgl.opengl.GL44;
 import org.lwjgl.util.vector.Matrix4f;
 
 public class Program extends BindableGLObject {
 	
-	private final HashMap<String, Integer> uniforms = new HashMap<String, Integer>();
+	private GLObjectTracker<ShaderUniformBlock> blocks = new GLObjectTracker<ShaderUniformBlock>();
+	private GLObjectTracker<ShaderUniform> uniforms = new GLObjectTracker<ShaderUniform>();
+	private GLObjectTracker<ShaderInput> inputs = new GLObjectTracker<ShaderInput>();
 	
-	private Shader[] shaders;
+	private Set<ShaderType> types = new TreeSet<ShaderType>();
+	private ArrayList<Shader> shaders = new ArrayList<Shader>();
+	
+	private String[] errors = null;
 	
 	private Program(String name) {
 		super(name, GL20.glCreateProgram());
@@ -42,7 +46,15 @@ public class Program extends BindableGLObject {
 		prog.setShaders(shaders);
 		GL20.glLinkProgram(prog.id);
 		GL20.glValidateProgram(prog.id);
-		prog.shaders = shaders;
+		prog.getErrors();
+		for (Shader shader : shaders) {
+			prog.shaders.add(shader);
+			prog.types.add(shader.type);
+		}
+		prog.bind();
+		prog.fillAttributes();
+		prog.fillUniforms();
+		prog.undobind();
 		return prog;
 	}
 	
@@ -100,32 +112,18 @@ public class Program extends BindableGLObject {
 	}
 	
 	public int uniformLocation(String uniform) {
-		if (!uniforms.containsKey(uniform))
-			uniforms.put(uniform, GL20.glGetUniformLocation(id, uniform));
-		return uniforms.get(uniform);
+		return uniforms.get(uniform).location;
 	}
 	
 	/**************************************************/
 	
-	private String[] getErrors() {
-		if (GL20.glGetProgrami(id, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
-			int length = GL20.glGetProgrami(id, GL20.GL_INFO_LOG_LENGTH);
-			return GL20.glGetProgramInfoLog(id, length).split("\n");
-		}
-		if (GL20.glGetProgrami(id, GL20.GL_VALIDATE_STATUS) == GL11.GL_FALSE) {
-			int length = GL20.glGetProgrami(id, GL20.GL_INFO_LOG_LENGTH);
-			return GL20.glGetProgramInfoLog(id, length).split("\n");
-		}
-		return null;
-	}
-	
+	@Override
 	public void debug() {
 		GL.flushErrors();
 		GLDebug.setPad(32);
 		GLDebug.write(GLDebug.fixedString("Program:") + name);
 		GLDebug.indent();
 		
-		String[] errors = getErrors();
 		if (errors != null) {
 			for (String error : errors)
 				GLDebug.write(error);
@@ -133,29 +131,32 @@ public class Program extends BindableGLObject {
 			return;
 		}
 		
-		boolean geo = false;
-		
 		GLDebug.write(GLDebug.fixedString("Shaders:") + GL20.glGetProgrami(id, GL20.GL_ATTACHED_SHADERS));
 		GLDebug.indent();
-		for (Shader shader : this.shaders) {
-			GLDebug.write(shader.name);
-			if (shader.type == ShaderType.GEOMETRY)
-				geo = true;
-		}
+		for (Shader shader : this.shaders)
+			GLDebug.write(shader);
 		GLDebug.unindent();
 		
-		int geomax = 0, geoin = 0, geoout = 0;
-		if (geo) {
-			geomax = GL20.glGetProgrami(id, GL32.GL_GEOMETRY_VERTICES_OUT);
-			geoin = GL20.glGetProgrami(id, GL32.GL_GEOMETRY_INPUT_TYPE);
-			geoout = GL20.glGetProgrami(id, GL32.GL_GEOMETRY_OUTPUT_TYPE);
-		}
+		GLDebug.separator();
 		
-		GLDebug.write("");
-		printUniforms();
-		GLDebug.write("");
+		GLDebug.write((types.contains(ShaderType.VERTEX) ? "Attributes:" : "Program Inputs:") + "\tMax: " + Context.intConst(GL20.GL_MAX_VERTEX_ATTRIBS));
+		GLDebug.indent();
 		printAttributes();
-		GLDebug.write("");
+		GLDebug.unindent();
+		if (!GL.versionCheck(4, 3))
+			GLDebug.write("May be inaccurate due to OpenGL version below 4.3");
+		
+		GLDebug.separator();
+		for (ShaderType type : types) {
+			GLDebug.write(type + ":");
+			GLDebug.indent();
+			GLDebug.write("Uniforms:\tMax: " + Context.intConst(type.maxuni));
+			GLDebug.indent();
+			printUniforms(type);
+			GLDebug.unindent();
+			GLDebug.unindent();
+			GLDebug.separator();
+		}
 		
 		if (GL.versionCheck(4, 2))
 			GLDebug.write(GLDebug.fixedString("Atomic Counter Buffers:") + GL20.glGetProgrami(id, GL42.GL_ACTIVE_ATOMIC_COUNTER_BUFFERS));
@@ -163,8 +164,10 @@ public class Program extends BindableGLObject {
 		GLDebug.write(GLDebug.fixedString("Transform Feedback Mode:") + GL20.glGetProgrami(id, GL30.GL_TRANSFORM_FEEDBACK_BUFFER_MODE));
 		GLDebug.write(GLDebug.fixedString("Transform Feedback Varyings:") + GL20.glGetProgrami(id, GL30.GL_TRANSFORM_FEEDBACK_VARYINGS));
 		
-		if (geo) {
-			GLDebug.write(GLDebug.fixedString("Geometry I/O:") + geoin + " -> Geometry Shader -> " + geoout);
+		if (types.contains(ShaderType.GEOMETRY)) {
+			int geomax = GL20.glGetProgrami(id, GL32.GL_GEOMETRY_VERTICES_OUT);
+			GLDebug.write(GLDebug.fixedString("Geometry I/O:") + GL20.glGetProgrami(id, GL32.GL_GEOMETRY_INPUT_TYPE) + " -> Geometry Shader -> "
+					+ GL20.glGetProgrami(id, GL32.GL_GEOMETRY_OUTPUT_TYPE));
 			GLDebug.write(GLDebug.fixedString("Geometry Shader Max Vertices:") + geomax);
 		}
 		GLDebug.unindent();
@@ -172,84 +175,65 @@ public class Program extends BindableGLObject {
 		GL.flushErrors();
 	}
 	
-	private int numResources(int target) {
-		return GL43.glGetProgramInterfacei(id, target, GL43.GL_ACTIVE_RESOURCES);
+	/**************************************************/
+	
+	private void getErrors() {
+		if (GL20.glGetProgrami(id, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
+			int length = GL20.glGetProgrami(id, GL20.GL_INFO_LOG_LENGTH);
+			errors = GL20.glGetProgramInfoLog(id, length).split("\n");
+		}
+		if (GL20.glGetProgrami(id, GL20.GL_VALIDATE_STATUS) == GL11.GL_FALSE) {
+			int length = GL20.glGetProgrami(id, GL20.GL_INFO_LOG_LENGTH);
+			errors = GL20.glGetProgramInfoLog(id, length).split("\n");
+		}
 	}
 	
-	private IntBuffer getResource(int target, int[] args, int index, int results) {
-		IntBuffer req = LWJGLBuffers.intBuffer(args);
-		IntBuffer res = LWJGLBuffers.intBuffer(results);
-		GL43.glGetProgramResource(id, target, index, req, null, res);
-		return res;
-	}
-	
-	private void printUniforms() {
+	private void fillAttributes() {
+		int attributes;
 		if (GL.versionCheck(4, 3))
-			printUniforms43();
+			attributes = GL43.glGetProgramInterfacei(id, GL43.GL_PROGRAM_INPUT, GL43.GL_ACTIVE_RESOURCES);
 		else
-			GLDebug.write("Uniforms\t:" + GL20.glGetProgrami(id, GL20.GL_ACTIVE_UNIFORMS));
+			attributes = GL20.glGetProgrami(id, GL20.GL_ACTIVE_ATTRIBUTES);
+		for (int i = 0; i < attributes; i++)
+			inputs.add(ShaderInput.buildInput(id, i));
 	}
 	
-	private void printUniforms43() {
-		int uniforms = numResources(GL43.GL_UNIFORM);
-		GLDebug.write("Uniforms:\t" + uniforms);
-		GLDebug.indent();
-		GLDebug.write("Default:");
-		GLDebug.indent();
+	private void fillUniforms() {
+		int uniforms;
+		if (GL.versionCheck(4, 3))
+			uniforms = GL43.glGetProgramInterfacei(id, GL43.GL_UNIFORM, GL43.GL_ACTIVE_RESOURCES);
+		else
+			uniforms = GL20.glGetProgrami(id, GL20.GL_ACTIVE_UNIFORMS);
 		for (int i = 0; i < uniforms; i++) {
-			int block = getResource(GL43.GL_UNIFORM, new int[] { GL43.GL_BLOCK_INDEX }, i, 1).get();
-			if (block == -1) {
-				IntBuffer res = getResource(GL43.GL_UNIFORM, new int[] { GL43.GL_NAME_LENGTH, GL43.GL_LOCATION, GL43.GL_TYPE, GL43.GL_ARRAY_SIZE }, i, 4);
-				String uniformName = GL43.glGetProgramResourceName(id, GL43.GL_UNIFORM, i, res.get());
-				res.get();
-				GLDebug.write("[" + res.get() + "]\t" + uniformName + "\t" + res.get() + "bytes");
+			ShaderUniform uniform = ShaderUniform.buildUniform(id, i);
+			this.uniforms.add(uniform);
+			if (uniform.block != -1) {
+				ShaderUniformBlock block = blocks.get(uniform.block);
+				if (block == null) {
+					block = ShaderUniformBlock.buildUniformBlock(id, uniform.block);
+					blocks.add(block);
+				}
+				block.uniforms.add(uniform);
 			}
 		}
-		GLDebug.unindent();
-		for (int i = 0; i < numResources(GL43.GL_UNIFORM_BLOCK); i++)
-			printUniformBlock43(i);
-		GLDebug.unindent();
 	}
 	
-	private void printUniformBlock43(int blockindex) {
-		int numvars = getResource(GL43.GL_UNIFORM_BLOCK, new int[] { GL43.GL_NUM_ACTIVE_VARIABLES }, blockindex, 1).get();
-		IntBuffer vars = getResource(GL43.GL_UNIFORM_BLOCK, new int[] { GL43.GL_ACTIVE_VARIABLES }, blockindex, numvars);
-		
-		int namelength = getResource(GL43.GL_UNIFORM_BLOCK, new int[] { GL43.GL_NAME_LENGTH }, blockindex, 1).get();
-		String blockName = GL43.glGetProgramResourceName(id, GL43.GL_UNIFORM_BLOCK, blockindex, namelength);
-		GLDebug.write("Block:\t" + blockName);
-		GLDebug.indent();
-		for (int v = 0; v < numvars; v++) {
-			int uniformIndex = vars.get();
-			IntBuffer res = getResource(GL43.GL_UNIFORM, new int[] { GL43.GL_NAME_LENGTH, GL43.GL_TYPE, GL43.GL_ARRAY_SIZE }, uniformIndex, 3);
-			String uniformName = GL43.glGetProgramResourceName(id, GL43.GL_UNIFORM, uniformIndex, res.get());
-			res.get();
-			GLDebug.write("\t" + uniformName + "\t" + res.get() + "bytes");
+	private void printUniforms(ShaderType type) {
+		for (ShaderUniform uniform : uniforms)
+			if (uniform.block == -1)
+				GLDebug.write(uniform);
+		for (ShaderUniformBlock block : blocks) {
+			if (block.shaders.contains(type)) {
+				GLDebug.write(block);
+				for (ShaderUniform uniform : block.uniforms)
+					GLDebug.write(uniform);
+			}
 		}
-		GLDebug.unindent();
 	}
 	
 	private void printAttributes() {
-		if (GL.versionCheck(4, 3))
-			printAttributes43();
-		else
-			GLDebug.write("Attributes:\t"
-					+ String.format("%d\tMax: %d", GL20.glGetProgrami(id, GL20.GL_ACTIVE_ATTRIBUTES), Context.intConst(GL20.GL_MAX_VERTEX_ATTRIBS)));
-	}
-	
-	private void printAttributes43() {
-		int attributes = numResources(GL43.GL_PROGRAM_INPUT);
-		GLDebug.write("Attributes:\t" + attributes + "\tMax: " + Context.intConst(GL20.GL_MAX_VERTEX_ATTRIBS));
-		GLDebug.indent();
-		for (int i = 0; i < attributes; i++) {
-			IntBuffer res = getResource(GL43.GL_PROGRAM_INPUT, new int[] { GL43.GL_NAME_LENGTH, GL43.GL_TYPE, GL43.GL_LOCATION, GL43.GL_ARRAY_SIZE,
-					GL43.GL_IS_PER_PATCH, GL44.GL_LOCATION_COMPONENT }, i, 6);
-			String uniformName = GL43.glGetProgramResourceName(id, GL43.GL_UNIFORM, i, res.get());
-			res.get();
-			GLDebug.write("[" + res.get() + "]\t" + uniformName + "\t" + res.get() + " bytes");
-			GLDebug.write(res.get() + " per patch\t" + res.get() + " location component");
-		}
-		GLDebug.unindent();
+		for (ShaderInput input : inputs)
+			GLDebug.write(input);
 	}
 	
 }

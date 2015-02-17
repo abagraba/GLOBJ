@@ -1,8 +1,9 @@
 package globj.objects;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
-public class GLObjectTracker<T extends GLObject> {
+public class GLObjectTracker<T extends GLObject> implements Iterable<T> {
 	
 	private final HashMap<String, T> name = new HashMap<String, T>();
 	private final HashMap<Integer, T> id = new HashMap<Integer, T>();
@@ -17,20 +18,25 @@ public class GLObjectTracker<T extends GLObject> {
 		id.remove(t.id);
 	}
 	
-	public T get(String name){
+	public T get(String name) {
 		return this.name.get(name);
 	}
 	
-	public T get(int id){
+	public T get(int id) {
 		return this.id.get(id);
 	}
 	
-	public boolean contains(String name){
+	public boolean contains(String name) {
 		return this.name.containsKey(name);
 	}
-
-	public boolean contains(int id){
+	
+	public boolean contains(int id) {
 		return this.id.containsKey(id);
 	}
-
+	
+	@Override
+	public Iterator<T> iterator() {
+		return id.values().iterator();
+	}
+	
 }

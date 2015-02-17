@@ -69,6 +69,7 @@ public abstract class VBO extends BindableGLObject{
 	@Override
 	protected void destroy() {		
 		super.destroy();
+		VBOs.unregisterVBO(this);
 	}
 
 	/**************************************************/

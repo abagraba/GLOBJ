@@ -1,4 +1,4 @@
-package lwjgl.test.ogldev.t5;
+package lwjgl.test.misc;
 
 import globj.core.GL;
 import globj.core.RenderCommand;
@@ -19,7 +19,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
-public class Tutorial5 extends RenderCommand {
+public class ShaderTest extends RenderCommand {
 	
 	VBO vbo;
 	Program prog;
@@ -39,8 +39,6 @@ public class Tutorial5 extends RenderCommand {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		vert.debug();
-		frag.debug();
 		
 		prog = Programs.createProgram("Test", vert, frag);
 		
@@ -48,19 +46,18 @@ public class Tutorial5 extends RenderCommand {
 		Shaders.destroyShader(frag);
 		
 		prog.debug();
+		
 	}
 	
 	@Override
 	public void uninit() {
-		VBOs.destroyVBO(vbo);
+		VBOs.un(vbo.name);
 		vbo = null;
 	}
 	
 	@Override
 	public void render() {
 		prog.bind();
-		
-		GL20.glUniform1f(prog.uniformLocation("gScale"), (float) Math.sin(0.01 * t++));
 		
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		GL20.glEnableVertexAttribArray(0);
@@ -75,7 +72,7 @@ public class Tutorial5 extends RenderCommand {
 	}
 	
 	public static void main(String[] args) {
-		GL.setTarget(new Tutorial5());
+		GL.setTarget(new ShaderTest());
 		try {
 			GL.startGL();
 		} catch (LWJGLException e) {

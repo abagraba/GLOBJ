@@ -24,7 +24,7 @@ public abstract class BindableGLObject extends GLObject {
 		bindOP(0);
 	}
 	
-	protected void undobind() {
+	public void undobind() {
 		if (bindingTracker().changed())
 			bindOP(bindingTracker().revert());
 	}

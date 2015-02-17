@@ -27,15 +27,15 @@ public class GLDebug {
 		indent = Math.max(0, i);
 	}
 	
-	public static void setPad(int i){
+	public static void setPad(int i) {
 		lastpad = pad;
 		pad = Math.max(0, i);
 	}
-
-	public static void unsetPad(){
+	
+	public static void unsetPad() {
 		pad = lastpad;
 	}
-
+	
 	public static void unsetIndent() {
 		indent = lastindent;
 	}
@@ -49,6 +49,12 @@ public class GLDebug {
 	
 	public static void write(Object o) {
 		write(o.toString());
+	}
+	
+	private static String separator = "_____________________________________________________________________________________________";
+	
+	public static void separator() {
+		write(separator);
 	}
 	
 	public static void glWarning(String error) {
@@ -86,11 +92,15 @@ public class GLDebug {
 		else
 			System.out.println("No Info");
 	}
-
-	public static String fixedString(String s){
-		if (s.length() >= pad)
+	
+	public static String fixedString(String s) {
+		return fixedString(s, pad);
+	}
+	
+	public static String fixedString(String s, int length) {
+		if (s.length() >= length)
 			return s;
-		return String.format("%-" + pad + "s", s);
+		return String.format("%-" + length + "s", s);
 	}
 	
 	public static String logMessage(String message, int indent) {
@@ -116,5 +126,5 @@ public class GLDebug {
 	public static void globjError(GLObject obj, String error, String message) {
 		globjError(obj.getClass(), obj.name, error, message);
 	}
-
+	
 }

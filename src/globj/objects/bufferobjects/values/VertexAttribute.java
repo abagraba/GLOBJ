@@ -1,6 +1,5 @@
 package globj.objects.bufferobjects.values;
 
-import org.lwjgl.opengl.GL13;
 
 public enum VertexAttribute {
 	VERTEX("Positive X", 0);
@@ -18,6 +17,7 @@ public enum VertexAttribute {
 		return null;
 	}
 	*/
+	@Override
 	public String toString() {
 		return name;
 	}

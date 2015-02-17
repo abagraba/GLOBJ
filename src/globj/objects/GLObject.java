@@ -1,7 +1,7 @@
 package globj.objects;
 
 public abstract class GLObject {
-
+	
 	public final String name;
 	public final int id;
 	
@@ -11,8 +11,9 @@ public abstract class GLObject {
 	}
 	
 	public abstract void debug();
-
-	public String toString(){
+	
+	@Override
+	public String toString() {
 		return name;
 	}
 	

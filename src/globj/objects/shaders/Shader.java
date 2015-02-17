@@ -46,28 +46,22 @@ public class Shader extends GLObject {
 		GL.flushErrors();
 		GLDebug.setPad(24);
 		
-		GLDebug.write(GLDebug.fixedString("Shader:") + name);
-		GLDebug.indent();
-		
-		GLDebug.write(GLDebug.fixedString("Type:") + type);
+		GLDebug.write(GLDebug.fixedString("Shader:") + this);
 		GLDebug.indent();
 		
 		String[] errors = getErrors();
 		if (errors != null)
 			for (String error : errors)
 				GLDebug.write(error);
-		/*
-		 * int length = GL20.glGetShaderi(id, GL20.GL_SHADER_SOURCE_LENGTH);
-		 * String[] src = GL20.glGetShaderSource(id, length).split("\n");
-		 * Logging.logInfo(src);
-		 */
-		
-		GLDebug.unindent();
 		
 		GLDebug.unindent();
 		GLDebug.unsetPad();
 		GL.flushErrors();
-		
+	}
+	
+	@Override
+	public String toString() {
+		return GLDebug.fixedString(name) + type;
 	}
 	
 }

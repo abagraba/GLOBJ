@@ -1,12 +1,12 @@
 package globj.objects.arrays;
 
+import globj.core.Attribute;
 import globj.core.DataType;
 import globj.objects.BindTracker;
 import globj.objects.BindableGLObject;
 import globj.objects.bufferobjects.VBO;
-import globj.objects.shaders.Attribute;
+import globj.objects.bufferobjects.VBOTarget;
 import lwjgl.debug.GLDebug;
-import lwjgl.debug.Logging;
 
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
@@ -52,9 +52,12 @@ public class VAO extends BindableGLObject{
 	
 	
 	public void attach(VBO vbo, VBOFormat format, Attribute attribute){
-		VBOs.vbo.bind();
+		if (vbo.target != VBOTarget.ARRAY){
+			GLDebug.glError("Only VBOs bound to Array Targets can be attached to VAOs.", null);
+		}
+		vbo.bind();
 		GL30.glVertexAttribIPointer(attribute.location, format.type.bytes, format.type.value, format.type.bytes * format.components, format.type.bytes * format.offset);
-		vbo.un
+		vbo.undobind();
 	}
 	
 	
