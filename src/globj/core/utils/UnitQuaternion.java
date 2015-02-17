@@ -98,6 +98,7 @@ public class UnitQuaternion {
 		normalize();
 	}
 	
+	@Override
 	public String toString(){
 		return String.format("(%.2f, <%.2f, %.2f, %.2f>)", s, i, j, k); 
 	}

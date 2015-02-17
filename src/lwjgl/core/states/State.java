@@ -62,6 +62,7 @@ public class State<T> {
 		this.resolvedstate = this.state = state;
 	}
 	
+	@Override
 	public String toString() {
 		String s = GLDebug.fixedString(name + ':') + value();
 		if (!resolved())

@@ -19,10 +19,6 @@ public enum FBOError {
 		this.value = value;
 	}
 	
-	/**
-	 * GL screen buffers backleft back right and so on multisample
-	 */
-	
 	public static FBOError get(int i) {
 		for (FBOError error : values())
 			if (error.value == i)
@@ -30,6 +26,7 @@ public enum FBOError {
 		return null;
 	}
 	
+	@Override
 	public String toString() {
 		return name;
 	}

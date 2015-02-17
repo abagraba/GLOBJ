@@ -29,7 +29,7 @@ public abstract class BindableGLObject extends GLObject {
 			bindOP(bindingTracker().revert());
 	}
 	
-	protected void destroy() {
+	public void destroy() {
 		if (bindingTracker().value() == id)
 			bindingTracker().clear();
 		destroyOP();

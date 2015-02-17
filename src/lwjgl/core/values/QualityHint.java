@@ -20,6 +20,7 @@ public enum QualityHint {
 		return null;
 	}
 	
+	@Override
 	public String toString() {
 		return name;
 	}

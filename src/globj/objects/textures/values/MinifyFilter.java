@@ -28,6 +28,7 @@ public enum MinifyFilter {
 		return null;
 	}
 
+	@Override
 	public String toString(){
 		return name;
 	}

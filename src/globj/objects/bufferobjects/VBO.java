@@ -52,22 +52,22 @@ public abstract class VBO extends BindableGLObject{
 		}
 	}
 	@Override
-	protected BindTracker bindingTracker() {
+	protected final BindTracker bindingTracker() {
 		return trackers.get(target);
 	}
 	
 	@Override
-	protected void bindOP(int id) {
+	protected final void bindOP(int id) {
 		GL15.glBindBuffer(target.value, id);
 	}
 	
 	@Override
-	protected void destroyOP() {		
+	protected final void destroyOP() {		
 		GL15.glDeleteBuffers(id);
 	}
 
 	@Override
-	protected void destroy() {		
+	public final void destroy() {		
 		super.destroy();
 		VBOs.unregisterVBO(this);
 	}

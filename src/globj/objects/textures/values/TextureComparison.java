@@ -29,6 +29,7 @@ public enum TextureComparison {
 		return null;
 	}
 	
+	@Override
 	public String toString() {
 		return name;
 	}

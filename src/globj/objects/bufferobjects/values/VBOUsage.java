@@ -28,6 +28,7 @@ public enum VBOUsage {
 		return null;
 	}
 	
+	@Override
 	public String toString() {
 		return name;
 	}

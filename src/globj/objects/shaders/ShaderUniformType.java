@@ -109,6 +109,7 @@ public enum ShaderUniformType {
 		return null;
 	}
 	
+	@Override
 	public String toString() {
 		return name;
 	}

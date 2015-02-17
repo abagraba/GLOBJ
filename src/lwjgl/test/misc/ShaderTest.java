@@ -28,7 +28,7 @@ public class ShaderTest extends RenderCommand {
 	@Override
 	public void init() {
 		float[] vertices = new float[] { -1, -1, 0, 1, -1, 0, 0, 1, 0 };
-		vbo = new StaticVBO("Test VBO", VBOTarget.ARRAY, vertices);
+		vbo = StaticVBO.create("Test VBO", VBOTarget.ARRAY, vertices);
 		GL11.glClearColor(0, 0, 0, 0);
 		
 		Shader vert = null;
@@ -51,7 +51,7 @@ public class ShaderTest extends RenderCommand {
 	
 	@Override
 	public void uninit() {
-		VBOs.un(vbo.name);
+		vbo.destroy();
 		vbo = null;
 	}
 	

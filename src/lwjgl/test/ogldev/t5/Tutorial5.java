@@ -5,7 +5,6 @@ import globj.core.RenderCommand;
 import globj.objects.bufferobjects.StaticVBO;
 import globj.objects.bufferobjects.VBO;
 import globj.objects.bufferobjects.VBOTarget;
-import globj.objects.bufferobjects.VBOs;
 import globj.objects.shaders.Program;
 import globj.objects.shaders.Programs;
 import globj.objects.shaders.Shader;
@@ -28,7 +27,7 @@ public class Tutorial5 extends RenderCommand {
 	@Override
 	public void init() {
 		float[] vertices = new float[] { -1, -1, 0, 1, -1, 0, 0, 1, 0 };
-		vbo = new StaticVBO("Test VBO", VBOTarget.ARRAY, vertices);
+		vbo = StaticVBO.create("Test VBO", VBOTarget.ARRAY, vertices);
 		GL11.glClearColor(0, 0, 0, 0);
 		
 		Shader vert = null;
@@ -36,11 +35,11 @@ public class Tutorial5 extends RenderCommand {
 		try {
 			vert = Shaders.createShader("Vert", ShaderType.VERTEX, getClass().getResourceAsStream("shader.vs"));
 			frag = Shaders.createShader("Frag", ShaderType.FRAGMENT, getClass().getResourceAsStream("shader.fs"));
+			vert.debug();
+			frag.debug();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		vert.debug();
-		frag.debug();
 		
 		prog = Programs.createProgram("Test", vert, frag);
 		
@@ -52,7 +51,7 @@ public class Tutorial5 extends RenderCommand {
 	
 	@Override
 	public void uninit() {
-		VBOs.destroyVBO(vbo);
+		vbo.destroy();
 		vbo = null;
 	}
 	

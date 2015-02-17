@@ -9,6 +9,7 @@ public class Attribute {
 		this.location = location;
 	}
 	
+	@Override
 	public String toString(){
 		return String.format("[%s] attribute @ location %d.", name, location);
 	}

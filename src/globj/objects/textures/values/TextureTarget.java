@@ -28,6 +28,7 @@ public enum TextureTarget {
 		return null;
 	}
 	
+	@Override
 	public String toString() {
 		return name;
 	}
