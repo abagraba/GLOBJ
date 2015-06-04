@@ -24,7 +24,7 @@ public class FBO extends BindableGLObject {
 	
 	/**************************************************/
 	
-	protected static FBO create(String name) {
+	public static FBO create(String name) {
 		FBO fbo = new FBO(name);
 		if (fbo.id == 0) {
 			GLDebug.glError("Cannot create Framebuffer Object. No ID could be allocated for Framebuffer Object [" + name + "].", null);
@@ -38,24 +38,24 @@ public class FBO extends BindableGLObject {
 	/**************************************************/
 	
 	private static final BindTracker bindTracker = new BindTracker();
-
+	
 	@Override
 	protected BindTracker bindingTracker() {
 		return bindTracker;
 	}
-
+	
 	@Override
 	protected void bindOP(int id) {
 		GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, id);
 	}
-
+	
 	@Override
 	protected void destroyOP() {
 		GL30.glDeleteFramebuffers(id);
 	}
 	
 	@Override
-	protected void destroy() {
+	public void destroy() {
 		super.destroy();
 	}
 	
@@ -91,7 +91,7 @@ public class FBO extends BindableGLObject {
 	 *            &nbsp;&nbsp;&nbsp;TextureCubemap: cubemap face. Use
 	 *            {@link CubemapTarget#layer}.<br/>
 	 *            &nbsp;&nbsp;&nbsp;TextureCubemapArray: cubemap index and face.
-	 *            Use 6 * cubemap index + {@link CubemapTarget#layer}.<br/>
+	 *            Use 6 * cubemap index + {@link CubemapTarget#layer}.
 	 */
 	public void attach(FBOAttachable att, FBOAttachment attach, int level, int layer) {
 		bind();
@@ -109,6 +109,7 @@ public class FBO extends BindableGLObject {
 		
 		GLDebug.write(GLDebug.fixedString("FBO:") + name);
 		GLDebug.indent();
+		bind();
 		
 		FBOError err = FBOError.get(GL30.glCheckFramebufferStatus(GL30.GL_DRAW_FRAMEBUFFER));
 		if (err != FBOError.NONE) {
@@ -134,12 +135,13 @@ public class FBO extends BindableGLObject {
 			if (attach != FBOAttachment.DEPTH_STENCIL)
 				debugBindingStatus(attach);
 		
+		undobind();
 		GLDebug.unindent();
 		GLDebug.unsetPad();
 		GL.flushErrors();
 	}
 	
-	private void debugBindingStatus(FBOAttachment attach) {
+	private static void debugBindingStatus(FBOAttachment attach) {
 		int ca = Context.intConst(GL30.GL_MAX_COLOR_ATTACHMENTS);
 		if (attach.colorindex >= ca)
 			return;
@@ -151,18 +153,24 @@ public class FBO extends BindableGLObject {
 			case GL11.GL_TEXTURE:
 				GLTexture tex = Textures.getTexture(GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value,
 						GL30.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME));
-				int level = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL);
-				int layer = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER);
 				GLDebug.indent();
-				GLDebug.write(GLDebug.fixedString("Texture:") + tex.name);
-				GLDebug.indent();
-				GLDebug.write(GLDebug.fixedString("Layer:") + layer);
-				GLDebug.write(GLDebug.fixedString("Mipmap Level:") + level);
-				GLDebug.indent(-2);
+				if (tex == null) {
+					GLDebug.write(GLDebug.fixedString("Texture:") + "none");
+				}
+				else {
+					int level = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL);
+					int layer = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER);
+					GLDebug.write(GLDebug.fixedString("Texture:") + tex.name);
+					GLDebug.indent();
+					GLDebug.write(GLDebug.fixedString("Layer:") + layer);
+					GLDebug.write(GLDebug.fixedString("Mipmap Level:") + level);
+					GLDebug.indent(-1);
+				}
+				GLDebug.indent(-1);
 				return;
 			case GL30.GL_FRAMEBUFFER_DEFAULT:
 				GLDebug.indent();
-				GLDebug.write(GLDebug.fixedString("Default Framebuffer:"));
+				GLDebug.write(GLDebug.fixedString("Default Framebuffer"));
 				GLDebug.unindent();
 				return;
 			case GL30.GL_RENDERBUFFER:
@@ -188,5 +196,4 @@ public class FBO extends BindableGLObject {
 				return;
 		}
 	}
-
 }

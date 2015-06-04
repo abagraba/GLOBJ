@@ -15,7 +15,7 @@ import globj.objects.bufferobjects.values.VBOUsage;
 
 /**
  * Static VBOs are initialized with a set of values that will never change. If
- * you require VBOs to have modifiable data, see FixedVBO or DynamicVBO
+ * you require VBOs to have modifiable data, see FixedVBO or Dynamic*VBO.
  *
  */
 public class StaticVBO extends VBO {

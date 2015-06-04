@@ -231,7 +231,7 @@ public abstract class GLTexture extends BindableGLObject {
 	}
 	
 	@Override
-	protected void destroy() {
+	public void destroy() {
 		super.destroy();
 	}
 

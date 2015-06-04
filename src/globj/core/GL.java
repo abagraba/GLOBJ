@@ -114,6 +114,8 @@ public class GL {
 	}
 	public static void flushErrorsOut() {
 		int err = GL11.glGetError();
+		if (err == GL11.GL_NO_ERROR)
+			System.out.println("No Error");
 		while (err != GL11.GL_NO_ERROR) {
 			if (debug)
 				System.out.println(GLU.gluErrorString(err));
