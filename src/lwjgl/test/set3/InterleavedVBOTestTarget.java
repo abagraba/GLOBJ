@@ -2,7 +2,9 @@ package lwjgl.test.set3;
 
 import globj.core.GL;
 import globj.core.RenderCommand;
+import globj.objects.bufferobjects.DynamicFloatVBO;
 import globj.objects.bufferobjects.VBO;
+import globj.objects.bufferobjects.VBOTarget;
 
 import java.nio.FloatBuffer;
 
@@ -27,7 +29,7 @@ public class InterleavedVBOTestTarget extends RenderCommand {
 	private static float theta = 0;
 	private static float rps = (float) (2 * Math.PI) / 6;
 
-	private VBO vertices, colors;
+	private DynamicFloatVBO vertices, colors;
 
 	@Override
 	public void init() {
@@ -47,13 +49,13 @@ public class InterleavedVBOTestTarget extends RenderCommand {
 			c.put(new float[] { 0, 0, 1, 0, 1, 0, 1, 0, 0 });
 		}
 		v.flip();
-		vertices = new VBO(GL15.GL_ARRAY_BUFFER);
-		vertices.bufferData(v);
+		vertices = DynamicFloatVBO.create("Vertices", VBOTarget.ARRAY);
+		vertices.write(v);
 		GL11.glVertexPointer(2, GL11.GL_FLOAT, 0, 0);
 
 		c.flip();
-		colors = new VBO(GL15.GL_ARRAY_BUFFER);
-		colors.bufferData(c);
+		colors = DynamicFloatVBO.create("Colors", VBOTarget.ARRAY);
+		colors.write(c);
 		GL11.glColorPointer(3, GL11.GL_FLOAT, 0, 0);
 
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
@@ -65,8 +67,8 @@ public class InterleavedVBOTestTarget extends RenderCommand {
 
 	@Override
 	public void uninit() {
-		vertices.deleteBuffer();
-		colors.deleteBuffer();
+		vertices.destroy();
+		colors.destroy();
 	}
 
 	@Override

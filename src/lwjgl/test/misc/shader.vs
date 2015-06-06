@@ -8,7 +8,8 @@ uniform sampleBlock {
 	vec2 hScale;
 	float iScale;
 };
-uniform sampleBlockx {
+
+layout (location = 10) uniform sampleBlockx {
 	float uScale[2];
 	vec3 vScale;
 	float nScale;

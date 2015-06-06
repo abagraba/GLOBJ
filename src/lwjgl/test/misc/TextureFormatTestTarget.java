@@ -2,7 +2,7 @@ package lwjgl.test.misc;
 
 import globj.core.GL;
 import globj.core.RenderCommand;
-import globj.objects.textures.Texture2D;
+import globj.objects.textures.Textures;
 import globj.objects.textures.values.TextureFormat;
 
 import org.lwjgl.LWJGLException;
@@ -26,17 +26,26 @@ public class TextureFormatTestTarget extends RenderCommand {
 		
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		
+		for (int i = -1024; i < 1024; i++) {
+			Textures.createTexture2D("Test" + i, TextureFormat.RGBA8, 1024, 1024, 1);
+			Textures.destroyTexture2D("Test" + i);
+		}
+		
 		TextureFormat[] t = TextureFormat.values();
 		for (int i = 0; i < t.length; i++) {
 			TextureFormat format = t[i];
 			System.out.println();
-			System.out.println(format);
-			for (int j = -16; j < 0; j++)
-				Texture2D.create("Test" + j + format, format, 256, 256, 1);
+			// System.out.println(format);
+			int j = -1024;
+			for (; j < 0; j++)
+				Textures.createTexture2D("Test" + j + format, format, 256, 256, 1);
 			Timer.debug.mark();
-			for (int j = 0; j < 256; j++)
-				Texture2D.create("Test" + j + format, format, 256, 256, 1);
-			Timer.debug.measure("Load Texture " + format + ":", 256);
+			for (; j < 1024; j++)
+				Textures.createTexture2D("Test" + j + format, format, 256, 256, 1);
+			Timer.debug.measure("Load Texture " + format + ":", 1024);
+			for (j = -1024; j < 1024; j++)
+				Textures.destroyTexture2D("Test" + j + format);
+			GL.flushErrors();
 		}
 		
 	}

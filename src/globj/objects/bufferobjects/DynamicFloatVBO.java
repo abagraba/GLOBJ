@@ -19,11 +19,15 @@ public class DynamicFloatVBO extends DynamicVBO<float[]> {
 	
 	@Override
 	public void write(float[] data) {
-		orphan();
 		FloatBuffer buffer = BufferUtils.createFloatBuffer(data.length);
 		buffer.put(data).flip();
-		GL15.glBufferData(target.value, buffer, usage.value);
-		size = data.length * 4;
+		write(buffer);
+	}
+	
+	public void write(FloatBuffer data) {
+		orphan();
+		GL15.glBufferData(target.value, data, usage.value);
+		size = data.limit();
 	}
 	
 	@Override

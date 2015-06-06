@@ -75,13 +75,13 @@ public class ShaderUniformBlock extends GLObject {
 	
 	private static String stripArray(String name) {
 		if (name.endsWith("[0]"))
-			return name.substring(0, name.length() - 3);
+			return name.substring(0, name.length() - 3) + "[]";
 		return name;
 	}
 	
 	/**************************************************/
 	
-	public void addUniform(ShaderUniform uniform) {
+	protected void addUniform(ShaderUniform uniform) {
 		uniforms.add(uniform);
 	}
 	
@@ -94,7 +94,7 @@ public class ShaderUniformBlock extends GLObject {
 	
 	@Override
 	public String toString() {
-		if (minimumSize != -1)
+	if (minimumSize != -1)
 			return GLDebug.fixedString("Block:\t" + name, 30) + "Minimum Size: " + minimumSize + " bytes";
 		return GLDebug.fixedString("Block:\t" + name, 30);
 	}
