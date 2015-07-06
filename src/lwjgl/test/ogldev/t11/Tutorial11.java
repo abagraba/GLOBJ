@@ -5,9 +5,9 @@ import globj.core.RenderCommand;
 import globj.core.utils.Transform;
 import globj.core.utils.UnitQuaternion;
 import globj.core.utils.V3f;
+import globj.objects.bufferobjects.StaticVBO;
 import globj.objects.bufferobjects.VBO;
 import globj.objects.bufferobjects.VBOTarget;
-import globj.objects.bufferobjects.VBOs;
 import globj.objects.shaders.Program;
 import globj.objects.shaders.Programs;
 import globj.objects.shaders.Shader;
@@ -36,17 +36,15 @@ public class Tutorial11 extends RenderCommand {
 	
 	@Override
 	public void init() {
-		vbo = VBOs.createVBO("Test VBO", VBOTarget.ARRAY);
-		vbo.bufferData(new float[] { -1, -1, 0, 0, -1, 1, 1, -1, 0, 0, 1, 0 });
-		ibo = VBOs.createVBO("Test IBO", VBOTarget.ELEMENT_ARRAY);
-		ibo.bufferData(new int[] { 0, 3, 1, 1, 3, 2, 2, 3, 0, 0, 1, 2 });
-		GL11.glClearColor(0, 0, 0, 0);
+		vbo = StaticVBO.create("Test VBO", VBOTarget.ARRAY,
+				new float[] { -0.6122f, -0.707f, -0.3535f, 0, -0.707f, 0.707f, 0.6122f, -0.707f, -0.3535f, 0, 1, 0 });
+		ibo = StaticVBO.create("Test IBO", VBOTarget.ELEMENT_ARRAY, new int[] { 0, 3, 1, 1, 3, 2, 2, 3, 0, 0, 1, 2 });
 		
 		InputStream vin;
 		InputStream fin;
 		try {
-			vin = new FileInputStream("src/lwjgl/test/ogldev/t9/shader.vs");
-			fin = new FileInputStream("src/lwjgl/test/ogldev/t9/shader.fs");
+			vin = new FileInputStream("src/lwjgl/test/ogldev/t09/shader.vs");
+			fin = new FileInputStream("src/lwjgl/test/ogldev/t09/shader.fs");
 			vert = Shaders.createShader("Vert", ShaderType.VERTEX, vin);
 			frag = Shaders.createShader("Frag", ShaderType.FRAGMENT, fin);
 		} catch (IOException e) {
@@ -63,8 +61,7 @@ public class Tutorial11 extends RenderCommand {
 	
 	@Override
 	public void uninit() {
-		VBOs.destroyVBO(vbo.name);
-		vbo = null;
+		vbo.destroy();
 	}
 	
 	@Override
@@ -74,7 +71,9 @@ public class Tutorial11 extends RenderCommand {
 		mat.flip();
 		GL20.glUniformMatrix4(prog.uniformLocation("gWorld"), true, mat);
 		
+		GL11.glClearColor(0, 0, 0, 0);
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+		
 		GL20.glEnableVertexAttribArray(0);
 		vbo.bind();
 		ibo.bind();
@@ -129,7 +128,7 @@ public class Tutorial11 extends RenderCommand {
 			}
 		}
 		V3f v = new V3f((d ? 0.01f : 0) - (a ? 0.01f : 0), (w ? 0.01f : 0) - (s ? 0.01f : 0), 0);
-		UnitQuaternion r = UnitQuaternion.rotation(new V3f(0, 0, 1), (e ? 0.01f : 0) - (q ? 0.01f : 0));
+		UnitQuaternion r = UnitQuaternion.rotation(new V3f(0, 0, 1), (q ? 0.01f : 0) - (e ? 0.01f : 0));
 		trans.translateBy(v);
 		trans.rotateBy(r);
 	}

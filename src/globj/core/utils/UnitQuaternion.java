@@ -14,6 +14,7 @@ public class UnitQuaternion {
 		this.i = b;
 		this.j = c;
 		this.k = d;
+		normalize();
 	}
 	
 	public UnitQuaternion(UnitQuaternion q) {

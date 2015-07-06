@@ -9,9 +9,9 @@ import globj.core.V4f;
 import globj.core.utils.Transform;
 import globj.core.utils.UnitQuaternion;
 import globj.core.utils.V3f;
+import globj.objects.bufferobjects.StaticVBO;
 import globj.objects.bufferobjects.VBO;
 import globj.objects.bufferobjects.VBOTarget;
-import globj.objects.bufferobjects.VBOs;
 import globj.objects.shaders.Program;
 import globj.objects.shaders.Programs;
 import globj.objects.shaders.Shader;
@@ -49,7 +49,7 @@ public class Tutorial12 extends SceneCommand {
 	VBO vbo;
 	VBO ibo;
 	Program prog;
-	Transform transform = new Transform();	
+	Transform transform = new Transform();
 	float fov = 90;
 	
 	@Override
@@ -57,16 +57,13 @@ public class Tutorial12 extends SceneCommand {
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		
 		float d = 0.1f;
-		axis = VBOs.createVBO("Axis", VBOTarget.ARRAY);
-		axis.bufferData(new float[] { 0, d, d, d, 0, d, d, d, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 });
-		iaxis = VBOs.createVBO("Axis Indices", VBOTarget.ELEMENT_ARRAY);
-		iaxis.bufferData(new int[] { 0, 5, 1, 0, 2, 4, 2, 1, 3, 1, 0, 2, 6, 0, 4, 6, 5, 0, 6, 1, 5, 6, 3, 1, 6, 2, 3, 6, 4, 2 });
+		axis = StaticVBO.create("Axis", VBOTarget.ARRAY, new float[] { 0, d, d, d, 0, d, d, d, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 });
+		iaxis = StaticVBO.create("Axis Indices", VBOTarget.ELEMENT_ARRAY, new int[] { 0, 5, 1, 0, 2, 4, 2, 1, 3, 1, 0, 2, 6, 0, 4, 6, 5, 0, 6, 1, 5, 6, 3, 1,
+				6, 2, 3, 6, 4, 2 });
 		
 		float f = 0.707f;
-		vbo = VBOs.createVBO("Test VBO", VBOTarget.ARRAY);
-		vbo.bufferData(new float[] { -f, -f, 0, -f, f, 0.5f, f, f, 0, f, -f, 0.5f });
-		ibo = VBOs.createVBO("Test IBO", VBOTarget.ELEMENT_ARRAY);
-		ibo.bufferData(new int[] { 0, 3, 1, 1, 3, 2, 2, 3, 0, 0, 1, 2 });
+		vbo = StaticVBO.create("Test VBO", VBOTarget.ARRAY, new float[] { -f, -f, 0, -f, f, 0.5f, f, f, 0, f, -f, 0.5f });
+		ibo = StaticVBO.create("Test IBO", VBOTarget.ELEMENT_ARRAY, new int[] { 0, 3, 1, 1, 3, 2, 2, 3, 0, 0, 1, 2 });
 		
 		Shader vert = null;
 		Shader frag = null;
@@ -94,11 +91,11 @@ public class Tutorial12 extends SceneCommand {
 	
 	@Override
 	public void unload() {
-		axis = VBOs.destroyVBO(axis);
-		iaxis = VBOs.destroyVBO(iaxis);
-		vbo = VBOs.destroyVBO(vbo);
-		ibo = VBOs.destroyVBO(ibo);
-		prog = Programs.destroyProgram(prog);
+		axis.destroy();
+		iaxis.destroy();
+		vbo.destroy();
+		ibo.destroy();
+		prog.destroy();
 	}
 	
 	@Override
@@ -111,10 +108,10 @@ public class Tutorial12 extends SceneCommand {
 		System.out.println("Projection");
 		System.out.println(projectionMatrix);
 		
+		prog.setUniform("mMatrix", transform.getModelMatrix(), false);
 		prog.setUniform("vMatrix", viewMatrix, false);
 		prog.setUniform("pMatrix", projectionMatrix, false);
 		
-		prog.setUniform("mMatrix", transform.getModelMatrix(), false);
 		vbo.bind();
 		ibo.bind();
 		GL20.glEnableVertexAttribArray(0);

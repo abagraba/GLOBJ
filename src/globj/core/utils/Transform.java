@@ -17,12 +17,12 @@ public class Transform {
 		this.position = new V3f(position);
 		this.rotation = new UnitQuaternion();
 	}
-
+	
 	public Transform(UnitQuaternion rotation) {
 		this.position = new V3f();
 		this.rotation = new UnitQuaternion(rotation);
 	}
-
+	
 	public Transform() {
 		this.position = new V3f();
 		this.rotation = new UnitQuaternion();

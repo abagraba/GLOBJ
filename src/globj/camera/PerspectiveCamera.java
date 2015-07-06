@@ -22,7 +22,7 @@ public class PerspectiveCamera extends Camera {
 	}
 	
 	public PerspectiveCamera(V4f background, float near, float far, float fov) {
-		this(new Transform(new V3f(0, 0, -10f), new UnitQuaternion(1, 0, 0, 0)), background, near, far, fov);
+		this(new Transform(), background, near, far, fov);
 	}
 	
 	public PerspectiveCamera(Transform transform, float near, float far, float fov) {

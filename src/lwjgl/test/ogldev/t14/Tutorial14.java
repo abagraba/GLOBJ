@@ -7,9 +7,9 @@ import globj.core.SceneCommand;
 import globj.core.utils.Transform;
 import globj.core.utils.UnitQuaternion;
 import globj.core.utils.V3f;
+import globj.objects.bufferobjects.StaticVBO;
 import globj.objects.bufferobjects.VBO;
 import globj.objects.bufferobjects.VBOTarget;
-import globj.objects.bufferobjects.VBOs;
 import globj.objects.shaders.Program;
 import globj.objects.shaders.Programs;
 import globj.objects.shaders.Shader;
@@ -19,36 +19,33 @@ import globj.objects.shaders.Shaders;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.FloatBuffer;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.util.vector.Matrix4f;
 
 public class Tutorial14 extends SceneCommand {
 	
 	public Tutorial14() {
-		super(new PerspectiveCamera(new Transform(new V3f(0, 0, -10f), new UnitQuaternion(0, 0, 0, 1)), 0.1f, 20, 90), Screen.left);
+		super(new PerspectiveCamera(0.1f, 20, 90), Screen.left);
 	}
 	
 	VBO vbo;
 	VBO ibo;
 	Program prog;
-	Transform trans = new Transform();
+	Transform transform = new Transform();
 	float fov = 90;
 	
 	@Override
 	public boolean load() {
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
-		vbo = VBOs.createVBO("Test VBO", VBOTarget.ARRAY);
 		float f = 0.707f;
-		vbo.bufferData(new float[] { -f, -f, 0, -f, f, 0.5f, f, f, 0, f, -f, 0.5f });
-		ibo = VBOs.createVBO("Test IBO", VBOTarget.ELEMENT_ARRAY);
-		ibo.bufferData(new int[] { 0, 3, 1, 1, 3, 2, 2, 3, 0, 0, 1, 2 });
-		GL11.glClearColor(0, 0, 0, 0);
+		vbo = StaticVBO.create("Test VBO", VBOTarget.ARRAY, new float[] { -f, -f, 0, -f, f, 0.5f, f, f, 0, f, -f, 0.5f });
+		ibo = StaticVBO.create("Test IBO", VBOTarget.ELEMENT_ARRAY, new int[] { 0, 3, 1, 1, 3, 2, 2, 3, 0, 0, 1, 2 });
 		
+		GL11.glClearColor(0, 0.5f, 0.5f, 0);
 		Shader vert = null;
 		Shader frag = null;
 		InputStream vin;
@@ -68,29 +65,25 @@ public class Tutorial14 extends SceneCommand {
 		Shaders.destroyShader(frag);
 		prog.debug();
 		
-		trans.setPosition(0, 0, 1f);
-		trans.setScale(0.33f);
+		transform.setPosition(0, 0, 1f);
+		transform.setScale(0.33f);
 		return true;
 	}
 	
 	@Override
 	public void unload() {
-		vbo = VBOs.destroyVBO(vbo);
-		ibo = VBOs.destroyVBO(ibo);
-		prog = Programs.destroyProgram(prog);
+		vbo.destroy();
+		ibo.destroy();
+		prog.destroy();
 	}
 	
 	@Override
-	public void draw(float[] vpMatrix) {
+	public void draw(Matrix4f viewMatrix, Matrix4f projectionMatrix) {
 		prog.bind();
 		
-		FloatBuffer mmat = BufferUtils.createFloatBuffer(16);
-		mmat.put(trans.getModelMatrix()).flip();
-		GL20.glUniformMatrix4(prog.uniformLocation("mMatrix"), false, mmat);
-		
-		FloatBuffer vpmat = BufferUtils.createFloatBuffer(16);
-		vpmat.put(vpMatrix).flip();
-		GL20.glUniformMatrix4(prog.uniformLocation("vpMatrix"), false, vpmat);
+		prog.setUniform("mMatrix", transform.getModelMatrix(), false);
+		prog.setUniform("vMatrix", viewMatrix, false);
+		prog.setUniform("pMatrix", projectionMatrix, false);
 		
 		vbo.bind();
 		ibo.bind();
@@ -106,7 +99,7 @@ public class Tutorial14 extends SceneCommand {
 	}
 	
 	boolean w, a, s, d, e, q;
-	boolean up, down;
+	boolean up, down, space;
 	
 	@Override
 	public void input() {
@@ -143,17 +136,34 @@ public class Tutorial14 extends SceneCommand {
 				case Keyboard.KEY_DOWN:
 					down = Keyboard.getEventKeyState();
 					break;
+				case Keyboard.KEY_SPACE:
+					if (Keyboard.getEventKeyState())
+						space = !space;
+					break;
 			}
 		}
-		V3f v = new V3f((d ? 0.01f : 0) - (a ? 0.01f : 0), (w ? 0.01f : 0) - (s ? 0.01f : 0), 0);
-		UnitQuaternion r = UnitQuaternion.rotation(new V3f(0, 0, 1), -(e ? 0.01f : 0) + (q ? 0.01f : 0));
-		PerspectiveCamera cam = (PerspectiveCamera)camera;
+		//
 		
-		cam.transform.translateBy(v);
-		cam.transform.rotateBy(r);
+		float moveSpeed = 0.05f;
+		float rotSpeed = 0.05f;
 		
-		fov = Math.max(30, Math.min(120, fov + (down?1:0) - (up?1:0)));
-		cam.setFOV(fov);
+		V3f v = new V3f((d ? moveSpeed : 0) - (a ? moveSpeed : 0), (w ? moveSpeed : 0) - (s ? moveSpeed : 0), 0);
+		UnitQuaternion r = UnitQuaternion.rotation(new V3f(0, 0, 1), -(e ? rotSpeed : 0) + (q ? rotSpeed : 0));
+		
+		if (space) {
+			camera.transform.translateBy(v);
+			camera.transform.rotateBy(r);
+		}
+		else {
+			transform.translateBy(v);
+			transform.rotateBy(r);
+		}
+		if (camera instanceof PerspectiveCamera) {
+			PerspectiveCamera camx = (PerspectiveCamera) camera;
+			fov = Math.max(30, Math.min(120, fov + (down ? 1 : 0) - (up ? 1 : 0)));
+			camx.setFOV(fov);
+		}
+		
 	}
 	
 	public static void main(String[] args) {

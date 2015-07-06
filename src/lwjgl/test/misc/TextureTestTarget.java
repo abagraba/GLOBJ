@@ -2,6 +2,7 @@ package lwjgl.test.misc;
 
 import globj.core.GL;
 import globj.core.RenderCommand;
+import globj.objects.bufferobjects.StaticVBO;
 import globj.objects.bufferobjects.VBO;
 import globj.objects.bufferobjects.VBOTarget;
 import globj.objects.textures.Texture2D;
@@ -12,11 +13,9 @@ import globj.objects.textures.values.MinifyFilter;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.FloatBuffer;
 
 import javax.imageio.ImageIO;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
@@ -45,9 +44,6 @@ public class TextureTestTarget extends RenderCommand {
 	@Override
 	public void init() {
 		
-		FloatBuffer v = BufferUtils.createFloatBuffer(12);
-		FloatBuffer t = BufferUtils.createFloatBuffer(12);
-		
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		
 		BufferedImage img = null;
@@ -63,18 +59,21 @@ public class TextureTestTarget extends RenderCommand {
 		tex.update();
 		Timer.debug.measure("Load Texture:");
 		
-		v.put(new float[] { -1, -1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1 }).flip();
-		t.put(new float[] { 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0 }).flip();
+		float[] v = new float[] { -1, -1, //
+				-1, 1, //
+				1, 1, //
+				1, -1, //
+				1, 1, //
+				-1, -1 };
+		float[] t = new float[] { 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1 };
 		
 		GLDebug.debug(tex);
 		
-		vertices = VBO.create("A", VBOTarget.ARRAY);
-		vertices.bufferData(v);
+		vertices = StaticVBO.create("A", VBOTarget.ARRAY, v);
 		vertices.bind();
 		GL11.glVertexPointer(2, GL11.GL_FLOAT, 0, 0);
 		
-		tcoords = VBO.create("B", VBOTarget.ARRAY);
-		tcoords.bufferData(t);
+		tcoords = StaticVBO.create("B", VBOTarget.ARRAY, t);
 		tcoords.bind();
 		GL11.glTexCoordPointer(2, GL11.GL_FLOAT, 0, 0);
 		
