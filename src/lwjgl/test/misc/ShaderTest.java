@@ -44,7 +44,7 @@ public class ShaderTest extends RenderCommand {
 		Shaders.destroyShader(vert);
 		Shaders.destroyShader(frag);
 		
-		prog.debug();
+		prog.debugQuery();
 		
 	}
 	

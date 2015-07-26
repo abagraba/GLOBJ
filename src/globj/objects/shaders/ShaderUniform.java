@@ -86,7 +86,7 @@ public class ShaderUniform extends GLObject {
 	/**************************************************/
 	
 	@Override
-	public void debug() {
+	public void debugQuery() {
 		GLDebug.write(this);
 	}
 	

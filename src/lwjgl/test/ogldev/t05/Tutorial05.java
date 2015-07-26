@@ -35,8 +35,8 @@ public class Tutorial05 extends RenderCommand {
 		try {
 			vert = Shaders.createShader("Vert", ShaderType.VERTEX, getClass().getResourceAsStream("shader.vs"));
 			frag = Shaders.createShader("Frag", ShaderType.FRAGMENT, getClass().getResourceAsStream("shader.fs"));
-			vert.debug();
-			frag.debug();
+			vert.debugQuery();
+			frag.debugQuery();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -46,7 +46,7 @@ public class Tutorial05 extends RenderCommand {
 		Shaders.destroyShader(vert);
 		Shaders.destroyShader(frag);
 		
-		prog.debug();
+		prog.debugQuery();
 	}
 	
 	@Override

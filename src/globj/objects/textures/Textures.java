@@ -23,14 +23,14 @@ public class Textures {
 	
 	protected static final GLObjectTracker<GLTexture> tracker = new GLObjectTracker<GLTexture>();
 	
-	private static final String t1d = "Texture_1D_";
-	private static final String t2d = "Texture_2D_";
-	private static final String t3d = "Texture_3D_";
-	private static final String t1da = "Texture_1DArray_";
-	private static final String t2da = "Texture_2DArray_";
-	private static final String tc = "Texture_Cubemap_";
-	private static final String tca = "Texture_CubemapArray_";
-	private static final String tr = "Texture_Rectangle_";
+	private static final String t1d = "Texture_1D:";
+	private static final String t2d = "Texture_2D:";
+	private static final String t3d = "Texture_3D:";
+	private static final String t1da = "Texture_1DArray:";
+	private static final String t2da = "Texture_2DArray:";
+	private static final String tc = "Texture_Cubemap:";
+	private static final String tca = "Texture_CubemapArray:";
+	private static final String tr = "Texture_Rectangle:";
 	
 	/**************************************************/
 	

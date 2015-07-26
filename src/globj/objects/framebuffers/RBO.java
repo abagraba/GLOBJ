@@ -137,7 +137,7 @@ public class RBO extends GLObject implements FBOAttachable {
 	/**************************************************/
 	
 	@Override
-	public void debug() {
+	public void debugQuery() {
 		GL.flushErrors();
 		bind();
 		int w = GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_WIDTH);

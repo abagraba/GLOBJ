@@ -14,12 +14,12 @@ public enum DataType {
 	
 	public final String name;
 	public final int value;
-	public final int bytes;
+	public final int size;
 	
-	private DataType(String name, int value, int bytes) {
+	private DataType(String name, int value, int size) {
 		this.name = name;
 		this.value = value;
-		this.bytes = bytes;
+		this.size = size;
 	}
 	
 	public static DataType get(int i) {

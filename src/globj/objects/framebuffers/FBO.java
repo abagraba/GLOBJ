@@ -103,7 +103,7 @@ public class FBO extends BindableGLObject {
 	}
 	
 	@Override
-	public void debug() {
+	public void debugQuery() {
 		GL.flushErrors();
 		GLDebug.setPad(24);
 		
@@ -117,8 +117,14 @@ public class FBO extends BindableGLObject {
 			GLDebug.unindent();
 			return;
 		}
+		int count = 0;
+		for (FBOAttachment attach : FBOAttachment.values())
+			if (attach != FBOAttachment.DEPTH_STENCIL)
+				if (debugBindingStatus(attach))
+					count++;
+
 		int w = 0, h = 0, l = 0, s = 0, f = 0;
-		if (GL.versionCheck(4, 3)) {
+		if (count == 0 && GL.versionCheck(4, 3)) {
 			w = GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER, GL43.GL_FRAMEBUFFER_DEFAULT_WIDTH);
 			h = GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER, GL43.GL_FRAMEBUFFER_DEFAULT_HEIGHT);
 			l = GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER, GL43.GL_FRAMEBUFFER_DEFAULT_LAYERS);
@@ -130,24 +136,20 @@ public class FBO extends BindableGLObject {
 			GLDebug.write(GLDebug.fixedString("Default Sample Locations:") + f);
 			GLDebug.write("");
 		}
-		
-		for (FBOAttachment attach : FBOAttachment.values())
-			if (attach != FBOAttachment.DEPTH_STENCIL)
-				debugBindingStatus(attach);
-		
+
 		undobind();
 		GLDebug.unindent();
 		GLDebug.unsetPad();
 		GL.flushErrors();
 	}
 	
-	private static void debugBindingStatus(FBOAttachment attach) {
+	private static boolean debugBindingStatus(FBOAttachment attach) {
 		int ca = Context.intConst(GL30.GL_MAX_COLOR_ATTACHMENTS);
 		if (attach.colorindex >= ca)
-			return;
+			return true;
 		int type = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE);
 		if (type == GL11.GL_NONE)
-			return;
+			return false;
 		GLDebug.write(attach.toString() + ":");
 		switch (type) {
 			case GL11.GL_TEXTURE:
@@ -167,12 +169,12 @@ public class FBO extends BindableGLObject {
 					GLDebug.indent(-1);
 				}
 				GLDebug.indent(-1);
-				return;
+				return true;
 			case GL30.GL_FRAMEBUFFER_DEFAULT:
 				GLDebug.indent();
 				GLDebug.write(GLDebug.fixedString("Default Framebuffer"));
 				GLDebug.unindent();
-				return;
+				return true;
 			case GL30.GL_RENDERBUFFER:
 				RBO rbo = RBO
 						.get(GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME));
@@ -193,7 +195,8 @@ public class FBO extends BindableGLObject {
 				GLDebug.write(GLDebug.fixedString("Stencil Size") + s);
 				GLDebug.write(GLDebug.fixedString("Format") + f);
 				GLDebug.indent(-2);
-				return;
+				return true;
 		}
+		return false;
 	}
 }

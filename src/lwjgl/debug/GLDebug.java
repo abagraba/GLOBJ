@@ -73,14 +73,14 @@ public class GLDebug {
 		write(error);
 		indent();
 		if (obj != null)
-			obj.debug();
+			obj.debugQuery();
 		unsetIndent();
 		e.printStackTrace();
 	}
 	
 	public static void debug(GLObject obj) {
 		if (obj != null)
-			obj.debug();
+			obj.debugQuery();
 		else
 			System.out.println("NULL Object");
 	}

@@ -77,6 +77,12 @@ public abstract class VBO extends BindableGLObject {
 		VBOs.unregisterVBO(this);
 	}
 	
+	public static void tempDebug() {
+		for (VBOTarget target : trackers.keySet()) {
+			System.out.println(target + ": " + trackers.get(target).value());
+		}
+	}
+	
 	/**************************************************/
 	
 	/**
@@ -84,7 +90,7 @@ public abstract class VBO extends BindableGLObject {
 	 */
 	
 	@Override
-	public void debug() {
+	public void debugQuery() {
 	}
 	
 	public void debugContents() {

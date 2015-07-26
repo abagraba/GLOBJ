@@ -10,7 +10,7 @@ public abstract class GLObject {
 		this.id = id;
 	}
 	
-	public abstract void debug();
+	public abstract void debugQuery();
 	
 	@Override
 	public String toString() {

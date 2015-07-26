@@ -77,7 +77,7 @@ public class ShaderInput extends GLObject {
 	/**************************************************/
 	
 	@Override
-	public void debug() {
+	public void debugQuery() {
 		GLDebug.write(this);
 	}
 	

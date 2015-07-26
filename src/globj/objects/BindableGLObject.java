@@ -6,9 +6,11 @@ public abstract class BindableGLObject extends GLObject {
 		super(name, id);
 	}
 
+	
 	protected abstract BindTracker bindingTracker();
 	protected abstract void bindOP(int id);
 	protected abstract void destroyOP();
+	
 	
 	public void bind() {
 		bindingTracker().update(id);

@@ -33,14 +33,15 @@ public class Shaders {
 			return null;
 		}
 		Shader s = Shader.create(name, type);
-		if (s != null)
+		if (s != null) {
 			tracker.add(s);
-		BufferedReader br = new BufferedReader(new InputStreamReader(in));
-		ArrayList<String> data = new ArrayList<String>();
-		String line;
-		while ((line = br.readLine()) != null)
-			data.add(line + '\n');
-		s.setShaderData(data.toArray(new String[data.size()]));
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			ArrayList<String> data = new ArrayList<String>();
+			String line;
+			while ((line = br.readLine()) != null)
+				data.add(line + '\n');
+			s.setShaderData(data.toArray(new String[data.size()]));
+		}
 		return s;
 	}
 	
@@ -51,7 +52,7 @@ public class Shaders {
 		}
 		return null;
 	}
-
+	
 	public static Shader destroyShader(String name) {
 		if (!tracker.contains(name)) {
 			GLDebug.globjError(Shader.class, name, "Cannot destroy", "Does not exist");

@@ -109,7 +109,7 @@ public final class Texture2DArray extends GLTexture2D implements FBOAttachable {
 	/**************************************************/
 	
 	@Override
-	public void debug() {
+	public void debugQuery() {
 		GL.flushErrors();
 		GLDebug.setPad(32);
 		

@@ -82,7 +82,7 @@ public class Tutorial12 extends SceneCommand {
 		prog = Programs.createProgram("Test", vert, frag);
 		Shaders.destroyShader(vert);
 		Shaders.destroyShader(frag);
-		prog.debug();
+		prog.debugQuery();
 		
 		transform.setPosition(0, 0, 1f);
 		transform.setScale(0.33f);

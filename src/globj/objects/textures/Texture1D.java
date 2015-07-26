@@ -100,7 +100,7 @@ public final class Texture1D extends GLTexture1D implements FBOAttachable {
 	/**************************************************/
 	
 	@Override
-	public void debug() {
+	public void debugQuery() {
 		GL.flushErrors();
 		GLDebug.setPad(24);
 		

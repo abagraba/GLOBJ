@@ -118,7 +118,7 @@ public class Program extends BindableGLObject {
 	/**************************************************/
 	
 	@Override
-	public void debug() {
+	public void debugQuery() {
 		GL.flushErrors();
 		GLDebug.setPad(32);
 		GLDebug.write(GLDebug.fixedString("Program:") + name);

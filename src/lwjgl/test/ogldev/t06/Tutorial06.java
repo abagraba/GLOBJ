@@ -46,12 +46,12 @@ public class Tutorial06 extends RenderCommand {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		vert.debug();
-		frag.debug();
+		vert.debugQuery();
+		frag.debugQuery();
 		
 		prog = Programs.createProgram("Test", vert, frag);
 		
-		prog.debug();
+		prog.debugQuery();
 		prog.bind();
 	}
 	

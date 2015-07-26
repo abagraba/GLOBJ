@@ -110,7 +110,7 @@ public final class Texture3D extends GLTexture3D implements FBOAttachable {
 	/**************************************************/
 	
 	@Override
-	public void debug() {
+	public void debugQuery() {
 		GL.flushErrors();
 		GLDebug.setPad(32);
 		

@@ -42,7 +42,7 @@ public class Shader extends GLObject {
 	}
 	
 	@Override
-	public void debug() {
+	public void debugQuery() {
 		GL.flushErrors();
 		GLDebug.setPad(24);
 		

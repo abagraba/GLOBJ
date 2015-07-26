@@ -4,16 +4,28 @@ import globj.objects.BindTracker;
 import globj.objects.BindableGLObject;
 import globj.objects.bufferobjects.VBO;
 import globj.objects.bufferobjects.VBOTarget;
-import globj.objects.shaders.Program;
+import globj.objects.shaders.Programs;
 import lwjgl.debug.GLDebug;
 
-import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GL30;
 
 public class VAO extends BindableGLObject {
 	
+	public final static VAO defaultVAO = new VAO("Default VAO", true) {
+		@Override
+		public void destroy() {
+			GLDebug.write("Cannot destroy default VAO");
+		};
+	};
+	
 	private VAO(String name) {
-		super(name, GL15.glGenBuffers());
+		super(name, GL30.glGenVertexArrays());
+	}
+	
+	private VAO(String name, boolean def) {
+		super(name, 0);
 	}
 	
 	public static VAO create(String name) {
@@ -48,18 +60,159 @@ public class VAO extends BindableGLObject {
 	
 	/**************************************************/
 	
-	public void attach(VBO vbo, VBOFormat format, Program program, String uniform) {
+	public void attachBuffer(VBO vbo, VBOFormat format, int vertexAttrib) {
 		if (vbo.target != VBOTarget.ARRAY) {
-			GLDebug.glError("Only VBOs bound to Array Targets can be attached to VAOs.", null);
+			GLDebug.glError("VBO target must be Array to be attached to VAOs.", null);
+			return;
 		}
 		vbo.bind();
-		GL30.glVertexAttribIPointer(program.uniformLocation(uniform), format.type.bytes, format.type.value, format.type.bytes * format.components,
-				format.type.bytes * format.offset);
+		GL30.glVertexAttribIPointer(vertexAttrib, format.components, format.type.value, format.stride, format.offset);
 		vbo.undobind();
 	}
 	
+	// Attaches VBO to the uniform location specified in the currently bound
+	// shader program.
+	public void attachBuffer(VBO vbo, VBOFormat format, String uniform) {
+		if (vbo.target != VBOTarget.ARRAY) {
+			GLDebug.glError("VBO target must be Array to be attached to VAOs.", null);
+			return;
+		}
+		vbo.bind();
+		GL30.glVertexAttribIPointer(Programs.current().uniformLocation(uniform), format.components, format.type.value, format.type.size * format.stride,
+				format.type.size * format.offset);
+		vbo.undobind();
+	}
+	
+	/**************************************************/
+	/******************* Deprecated *******************/
+	/**************************************************/
+	
+	/**
+	 * Instead use {@link #attachBuffer(VBO, VBOFormat, int)}.
+	 * 
+	 * @deprecated This functionality is deprecated in Core 3.1+ contexts.
+	 */
+	@Deprecated
+	public void attachVertexBuffer(VBO vbo, VBOFormat format) {
+		if (vbo.target != VBOTarget.ARRAY) {
+			GLDebug.glError("VBO target must be Array to be attached to VAOs.", null);
+			return;
+		}
+		bind();
+		vbo.bind();
+		GL11.glVertexPointer(format.components, format.type.value, format.stride, format.offset);
+		vbo.undobind();
+		undobind();
+	}
+	
+	/**
+	 * Instead use {@link #attachBuffer(VBO, VBOFormat, int)}.
+	 * 
+	 * @deprecated This functionality is deprecated in Core 3.1+ contexts.
+	 */
+	@Deprecated
+	public void attachTexCoordBuffer(VBO vbo, VBOFormat format) {
+		if (vbo.target != VBOTarget.ARRAY) {
+			GLDebug.glError("VBO target must be Array to be attached to VAOs.", null);
+			return;
+		}
+		bind();
+		vbo.bind();
+		GL11.glTexCoordPointer(format.components, format.type.value, format.stride, format.offset);
+		vbo.undobind();
+		undobind();
+	}
+	
+	/**
+	 * Instead use {@link #attachBuffer(VBO, VBOFormat, int)}.
+	 * 
+	 * @deprecated This functionality is deprecated in Core 3.1+ contexts.
+	 */
+	@Deprecated
+	public void attachColorBuffer(VBO vbo, VBOFormat format) {
+		if (vbo.target != VBOTarget.ARRAY) {
+			GLDebug.glError("VBO target must be Array to be attached to VAOs.", null);
+			return;
+		}
+		bind();
+		vbo.bind();
+		GL11.glColorPointer(format.components, format.type.value, format.stride, format.offset);
+		vbo.undobind();
+		undobind();
+	}
+	
+	/**
+	 * Instead use {@link #attachBuffer(VBO, VBOFormat, int)}.
+	 * 
+	 * @deprecated This functionality is deprecated in Core 3.1+ contexts.
+	 */
+	@Deprecated
+	public void attachNormalBuffer(VBO vbo, VBOFormat format) {
+		if (vbo.target != VBOTarget.ARRAY) {
+			GLDebug.glError("VBO target must be Array to be attached to VAOs.", null);
+			return;
+		}
+		bind();
+		vbo.bind();
+		GL11.glNormalPointer(format.type.value, format.stride, format.offset);
+		vbo.undobind();
+		undobind();
+	}
+	
+	/*
+	 * The glIndexPointer function appears to be missing from LWJGL.
+	 * 
+	 * @Deprecated public void attachColorIndexBuffer(VBO vbo, VBOFormat format)
+	 * { if (vbo.target != VBOTarget.ARRAY) {
+	 * GLDebug.glError("VBO target must be Array to be attached to VAOs." ,
+	 * null); return; } vbo.bind(); GL11.glIndexPointer(format.type.size *
+	 * format.stride, format.type.size * format.offset); vbo.undobind(); }
+	 */
+	
+	/**
+	 * Instead use {@link #attachBuffer(VBO, VBOFormat, int)}.
+	 * 
+	 * @deprecated This functionality is deprecated in Core 3.1+ contexts.
+	 */
+	@Deprecated
+	public void attachEdgeFlagBuffer(VBO vbo, VBOFormat format) {
+		if (vbo.target != VBOTarget.ARRAY) {
+			GLDebug.glError("VBO target must be Array to be attached to VAOs.", null);
+			return;
+		}
+		bind();
+		vbo.bind();
+		GL11.glEdgeFlagPointer(format.stride, format.offset);
+		vbo.undobind();
+		undobind();
+	}
+	
+	/**
+	 * Instead use {@link #attachBuffer(VBO, VBOFormat, int)}.
+	 * 
+	 * @deprecated This functionality is deprecated in Core 3.1+ contexts.
+	 */
+	@Deprecated
+	public void attachFogCoordBuffer(VBO vbo, VBOFormat format) {
+		if (vbo.target != VBOTarget.ARRAY) {
+			GLDebug.glError("VBO target must be Array to be attached to VAOs.", null);
+			return;
+		}
+		bind();
+		vbo.bind();
+		GL14.glFogCoordPointer(format.type.value, format.stride, format.offset);
+		vbo.undobind();
+		undobind();
+	}
+	
+	//booleans to track which arrays are enabled.
+	
+	/**************************************************/
+	/********************** Debug *********************/
+	/**************************************************/
+	
 	@Override
-	public void debug() {
+	public void debugQuery() {
 		// TODO Auto-generated method stub
 	}
 	

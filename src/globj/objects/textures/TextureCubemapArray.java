@@ -125,7 +125,7 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 	/**************************************************/
 	
 	@Override
-	public void debug() {
+	public void debugQuery() {
 		GL.flushErrors();
 		GLDebug.setPad(32);
 		

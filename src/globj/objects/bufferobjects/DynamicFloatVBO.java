@@ -27,7 +27,7 @@ public class DynamicFloatVBO extends DynamicVBO<float[]> {
 	public void write(FloatBuffer data) {
 		orphan();
 		GL15.glBufferData(target.value, data, usage.value);
-		size = data.limit();
+		size = data.limit() * 4;
 	}
 	
 	@Override
@@ -41,13 +41,17 @@ public class DynamicFloatVBO extends DynamicVBO<float[]> {
 	
 	@Override
 	public void debugContents() {
+		bind();
+		System.out.printf("%s: %d\n\t", name, id);
 		FloatBuffer buffer = BufferUtils.createFloatBuffer(size / 4);
 		GL15.glGetBufferSubData(target.value, 0, buffer);
 		for (int i = 0; i < size / 4; i++) {
 			if ((i + 1) % debugCount == 0)
-				System.out.println(buffer.get() + "\t");
+				System.out.print(buffer.get() + "\t\n\t");
 			else
 				System.out.print(buffer.get() + "\t");
 		}
+		System.out.println();
+		undobind();
 	}
 }
