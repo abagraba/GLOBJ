@@ -31,7 +31,7 @@ public final class Texture2D extends GLTexture2D implements FBOAttachable {
 	protected static Texture2D create(String name, TextureFormat texformat, int w, int h, int basemap, int maxmap) {
 		Texture2D tex = new Texture2D(name, texformat);
 		if (tex.id == 0) {
-			GLDebug.globjError(Texture2D.class, name, "Cannot create", "No ID could be allocated");
+			GLDebug.glObjError(Texture2D.class, name, "Cannot create", "No ID could be allocated");
 			return null;
 		}
 		
@@ -68,7 +68,7 @@ public final class Texture2D extends GLTexture2D implements FBOAttachable {
 		TextureFormat texformat = TextureFormat.RGBA8;
 		Texture2D tex = new Texture2D(name, texformat);
 		if (tex.id == 0) {
-			GLDebug.globjError(Texture2D.class, name, "Cannot create", "No ID could be allocated");
+			GLDebug.glObjError(Texture2D.class, name, "Cannot create", "No ID could be allocated");
 			return null;
 		}
 		// TODO warn if clamped?

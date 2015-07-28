@@ -36,7 +36,7 @@ public final class TextureCubemap extends GLTexture2D implements FBOAttachable {
 	protected static TextureCubemap create(String name, TextureFormat texformat, int s, int basemap, int maxmap) {
 		TextureCubemap tex = new TextureCubemap(name, texformat);
 		if (tex.id == 0) {
-			GLDebug.globjError(TextureCubemap.class, name, "Cannot create", "No ID could be allocated");
+			GLDebug.glObjError(TextureCubemap.class, name, "Cannot create", "No ID could be allocated");
 			return null;
 		}
 		

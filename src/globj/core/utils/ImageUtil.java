@@ -2,6 +2,7 @@ package globj.core.utils;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
@@ -19,10 +20,10 @@ public class ImageUtil {
 	private static Color clear = new Color(0f, 0f, 0f, 0f);
 	
 	private static ColorModel model = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB), new int[] { 8, 8, 8, 0 }, false, false,
-			ComponentColorModel.OPAQUE, DataBuffer.TYPE_BYTE);
+			Transparency.OPAQUE, DataBuffer.TYPE_BYTE);
 	
 	private static ColorModel modelA = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB), new int[] { 8, 8, 8, 8 }, true, false,
-			ComponentColorModel.TRANSLUCENT, DataBuffer.TYPE_BYTE);
+			Transparency.TRANSLUCENT, DataBuffer.TYPE_BYTE);
 	
 	public static ByteBuffer imageRGBData(BufferedImage image) {
 		WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, image.getWidth(), image.getHeight(), 3, null);

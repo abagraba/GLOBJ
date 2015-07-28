@@ -34,7 +34,7 @@ public final class Texture3D extends GLTexture3D implements FBOAttachable {
 	protected static Texture3D create(String name, TextureFormat texformat, int w, int h, int d, int basemap, int maxmap) {
 		Texture3D tex = new Texture3D(name, texformat);
 		if (tex.id == 0) {
-			GLDebug.globjError(Texture3D.class, name, "Cannot create", "No ID could be allocated");
+			GLDebug.glObjError(Texture3D.class, name, "Cannot create", "No ID could be allocated");
 			return null;
 		}
 		

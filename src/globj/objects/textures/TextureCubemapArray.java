@@ -37,7 +37,7 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 	protected static TextureCubemapArray create(String name, TextureFormat texformat, int s, int cubemaps, int basemap, int maxmap) {
 		TextureCubemapArray tex = new TextureCubemapArray(name, texformat);
 		if (tex.id == 0) {
-			GLDebug.globjError(TextureCubemapArray.class, name, "Cannot create", "No ID could be allocated");
+			GLDebug.glObjError(TextureCubemapArray.class, name, "Cannot create", "No ID could be allocated");
 			return null;
 		}
 		

@@ -10,7 +10,7 @@ public class VAOs {
 	public static VAO createVAO(String name) {
 		VAO vao = VAO.create(name);
 		if (tracker.contains(name)) {
-			GLDebug.globjError(VAO.class, name, "Cannot create", "Already exists");
+			GLDebug.glObjError(VAO.class, name, "Cannot create", "Already exists");
 			return null;
 		}
 		tracker.add(vao);

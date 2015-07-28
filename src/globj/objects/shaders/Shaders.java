@@ -18,7 +18,7 @@ public class Shaders {
 	
 	public static Shader createShader(String name, ShaderType type) {
 		if (tracker.contains(name)) {
-			GLDebug.globjError(Shader.class, name, "Cannot create", "Already exists");
+			GLDebug.glObjError(Shader.class, name, "Cannot create", "Already exists");
 			return null;
 		}
 		Shader s = Shader.create(name, type);
@@ -29,7 +29,7 @@ public class Shaders {
 	
 	public static Shader createShader(String name, ShaderType type, InputStream in) throws IOException {
 		if (tracker.contains(name)) {
-			GLDebug.globjError(Shader.class, name, "Cannot create", "Already exists");
+			GLDebug.glObjError(Shader.class, name, "Cannot create", "Already exists");
 			return null;
 		}
 		Shader s = Shader.create(name, type);
@@ -55,7 +55,7 @@ public class Shaders {
 	
 	public static Shader destroyShader(String name) {
 		if (!tracker.contains(name)) {
-			GLDebug.globjError(Shader.class, name, "Cannot destroy", "Does not exist");
+			GLDebug.glObjError(Shader.class, name, "Cannot destroy", "Does not exist");
 			return null;
 		}
 		return destroyShader(getShader(name));

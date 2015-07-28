@@ -4,11 +4,11 @@ import globj.objects.bufferobjects.VBO;
 
 public class Attribute {
 	
-	private VBO buffer;
-	private int shaderloc;
+	protected VBO buffer;
+	protected int shaderloc;
 	
-	private int stride;
-	private int offset;
+	protected int stride;
+	protected int offset;
 
 	public Attribute(VBO buffer, int stride, int offset){
 		this.buffer = buffer;

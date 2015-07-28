@@ -40,7 +40,7 @@ public class Program extends BindableGLObject {
 	public static Program create(String name, Shader[] shaders) {
 		Program prog = new Program(name);
 		if (prog.id == 0) {
-			GLDebug.globjError(Program.class, name, "Cannot create", "No ID could be allocated");
+			GLDebug.glObjError(Program.class, name, "Cannot create", "No ID could be allocated");
 			return null;
 		}
 		prog.setShaders(shaders);
@@ -63,7 +63,7 @@ public class Program extends BindableGLObject {
 		for (int i = 0; i < shaders.length; i++) {
 			s[i] = Shaders.getShader(shaders[i]);
 			if (s[i] == null) {
-				GLDebug.globjError(Program.class, name, "Cannot create program", "Cannot find shader [" + shaders[i] + "]");
+				GLDebug.glObjError(Program.class, name, "Cannot create program", "Cannot find shader [" + shaders[i] + "]");
 				return null;
 			}
 		}
@@ -102,7 +102,7 @@ public class Program extends BindableGLObject {
 	public void setUniform(String uniform, Matrix4f mat, boolean transpose) {
 		int uni = uniformLocation(uniform);
 		if (uni == -1) {
-			GLDebug.globjError(this, "Could not set uniform for ", "Could not locate uniform [" + uniform + "]");
+			GLDebug.glObjError(this, "Could not set uniform for ", "Could not locate uniform [" + uniform + "]");
 			return;
 		}
 		FloatBuffer buff = BufferUtils.createFloatBuffer(16);

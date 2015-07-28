@@ -37,7 +37,7 @@ public class FBOs {
 	
 	public static FBO destroyFBO(String name) {
 		if (!tracker.contains(name)) {
-			GLDebug.globjError(FBO.class, name, "Cannot destroy", "Does not exist");
+			GLDebug.glObjError(FBO.class, name, "Cannot destroy", "Does not exist");
 			return null;
 		}
 		return destroyFBO(getFBO(name));

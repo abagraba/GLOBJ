@@ -9,7 +9,7 @@ public class VBOs {
 	
 	protected static boolean registerVBO(VBO vbo) {
 		if (tracker.contains(vbo.name)) {
-			GLDebug.globjError(VBO.class, vbo.name, "Cannot create", "Already exists");
+			GLDebug.glObjError(VBO.class, vbo.name, "Cannot create", "Already exists");
 			return false;
 		}
 		tracker.add(vbo);

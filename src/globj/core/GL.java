@@ -1,5 +1,6 @@
 package globj.core;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,24 +16,30 @@ import org.lwjgl.opengl.GL43;
 import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.glu.GLU;
 
+
+
 public class GL {
 	
-	public volatile static boolean logFPS = false;
-	public volatile static boolean debug = true;
+	private static boolean			logFPS			= false;
+	private static boolean			debug			= true;
 	
-	public volatile static long renderTime = 0;
-	public volatile static int fps = 60;
+	private static long				renderTime		= 0;
+	private static int				fps				= 60;
 	
-	private volatile static boolean stop = false;
+	private static volatile boolean	stop			= false;
 	
-	private static Object displayLock = new Object();
-	private volatile static boolean display = false;
+	private static Object			displayLock		= new Object();
+	private static volatile boolean	display			= false;
 	
-	private static Object targetLock = new Object();
-	private static RenderCommand target;
-	private static RenderCommand current;
-	private static long lastRender = System.nanoTime();
-	private static long currentRender = System.nanoTime();
+	private static Object			targetLock		= new Object();
+	private static RenderCommand	target;
+	private static RenderCommand	current;
+	private static long				lastRender		= System.nanoTime();
+	private static long				currentRender	= System.nanoTime();
+	
+	
+	private GL() {
+	}
 	
 	public static void setTarget(RenderCommand target) {
 		synchronized (targetLock) {
@@ -41,8 +48,14 @@ public class GL {
 	}
 	
 	public static void waitForStart() {
-		while (!display)
-			;
+		while (!display) {
+			try {
+				Thread.sleep(17);
+			}
+			catch (InterruptedException e) {
+				GLDebug.logException(e);
+			}
+		}
 	}
 	
 	public static void startGL() throws LWJGLException {
@@ -51,16 +64,18 @@ public class GL {
 	
 	public static void startGL(final PixelFormat pf, final ContextAttribs attribs) throws LWJGLException {
 		new Thread("LWJGL Render Thread") {
+			@Override
 			public void run() {
 				synchronized (displayLock) {
 					if (display) {
-						System.err.println("LWJGL Display cannot be initiated: Already Running.");
+						GLDebug.glError("LWJGL Display cannot be initiated: Already Running.");
 						return;
 					}
 					try {
 						Display.create(pf, attribs);
-					} catch (LWJGLException e) {
-						e.printStackTrace();
+					}
+					catch (LWJGLException e) {
+						GLDebug.logException(e);
 					}
 					display = true;
 				}
@@ -85,7 +100,7 @@ public class GL {
 					Display.update();
 					renderTime = System.nanoTime() - currentRender;
 					if (logFPS)
-						System.out.println(1000000000f / renderTime + " fps");
+						GLDebug.write(1000000000f / renderTime + " fps");
 				}
 				synchronized (displayLock) {
 					Display.destroy();
@@ -96,11 +111,12 @@ public class GL {
 		}.start();
 	}
 	
-	public static void toggleFS(){
+	public static void toggleFS() {
 		try {
 			Display.setFullscreen(!Display.isFullscreen());
-		} catch (LWJGLException e) {
-			e.printStackTrace();
+		}
+		catch (LWJGLException e) {
+			GLDebug.logException(e);
 		}
 	}
 	
@@ -108,35 +124,24 @@ public class GL {
 		int err = GL11.glGetError();
 		while (err != GL11.GL_NO_ERROR) {
 			if (debug)
-				System.err.println(GLU.gluErrorString(err));
-			err = GL11.glGetError();
-		}
-	}
-	public static void flushErrorsOut() {
-		int err = GL11.glGetError();
-		if (err == GL11.GL_NO_ERROR)
-			System.out.println("No Error");
-		while (err != GL11.GL_NO_ERROR) {
-			if (debug)
-				System.out.println(GLU.gluErrorString(err));
+				GLDebug.write(GLU.gluErrorString(err));
 			err = GL11.glGetError();
 		}
 	}
 	
-	public static String readErrors() {
+	public static void flushErrorsV() {
 		int err = GL11.glGetError();
 		if (err == GL11.GL_NO_ERROR)
-			return null;
-		String s = "";
+			GLDebug.write("No Error");
 		while (err != GL11.GL_NO_ERROR) {
-			s += GLU.gluErrorString(err) + '\n';
+			if (debug)
+				GLDebug.write(GLU.gluErrorString(err));
 			err = GL11.glGetError();
 		}
-		return s;
 	}
 	
 	public static List<String> readErrorsToList() {
-		ArrayList<String> errors = new ArrayList<String>();
+		List<String> errors = new ArrayList<String>();
 		int err = GL11.glGetError();
 		if (err == GL11.GL_NO_ERROR)
 			return errors;
@@ -159,7 +164,7 @@ public class GL {
 		stop = true;
 	}
 	
-	public static boolean versionCheck(int major, int minor){
+	public static boolean versionCheck(int major, int minor) {
 		if (Context.intConst(GL30.GL_MAJOR_VERSION) > major)
 			return true;
 		if (Context.intConst(GL30.GL_MAJOR_VERSION) < major)
@@ -167,7 +172,7 @@ public class GL {
 		return Context.intConst(GL30.GL_MINOR_VERSION) >= minor;
 	}
 	
-	public static String[] status(){
+	public static String[] status() {
 		GL.flushErrors();
 		String vendor = GL11.glGetString(GL11.GL_VENDOR);
 		String renderer = GL11.glGetString(GL11.GL_RENDERER);

@@ -1,13 +1,10 @@
 package lwjgl.test.misc;
 
-import globj.core.DataType;
 import globj.core.GL;
 import globj.core.RenderCommand;
 import globj.objects.arrays.VAO;
 import globj.objects.arrays.VBOFormat;
 import globj.objects.bufferobjects.DynamicFloatVBO;
-import globj.objects.bufferobjects.StaticVBO;
-import globj.objects.bufferobjects.VBO;
 import globj.objects.bufferobjects.VBOTarget;
 import globj.objects.framebuffers.FBO;
 import globj.objects.framebuffers.FBOs;
@@ -25,7 +22,6 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import org.lwjgl.LWJGLException;
-import org.lwjgl.LWJGLUtil;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
@@ -45,8 +41,6 @@ public class FBOTests extends RenderCommand {
 	
 	DynamicFloatVBO rectvbo;
 	DynamicFloatVBO quadvbo;
-	// DynamicFloatVBO rectvbo;
-	// DynamicFloatVBO quadvbo;
 	FBO fbo;
 	Texture2D tex;
 	Texture2D c0;
@@ -72,9 +66,7 @@ public class FBOTests extends RenderCommand {
 		File file = new File("src/lwjgl/test/misc/Untitled.png");
 		
 		rectvbo = DynamicFloatVBO.create("Rect", VBOTarget.ARRAY);
-		// rectvbo = StaticVBO.create("Rect", VBOTarget.ARRAY, rect);
 		quadvbo = DynamicFloatVBO.create("Quad", VBOTarget.ARRAY);
-		// quadvbo = StaticVBO.create("Quad", VBOTarget.ARRAY, quad);
 		
 		fbo = FBO.create("Test FBO");
 		try {
@@ -186,10 +178,10 @@ public class FBOTests extends RenderCommand {
 		
 		GL11.glClearColor(0, 0.5f, 1, 1);
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
-
+		
 		VAO.defaultVAO.attachVertexBuffer(quadvbo, VBOFormat.FLOAT_2_4_0);
 		VAO.defaultVAO.attachTexCoordBuffer(quadvbo, VBOFormat.FLOAT_2_4_2);
-
+		
 		GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
 		GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
 		

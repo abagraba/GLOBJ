@@ -19,7 +19,7 @@ public class Shader extends GLObject {
 	public static Shader create(String name, ShaderType type) {
 		Shader s = new Shader(name, type);
 		if (s.id == 0) {
-			GLDebug.globjError(Shader.class, name, "Cannot create", "No ID could be allocated");
+			GLDebug.glObjError(Shader.class, name, "Cannot create", "No ID could be allocated");
 			return null;
 		}
 		return s;

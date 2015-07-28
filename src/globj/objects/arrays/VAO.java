@@ -11,6 +11,8 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GL30;
 
+import annotations.Bind;
+
 public class VAO extends BindableGLObject {
 	
 	public final static VAO defaultVAO = new VAO("Default VAO", true) {
@@ -59,7 +61,7 @@ public class VAO extends BindableGLObject {
 	}
 	
 	/**************************************************/
-	
+	@Bind(target = "VAO")
 	public void attachBuffer(VBO vbo, VBOFormat format, int vertexAttrib) {
 		if (vbo.target != VBOTarget.ARRAY) {
 			GLDebug.glError("VBO target must be Array to be attached to VAOs.", null);
@@ -72,6 +74,7 @@ public class VAO extends BindableGLObject {
 	
 	// Attaches VBO to the uniform location specified in the currently bound
 	// shader program.
+	@Bind(target = "VAO")
 	public void attachBuffer(VBO vbo, VBOFormat format, String uniform) {
 		if (vbo.target != VBOTarget.ARRAY) {
 			GLDebug.glError("VBO target must be Array to be attached to VAOs.", null);
@@ -205,7 +208,7 @@ public class VAO extends BindableGLObject {
 		undobind();
 	}
 	
-	//booleans to track which arrays are enabled.
+	// booleans to track which arrays are enabled.
 	
 	/**************************************************/
 	/********************** Debug *********************/

@@ -1,14 +1,39 @@
 package lwjgl.debug;
 
+
+import java.io.PrintWriter;
+
 import globj.core.GLException;
 import globj.objects.GLObject;
 
+
+
 public class GLDebug {
 	
-	private static int indent = 0;
-	private static int lastindent = 0;
-	private static int pad = 24;
-	private static int lastpad = 24;
+	private static int			indent			= 0;
+	private static int			lastindent		= 0;
+	private static int			pad				= 24;
+	private static int			lastpad			= 24;
+	
+	public static final String	attribString	= "%-24s:\t%s";
+	public static final String	attribInt		= "%-24s:\t%d";
+	public static final String	attribByteHex	= "%-24s:\t0x%02X";
+	public static final String	attribIntHex	= "%-24s:\t0x%08X";
+	public static final String	attribFloat8	= "%-24s:\t%8f";
+	
+	public static final String	attribLString	= "%-48s:\t%s";
+	public static final String	attribLInt		= "%-48s:\t%d";
+	public static final String	attribLByteHex	= "%-48s:\t0x%02X";
+	public static final String	attribLIntHex	= "%-48s:\t0x%08X";
+	public static final String	attribLFloat8	= "%-48s:\t%8f";
+	
+	private static String		separator		= "_____________________________________________________________________________________________";
+	
+	private static PrintWriter	out				= new PrintWriter(System.out);
+	
+	
+	private GLDebug() {
+	}
 	
 	public static void indent() {
 		indent(1);
@@ -40,42 +65,72 @@ public class GLDebug {
 		indent = lastindent;
 	}
 	
-	public static void write(String string) {
+	private static void writeIndent() {
 		String s = "";
 		for (int i = 0; i < indent; i++)
 			s += '\t';
-		System.out.println(s + string);
+		out.write(s);
+	}
+	
+	public static void write(String string) {
+		writeIndent();
+		out.write(string);
+		out.write("\n");
+	}
+	
+	public static void writef(String format, Object... args) {
+		writeIndent();
+		out.write(String.format(format, args));
+		out.write("\n");
 	}
 	
 	public static void write(Object o) {
-		write(o.toString());
+		String[] text = o.toString().split("\n");
+		for (String string : text)
+			write(string);
 	}
-	
-	private static String separator = "_____________________________________________________________________________________________";
 	
 	public static void separator() {
+		setIndent(0);
 		write(separator);
+		unsetIndent();
 	}
 	
-	public static void glWarning(String error) {
+	public static void glWarning(String warning) {
 		setIndent(0);
 		write("WARNING:");
 		indent();
-		write(error);
+		write(warning);
 		unsetIndent();
+	}
+	
+	public static void glError(String error) {
+		glError(error, null);
 	}
 	
 	public static void glError(String error, GLObject obj) {
 		GLException e = new GLException(error, obj);
 		setIndent(0);
+		write(separator);
 		write("ERROR:");
 		indent();
 		write(error);
 		indent();
 		if (obj != null)
 			obj.debugQuery();
+		unindent();
+		write(separator);
+		logException(e);
+		write(separator);
 		unsetIndent();
-		e.printStackTrace();
+	}
+	
+	public static void logException(Exception e) {
+		write(e.getMessage());
+		indent();
+		for (StackTraceElement element : e.getStackTrace())
+			write(element.toString());
+		unindent();
 	}
 	
 	public static void debug(GLObject obj) {
@@ -93,16 +148,19 @@ public class GLDebug {
 			System.out.println("No Info");
 	}
 	
+	@Deprecated
 	public static String fixedString(String s) {
 		return fixedString(s, pad);
 	}
 	
+	@Deprecated
 	public static String fixedString(String s, int length) {
 		if (s.length() >= length)
 			return s;
 		return String.format("%-" + length + "s", s);
 	}
 	
+	@Deprecated
 	public static String logMessage(String message, int indent) {
 		String f = "            \t";
 		for (int i = 0; i < indent; i++)
@@ -111,6 +169,7 @@ public class GLDebug {
 		return String.format(f, message);
 	}
 	
+	@Deprecated
 	public static String logMessage(String pre, String message, int indent) {
 		String f = "%-12s\t";
 		for (int i = 0; i < indent; i++)
@@ -119,12 +178,12 @@ public class GLDebug {
 		return String.format(f, pre, message);
 	}
 	
-	public static void globjError(Class<? extends GLObject> obj, String name, String error, String message) {
+	public static void glObjError(Class<? extends GLObject> obj, String name, String error, String message) {
 		glError(String.format("%s %s [%s]: %s.", error, obj, name, message), null);
 	}
 	
-	public static void globjError(GLObject obj, String error, String message) {
-		globjError(obj.getClass(), obj.name, error, message);
+	public static void glObjError(GLObject obj, String error, String message) {
+		glObjError(obj.getClass(), obj.name, error, message);
 	}
 	
 }

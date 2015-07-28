@@ -32,7 +32,7 @@ public final class Texture1DArray extends GLTexture1D implements FBOAttachable {
 	protected static Texture1DArray create(String name, TextureFormat texformat, int w, int layers, int basemap, int maxmap) {
 		Texture1DArray tex = new Texture1DArray(name, texformat);
 		if (tex.id == 0) {
-			GLDebug.globjError(Texture1DArray.class, name, "Cannot create", "No ID could be allocated");
+			GLDebug.glObjError(Texture1DArray.class, name, "Cannot create", "No ID could be allocated");
 			return null;
 		}
 		
@@ -69,7 +69,7 @@ public final class Texture1DArray extends GLTexture1D implements FBOAttachable {
 		TextureFormat texformat = TextureFormat.RGBA8;
 		Texture1DArray tex = new Texture1DArray(name, texformat);
 		if (tex.id == 0) {
-			GLDebug.globjError(Texture1DArray.class, name, "Cannot create", "No ID could be allocated");
+			GLDebug.glObjError(Texture1DArray.class, name, "Cannot create", "No ID could be allocated");
 			return null;
 		}
 		int maps = Math.max(1, Math.min(mipmaps, levels(tex.w)));

@@ -40,7 +40,7 @@ public class Textures {
 	
 	public static Texture1D createTexture1D(String name, TextureFormat format, int w, int basemap, int maxmap) {
 		if (tracker.contains(t1d + name)) {
-			GLDebug.globjError(Texture1D.class, name, "Cannot create", "Already exists");
+			GLDebug.glObjError(Texture1D.class, name, "Cannot create", "Already exists");
 			return null;
 		}
 		Texture1D tex = Texture1D.create(t1d + name, format, w, basemap, maxmap);
@@ -54,7 +54,7 @@ public class Textures {
 	
 	public static Texture2D createTexture2D(String name, TextureFormat format, int w, int h, int basemap, int maxmap) {
 		if (tracker.contains(t2d + name)) {
-			GLDebug.globjError(Texture2D.class, name, "Cannot create", "Already exists");
+			GLDebug.glObjError(Texture2D.class, name, "Cannot create", "Already exists");
 			return null;
 		}
 		Texture2D tex = Texture2D.create(t2d + name, format, w, h, basemap, maxmap);
@@ -68,7 +68,7 @@ public class Textures {
 	
 	public static Texture3D createTexture3D(String name, TextureFormat format, int w, int h, int d, int basemap, int maxmap) {
 		if (tracker.contains(t3d + name)) {
-			GLDebug.globjError(Texture3D.class, name, "Cannot create", "Already exists");
+			GLDebug.glObjError(Texture3D.class, name, "Cannot create", "Already exists");
 			return null;
 		}
 		Texture3D tex = Texture3D.create(t3d + name, format, w, h, d, basemap, maxmap);
@@ -82,7 +82,7 @@ public class Textures {
 	
 	public static Texture1DArray createTexture1DArray(String name, TextureFormat format, int w, int layers, int basemap, int maxmap) {
 		if (tracker.contains(t1da + name)) {
-			GLDebug.globjError(Texture1DArray.class, name, "Cannot create", "Already exists");
+			GLDebug.glObjError(Texture1DArray.class, name, "Cannot create", "Already exists");
 			return null;
 		}
 		Texture1DArray tex = Texture1DArray.create(t1da + name, format, w, layers, basemap, maxmap);
@@ -96,7 +96,7 @@ public class Textures {
 	
 	public static Texture2DArray createTexture2DArray(String name, TextureFormat format, int w, int h, int layers, int basemap, int maxmap) {
 		if (tracker.contains(t2da + name)) {
-			GLDebug.globjError(Texture2DArray.class, name, "Cannot create", "Already exists");
+			GLDebug.glObjError(Texture2DArray.class, name, "Cannot create", "Already exists");
 			return null;
 		}
 		Texture2DArray tex = Texture2DArray.create(t2da + name, format, w, h, layers, basemap, maxmap);
@@ -110,7 +110,7 @@ public class Textures {
 	
 	public static TextureCubemap createTextureCubemap(String name, TextureFormat format, int s, int basemap, int maxmap) {
 		if (tracker.contains(tc + name)) {
-			GLDebug.globjError(TextureCubemap.class, name, "Cannot create", "Already exists");
+			GLDebug.glObjError(TextureCubemap.class, name, "Cannot create", "Already exists");
 			return null;
 		}
 		TextureCubemap tex = TextureCubemap.create(tc + name, format, s, basemap, maxmap);
@@ -124,7 +124,7 @@ public class Textures {
 	
 	public static TextureCubemapArray createTextureCubemapArray(String name, TextureFormat format, int s, int layers, int basemap, int maxmap) {
 		if (tracker.contains(tca + name)) {
-			GLDebug.globjError(TextureCubemapArray.class, name, "Cannot create", "Already exists");
+			GLDebug.glObjError(TextureCubemapArray.class, name, "Cannot create", "Already exists");
 			return null;
 		}
 		TextureCubemapArray tex = TextureCubemapArray.create(tca + name, format, s, layers, basemap, maxmap);
@@ -134,7 +134,7 @@ public class Textures {
 	
 	public static TextureRectangle createTextureRectangle(String name, TextureFormat format, int w, int h) {
 		if (tracker.contains(tr + name)) {
-			GLDebug.globjError(TextureRectangle.class, name, "Cannot create", "Already exists");
+			GLDebug.glObjError(TextureRectangle.class, name, "Cannot create", "Already exists");
 			return null;
 		}
 		TextureRectangle tex = TextureRectangle.create(tr + name, format, w, h);
@@ -146,7 +146,7 @@ public class Textures {
 	
 	public static Texture2D createTexture2D(String name, BufferedImage image, int mipmaps) {
 		if (tracker.contains(tr + name)) {
-			GLDebug.globjError(Texture2D.class, name, "Cannot create", "Already exists");
+			GLDebug.glObjError(Texture2D.class, name, "Cannot create", "Already exists");
 			return null;
 		}
 		Texture2D tex = Texture2D.create(t2d + name, image, mipmaps);
@@ -156,7 +156,7 @@ public class Textures {
 	
 	public static Texture1DArray createTexture1DArray(String name, BufferedImage image, int mipmaps) {
 		if (tracker.contains(tr + name)) {
-			GLDebug.globjError(Texture1DArray.class, name, "Cannot create", "Already exists");
+			GLDebug.glObjError(Texture1DArray.class, name, "Cannot create", "Already exists");
 			return null;
 		}
 		Texture1DArray tex = Texture1DArray.create(t1da + name, image, mipmaps);
@@ -167,7 +167,7 @@ public class Textures {
 	public static TextureRectangle createTextureRectangle(String name, BufferedImage image, int mipmaps) {
 		TextureRectangle tex = TextureRectangle.create(tr + name, image);
 		if (tracker.contains(tr + name)) {
-			GLDebug.globjError(TextureRectangle.class, name, "Cannot create", "Already exists");
+			GLDebug.glObjError(TextureRectangle.class, name, "Cannot create", "Already exists");
 			return null;
 		}
 		tracker.add(tex);

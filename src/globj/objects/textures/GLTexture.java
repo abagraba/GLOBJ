@@ -266,12 +266,12 @@ public abstract class GLTexture extends BindableGLObject {
 	protected static boolean checkBounds(int[] args, int[] limits, GLTexture tex) {
 		for (int i = 0; i < args.length; i++)
 			if (args[i] < 0) {
-				GLDebug.globjError(tex, "Cannot initialize", "Dimensions " + dimensions(args) + " must be non-negative.");
+				GLDebug.glObjError(tex, "Cannot initialize", "Dimensions " + dimensions(args) + " must be non-negative.");
 				return false;
 			}
 		for (int i = 0; i < args.length; i++)
 			if (args[i] > limits[i]) {
-				GLDebug.globjError(tex, "Cannot initialize", "Dimensions " + dimensions(args) + " too large. Device only supports textures up to "
+				GLDebug.glObjError(tex, "Cannot initialize", "Dimensions " + dimensions(args) + " too large. Device only supports textures up to "
 						+ dimensions(limits) + ".");
 				return false;
 			}

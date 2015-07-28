@@ -12,7 +12,7 @@ public class Programs {
 	
 	public static Program createProgram(String name, Shader... shaders) {
 		if (tracker.contains(name)) {
-			GLDebug.globjError(Program.class, name, "Cannot create", "Already exists");
+			GLDebug.glObjError(Program.class, name, "Cannot create", "Already exists");
 			return null;
 		}
 		Program p = Program.create(name, shaders);
@@ -23,7 +23,7 @@ public class Programs {
 	
 	public static Program createProgram(String name, String... shaders) {
 		if (tracker.contains(name)) {
-			GLDebug.globjError(Program.class, name, "Cannot create", "Already exists");
+			GLDebug.glObjError(Program.class, name, "Cannot create", "Already exists");
 			return null;
 		}
 		Program p = Program.create(name, shaders);
@@ -42,7 +42,7 @@ public class Programs {
 	
 	public static Program destroyProgram(String name) {
 		if (!tracker.contains(name)) {
-			GLDebug.globjError(Program.class, name, "Cannot destroy", "Does not exist");
+			GLDebug.glObjError(Program.class, name, "Cannot destroy", "Does not exist");
 			return null;
 		}
 		return destroyProgram(getProgram(name));

@@ -31,7 +31,7 @@ public final class TextureRectangle extends GLTexture2D implements FBOAttachable
 	protected static TextureRectangle create(String name, TextureFormat texformat, int w, int h) {
 		TextureRectangle tex = new TextureRectangle(name, texformat);
 		if (tex.id == 0) {
-			GLDebug.globjError(TextureRectangle.class, name, "Cannot create", "No ID could be allocated");
+			GLDebug.glObjError(TextureRectangle.class, name, "Cannot create", "No ID could be allocated");
 			return null;
 		}
 		
@@ -59,7 +59,7 @@ public final class TextureRectangle extends GLTexture2D implements FBOAttachable
 		TextureFormat texformat = TextureFormat.RGBA8;
 		TextureRectangle tex = new TextureRectangle(name, texformat);
 		if (tex.id == 0) {
-			GLDebug.globjError(TextureRectangle.class, name, "Cannot create", "No ID could be allocated");
+			GLDebug.glObjError(TextureRectangle.class, name, "Cannot create", "No ID could be allocated");
 			return null;
 		}
 		

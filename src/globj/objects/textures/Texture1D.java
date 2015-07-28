@@ -29,7 +29,7 @@ public final class Texture1D extends GLTexture1D implements FBOAttachable {
 	protected static Texture1D create(String name, TextureFormat texformat, int w, int basemap, int maxmap) {
 		Texture1D tex = new Texture1D(name, texformat);
 		if (tex.id == 0) {
-			GLDebug.globjError(Texture1D.class, name, "Cannot create", "No ID could be allocated");
+			GLDebug.glObjError(Texture1D.class, name, "Cannot create", "No ID could be allocated");
 			return null;
 		}
 		

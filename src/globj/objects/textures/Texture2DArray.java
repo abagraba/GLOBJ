@@ -34,7 +34,7 @@ public final class Texture2DArray extends GLTexture2D implements FBOAttachable {
 	protected static Texture2DArray create(String name, TextureFormat texformat, int w, int h, int layers, int basemap, int maxmap) {
 		Texture2DArray tex = new Texture2DArray(name, texformat);
 		if (tex.id == 0) {
-			GLDebug.globjError(Texture2DArray.class, name, "Cannot create", "No ID could be allocated");
+			GLDebug.glObjError(Texture2DArray.class, name, "Cannot create", "No ID could be allocated");
 			return null;
 		}
 		
