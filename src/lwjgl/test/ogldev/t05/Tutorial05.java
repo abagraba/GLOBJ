@@ -1,5 +1,6 @@
 package lwjgl.test.ogldev.t05;
 
+
 import globj.core.GL;
 import globj.core.RenderCommand;
 import globj.objects.bufferobjects.StaticVBO;
@@ -13,16 +14,21 @@ import globj.objects.shaders.Shaders;
 
 import java.io.IOException;
 
+import lwjgl.debug.GLDebug;
+
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
+
+
 public class Tutorial05 extends RenderCommand {
 	
-	VBO vbo;
-	Program prog;
-	int t;
+	VBO		vbo;
+	Program	prog;
+	int		t;
+	
 	
 	@Override
 	public void init() {
@@ -37,8 +43,9 @@ public class Tutorial05 extends RenderCommand {
 			frag = Shaders.createShader("Frag", ShaderType.FRAGMENT, getClass().getResourceAsStream("shader.fs"));
 			vert.debugQuery();
 			frag.debugQuery();
-		} catch (IOException e) {
-			e.printStackTrace();
+		}
+		catch (IOException e) {
+			GLDebug.logException(e);
 		}
 		
 		prog = Programs.createProgram("Test", vert, frag);
@@ -77,8 +84,9 @@ public class Tutorial05 extends RenderCommand {
 		GL.setTarget(new Tutorial05());
 		try {
 			GL.startGL();
-		} catch (LWJGLException e) {
-			e.printStackTrace();
+		}
+		catch (LWJGLException e) {
+			GLDebug.logException(e);
 		}
 	}
 	
@@ -93,6 +101,7 @@ public class Tutorial05 extends RenderCommand {
 					if (!Keyboard.getEventKeyState())
 						GL.toggleFS();
 					break;
+				default:
 			}
 		}
 	}

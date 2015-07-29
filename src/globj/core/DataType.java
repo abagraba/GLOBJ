@@ -1,6 +1,9 @@
 package globj.core;
 
+
 import org.lwjgl.opengl.GL11;
+
+
 
 public enum DataType {
 	
@@ -12,9 +15,10 @@ public enum DataType {
 	INT("Integer", GL11.GL_INT, 4),
 	FLOAT("Float", GL11.GL_FLOAT, 4);
 	
-	public final String name;
-	public final int value;
-	public final int size;
+	private final String	name;
+	private final int		value;
+	private final int		size;
+	
 	
 	private DataType(String name, int value, int size) {
 		this.name = name;
@@ -27,6 +31,18 @@ public enum DataType {
 			if (type.value == i)
 				return type;
 		return null;
+	}
+	
+	public String typeName() {
+		return name;
+	}
+	
+	public int value() {
+		return value;
+	}
+	
+	public int size() {
+		return size;
 	}
 	
 	@Override

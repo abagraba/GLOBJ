@@ -1,5 +1,7 @@
 package lwjgl.test.ogldev.t03;
 
+
+import lwjgl.debug.GLDebug;
 import globj.core.GL;
 import globj.core.RenderCommand;
 import globj.objects.bufferobjects.StaticVBO;
@@ -11,9 +13,12 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
+
+
 public class Tutorial03 extends RenderCommand {
 	
-	VBO vbo;
+	VBO	vbo;
+	
 	
 	@Override
 	public void init() {
@@ -42,8 +47,9 @@ public class Tutorial03 extends RenderCommand {
 		GL.setTarget(new Tutorial03());
 		try {
 			GL.startGL();
-		} catch (LWJGLException e) {
-			e.printStackTrace();
+		}
+		catch (LWJGLException e) {
+			GLDebug.logException(e);
 		}
 	}
 	
@@ -58,6 +64,7 @@ public class Tutorial03 extends RenderCommand {
 					if (!Keyboard.getEventKeyState())
 						GL.toggleFS();
 					break;
+				default:
 			}
 		}
 	}

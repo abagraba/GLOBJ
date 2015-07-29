@@ -10,26 +10,26 @@ import globj.objects.GLObject;
 
 public class GLDebug {
 	
-	private static int			indent			= 0;
-	private static int			lastindent		= 0;
-	private static int			pad				= 24;
-	private static int			lastpad			= 24;
+	private static int			indent				= 0;
+	private static int			lastindent			= 0;
+	private static int			pad					= 24;
+	private static int			lastpad				= 24;
 	
-	public static final String	attribString	= "%-24s:\t%s";
-	public static final String	attribInt		= "%-24s:\t%d";
-	public static final String	attribByteHex	= "%-24s:\t0x%02X";
-	public static final String	attribIntHex	= "%-24s:\t0x%08X";
-	public static final String	attribFloat8	= "%-24s:\t%8f";
+	public static final String	ATTRIB_STRING		= "%-24s:\t%s";
+	public static final String	ATTRIB_INT			= "%-24s:\t%d";
+	public static final String	ATTRIB_HEX_BYTE		= "%-24s:\t0x%02X";
+	public static final String	ATTRIB_HEX_INT		= "%-24s:\t0x%08X";
+	public static final String	ATTRIB_FLOAT_8		= "%-24s:\t%8f";
 	
-	public static final String	attribLString	= "%-48s:\t%s";
-	public static final String	attribLInt		= "%-48s:\t%d";
-	public static final String	attribLByteHex	= "%-48s:\t0x%02X";
-	public static final String	attribLIntHex	= "%-48s:\t0x%08X";
-	public static final String	attribLFloat8	= "%-48s:\t%8f";
+	public static final String	ATTRIB_L_STRING		= "%-48s:\t%s";
+	public static final String	ATTRIB_L_INT		= "%-48s:\t%d";
+	public static final String	ATTRIB_L_HEX_BYTE	= "%-48s:\t0x%02X";
+	public static final String	ATTRIB_L_HEX_INT	= "%-48s:\t0x%08X";
+	public static final String	ATTRIB_L_FLOAT_8	= "%-48s:\t%8f";
 	
-	private static String		separator		= "_____________________________________________________________________________________________";
+	private static String		separator			= "_____________________________________________________________________________________________";
 	
-	private static PrintWriter	out				= new PrintWriter(System.out);
+	private static PrintWriter	out					= new PrintWriter(System.out);
 	
 	
 	private GLDebug() {

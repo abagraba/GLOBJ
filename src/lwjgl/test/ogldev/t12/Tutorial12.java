@@ -1,5 +1,6 @@
 package lwjgl.test.ogldev.t12;
 
+
 import globj.camera.OrthographicCamera;
 import globj.camera.PerspectiveCamera;
 import globj.camera.Screen;
@@ -22,47 +23,53 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import lwjgl.debug.GLDebug;
+
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Matrix4f;
 
+
+
 public class Tutorial12 extends SceneCommand {
 	
-	private static PerspectiveCamera persp(Transform transform) {
-		return new PerspectiveCamera(transform, new V4f(1, 1, 0, 0), 0.1f, 20, 90);
-	}
+	private static float	ar			= 1.8f;
 	
-	private static float ar = 1.8f;
+	VBO						axis;
+	VBO						iaxis;
+	VBO						vbo;
+	VBO						ibo;
+	Program					prog;
+	Transform				transform	= new Transform();
+	float					fov			= 90;
 	
-	private static OrthographicCamera ortho(Transform transform) {
-		return new OrthographicCamera(transform, new V4f(0, 1, 1, 0), ar, 1, -10, 10);
-	}
 	
 	public Tutorial12() {
 		super(ortho(new Transform()), Screen.left);
 	}
 	
-	VBO axis;
-	VBO iaxis;
-	VBO vbo;
-	VBO ibo;
-	Program prog;
-	Transform transform = new Transform();
-	float fov = 90;
+	private static PerspectiveCamera persp(Transform transform) {
+		return new PerspectiveCamera(transform, new V4f(1, 1, 0, 0), 0.1f, 20, 90);
+	}
+	
+	private static OrthographicCamera ortho(Transform transform) {
+		return new OrthographicCamera(transform, new V4f(0, 1, 1, 0), ar, 1, -10, 10);
+	}
 	
 	@Override
 	public boolean load() {
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		
-		float d = 0.1f;
-		axis = StaticVBO.create("Axis", VBOTarget.ARRAY, new float[] { 0, d, d, d, 0, d, d, d, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 });
+		float length = 0.1f;
+		axis = StaticVBO.create("Axis", VBOTarget.ARRAY, new float[] { 0, length, length, length, 0, length, length, length, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0,
+				0, 0 });
 		iaxis = StaticVBO.create("Axis Indices", VBOTarget.ELEMENT_ARRAY, new int[] { 0, 5, 1, 0, 2, 4, 2, 1, 3, 1, 0, 2, 6, 0, 4, 6, 5, 0, 6, 1, 5, 6, 3, 1,
 				6, 2, 3, 6, 4, 2 });
 		
-		float f = 0.707f;
-		vbo = StaticVBO.create("Test VBO", VBOTarget.ARRAY, new float[] { -f, -f, 0, -f, f, 0.5f, f, f, 0, f, -f, 0.5f });
+		float size = 0.707f;
+		vbo = StaticVBO.create("Test VBO", VBOTarget.ARRAY, new float[] { -size, -size, 0, -size, size, 0.5f, size, size, 0, size, -size, 0.5f });
 		ibo = StaticVBO.create("Test IBO", VBOTarget.ELEMENT_ARRAY, new int[] { 0, 3, 1, 1, 3, 2, 2, 3, 0, 0, 1, 2 });
 		
 		Shader vert = null;
@@ -76,8 +83,9 @@ public class Tutorial12 extends SceneCommand {
 			frag = Shaders.createShader("Frag", ShaderType.FRAGMENT, fin);
 			vin.close();
 			fin.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		}
+		catch (IOException ex) {
+			ex.printStackTrace();
 		}
 		prog = Programs.createProgram("Test", vert, frag);
 		Shaders.destroyShader(vert);
@@ -101,12 +109,12 @@ public class Tutorial12 extends SceneCommand {
 	@Override
 	public void draw(Matrix4f viewMatrix, Matrix4f projectionMatrix) {
 		prog.bind();
-		System.out.println("Model");
-		System.out.println(transform.getModelMatrix());
-		System.out.println("View");
-		System.out.println(viewMatrix);
-		System.out.println("Projection");
-		System.out.println(projectionMatrix);
+		GLDebug.write("Model");
+		GLDebug.write(transform.getModelMatrix());
+		GLDebug.write("View");
+		GLDebug.write(viewMatrix);
+		GLDebug.write("Projection");
+		GLDebug.write(projectionMatrix);
 		
 		prog.setUniform("mMatrix", transform.getModelMatrix(), false);
 		prog.setUniform("vMatrix", viewMatrix, false);
@@ -135,11 +143,13 @@ public class Tutorial12 extends SceneCommand {
 		
 	}
 	
-	boolean w, a, s, d, e, q;
-	boolean up, down;
-	boolean space;
-	boolean camc;
-	boolean camt;
+	
+	boolean	w, a, s, d, e, q;
+	boolean	up, down;
+	boolean	space;
+	boolean	camc;
+	boolean	camt;
+	
 	
 	@Override
 	public void input() {
@@ -221,7 +231,8 @@ public class Tutorial12 extends SceneCommand {
 		GL.setTarget(new Tutorial12());
 		try {
 			GL.startGL();
-		} catch (LWJGLException e) {
+		}
+		catch (LWJGLException e) {
 			e.printStackTrace();
 		}
 	}

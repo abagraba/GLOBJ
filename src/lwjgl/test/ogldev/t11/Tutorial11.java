@@ -1,5 +1,6 @@
 package lwjgl.test.ogldev.t11;
 
+
 import globj.core.GL;
 import globj.core.RenderCommand;
 import globj.core.utils.Transform;
@@ -19,25 +20,32 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.FloatBuffer;
 
+import lwjgl.debug.GLDebug;
+
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
+
+
 public class Tutorial11 extends RenderCommand {
 	
-	VBO vbo;
-	VBO ibo;
-	Shader vert;
-	Shader frag;
-	Program prog;
-	Transform trans = new Transform();
+	VBO			vbo;
+	VBO			ibo;
+	Shader		vert;
+	Shader		frag;
+	Program		prog;
+	Transform	trans	= new Transform();
+	
+	private boolean	w, a, s, d, e, q;
+	
 	
 	@Override
 	public void init() {
-		vbo = StaticVBO.create("Test VBO", VBOTarget.ARRAY,
-				new float[] { -0.6122f, -0.707f, -0.3535f, 0, -0.707f, 0.707f, 0.6122f, -0.707f, -0.3535f, 0, 1, 0 });
+		vbo = StaticVBO.create(	"Test VBO", VBOTarget.ARRAY,
+								new float[] { -0.6122f, -0.707f, -0.3535f, 0, -0.707f, 0.707f, 0.6122f, -0.707f, -0.3535f, 0, 1, 0 });
 		ibo = StaticVBO.create("Test IBO", VBOTarget.ELEMENT_ARRAY, new int[] { 0, 3, 1, 1, 3, 2, 2, 3, 0, 0, 1, 2 });
 		
 		InputStream vin;
@@ -47,8 +55,9 @@ public class Tutorial11 extends RenderCommand {
 			fin = new FileInputStream("src/lwjgl/test/ogldev/t09/shader.fs");
 			vert = Shaders.createShader("Vert", ShaderType.VERTEX, vin);
 			frag = Shaders.createShader("Frag", ShaderType.FRAGMENT, fin);
-		} catch (IOException e) {
-			e.printStackTrace();
+		}
+		catch (IOException ex) {
+			GLDebug.logException(ex);
 		}
 		vert.debugQuery();
 		frag.debugQuery();
@@ -89,15 +98,23 @@ public class Tutorial11 extends RenderCommand {
 		GL.setTarget(new Tutorial11());
 		try {
 			GL.startGL();
-		} catch (LWJGLException e) {
-			e.printStackTrace();
+		}
+		catch (LWJGLException e) {
+			GLDebug.logException(e);
 		}
 	}
 	
-	boolean w, a, s, d, e, q;
-	
 	@Override
 	public void input() {
+		readInput();
+		float dx = (d ? 0.01f : 0) - (a ? 0.01f : 0);
+		float dy = (w ? 0.01f : 0) - (s ? 0.01f : 0);
+		float dr = (q ? 0.01f : 0) - (e ? 0.01f : 0);
+		move(trans, dx, dy);
+		rotate(trans, dr);
+	}
+	
+	public void readInput() {
 		while (Keyboard.next()) {
 			switch (Keyboard.getEventKey()) {
 				case Keyboard.KEY_ESCAPE:
@@ -125,12 +142,17 @@ public class Tutorial11 extends RenderCommand {
 				case Keyboard.KEY_Q:
 					q = Keyboard.getEventKeyState();
 					break;
+				default:
 			}
 		}
-		V3f v = new V3f((d ? 0.01f : 0) - (a ? 0.01f : 0), (w ? 0.01f : 0) - (s ? 0.01f : 0), 0);
-		UnitQuaternion r = UnitQuaternion.rotation(new V3f(0, 0, 1), (q ? 0.01f : 0) - (e ? 0.01f : 0));
-		trans.translateBy(v);
-		trans.rotateBy(r);
+	}
+	
+	public void move(Transform t, float dx, float dy) {
+		t.translateBy(new V3f(dx, dy, 0));
+	}
+	
+	public void rotate(Transform t, float dr) {
+		t.rotateBy(UnitQuaternion.rotation(new V3f(0, 0, 1), dr));
 	}
 	
 }
