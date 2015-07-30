@@ -1,5 +1,6 @@
 package globj.objects.textures;
 
+
 import globj.core.Context;
 import globj.core.GL;
 import globj.objects.BindTracker;
@@ -14,18 +15,30 @@ import java.nio.ByteBuffer;
 
 import lwjgl.debug.GLDebug;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL42;
 
+
+
+@NonNullByDefault
 public final class Texture1D extends GLTexture1D implements FBOAttachable {
 	
-	private int w, basemap, maxmap;
+	private int	w, basemap, maxmap;
+	
 	
 	private Texture1D(String name, TextureFormat texformat) {
 		super(name, texformat, TextureTarget.TEXTURE_1D);
 	}
 	
+	@Nullable
+	protected static Texture1D create(String name, TextureFormat texformat, int w, int mipmaps) {
+		return create(name, texformat, w, 0, mipmaps - 1);
+	}
+	
+	@Nullable
 	protected static Texture1D create(String name, TextureFormat texformat, int w, int basemap, int maxmap) {
 		Texture1D tex = new Texture1D(name, texformat);
 		if (tex.id == 0) {
@@ -57,12 +70,14 @@ public final class Texture1D extends GLTexture1D implements FBOAttachable {
 		return tex;
 	}
 	
+	
 	/**************************************************/
 	/********************** Bind **********************/
 	/**************************************************/
-
-	private static final BindTracker bindTracker = new BindTracker();
-
+	
+	private static final BindTracker	bindTracker	= new BindTracker();
+	
+	
 	@Override
 	protected BindTracker bindingTracker() {
 		return bindTracker;
@@ -71,10 +86,9 @@ public final class Texture1D extends GLTexture1D implements FBOAttachable {
 	/**************************************************/
 	
 	/**
-	 * Sets the texel data in specified rectangle of mipmap level. Texture needs
-	 * to be initialized with
-	 * {@link #initializeTexture(int, int, int, TextureFormat)}. Rectangle must
-	 * be within the bounds of the texture. [GL_TEXTURE_BASE_LEVEL + map].
+	 * Sets the texel data in specified rectangle of mipmap level. Texture needs to be initialized with
+	 * {@link #initializeTexture(int, int, int, TextureFormat)}. Rectangle must be within the bounds of the texture.
+	 * [GL_TEXTURE_BASE_LEVEL + map].
 	 */
 	public void setData(int x, int w, int map, ImageFormat format, ImageDataType type, ByteBuffer data) {
 		bind();
@@ -102,39 +116,21 @@ public final class Texture1D extends GLTexture1D implements FBOAttachable {
 	@Override
 	public void debugQuery() {
 		GLDebug.flushErrors();
-		GLDebug.setPad(24);
 		
-		GLDebug.write(GLDebug.fixedString(target + ":") + String.format("%s\t(%d)", name, w));
+		GLDebug.writef(GLDebug.ATTRIB_STRING + "\t(%d)", target, name, w);
 		GLDebug.indent();
 		
-		GLDebug.write(GLDebug.fixedString("Texture Format:") + texformat);
+		GLDebug.writef(GLDebug.ATTRIB_STRING, "Texture Format", texformat);
 		
-		GLDebug.write(minFilter);
-		GLDebug.write(magFilter);
+		GLDebug.writef(GLDebug.ATTRIB_STRING, "Wrapping Mode", sWrap);
 		
-		boolean tb = lodMin.resolved() && lodMax.resolved() && lodBias.resolved();
-		String ts = GLDebug.fixedString("LOD Range:") + String.format("[%4f, %4f] + %4f", lodMin.value(), lodMax.value(), lodBias.value());
-		if (!tb)
-			ts += "\tUnresolved:\t" + String.format("[%4f, %4f] + %4f", lodMin.state(), lodMax.state(), lodBias.state());
-		GLDebug.write(ts);
+		if (minFilter.mipmaps && maxmap > 0)
+			GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range", basemap, maxmap);
 		
-		if (minFilter.value().mipmaps && maxmap > 0)
-			GLDebug.write(GLDebug.fixedString("Mipmap Range:") + String.format("[%d, %d]", basemap, maxmap));
-		
-		tb = swizzleR.resolved() && swizzleG.resolved() && swizzleB.resolved() && swizzleA.resolved();
-		ts = GLDebug.fixedString("Texture Swizzle:")
-				+ String.format("[%s, %s, %s, %s]", swizzleR.value(), swizzleG.value(), swizzleB.value(), swizzleA.value());
-		if (!tb)
-			ts += "\tUnresolved:\t" + String.format("[%s, %s, %s, %s]", swizzleR.state(), swizzleG.state(), swizzleB.state(), swizzleA.state());
-		GLDebug.write(ts);
-		
-		GLDebug.write(border);
-		GLDebug.write(sWrap);
+		super.debugQuery();
 		
 		GLDebug.unindent();
 		
-		GLDebug.unsetPad();
 		GLDebug.flushErrors();
 	}
-
 }

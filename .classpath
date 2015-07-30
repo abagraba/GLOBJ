@@ -19,5 +19,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="/BindProcessor/bind.jar"/>
+	<classpathentry kind="lib" path="org.eclipse.jdt.annotation_1.1.0.v20140129-1625.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
