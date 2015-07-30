@@ -1,5 +1,6 @@
 package lwjgl.test.misc;
 
+
 import globj.core.GL;
 import globj.core.RenderCommand;
 import globj.objects.framebuffers.RBO;
@@ -9,31 +10,36 @@ import org.lwjgl.opengl.GL11;
 
 import lwjgl.debug.GLDebug;
 
+
+
 public class RBOTests extends RenderCommand {
 	
-	boolean r = true;
+	boolean	r	= true;
+	
 	
 	public static void main(String[] args) {
 		GL.setTarget(new RBOTests());
 		try {
 			GL.startGL();
-		} catch (LWJGLException e) {
-			e.printStackTrace();
+		}
+		catch (LWJGLException e) {
+			GLDebug.logException(e);
 		}
 	}
 	
 	@Override
 	public void init() {
-		
+		//
 	}
 	
 	@Override
 	public void uninit() {
-		
+		//
 	}
 	
 	@Override
 	public void input() {
+		//
 	}
 	
 	@Override

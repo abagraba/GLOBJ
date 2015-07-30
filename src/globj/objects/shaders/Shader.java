@@ -1,14 +1,18 @@
 package globj.objects.shaders;
 
+
 import globj.objects.GLObject;
 import lwjgl.debug.GLDebug;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
+
+
 public class Shader extends GLObject {
 	
-	protected final ShaderType type;
+	protected final ShaderType	type;
+	
 	
 	private Shader(String name, ShaderType type) {
 		super(name, GL20.glCreateShader(type.value));

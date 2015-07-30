@@ -1,5 +1,6 @@
 package lwjgl.test.misc;
 
+
 import globj.core.GL;
 import globj.core.RenderCommand;
 import globj.objects.arrays.VAO;
@@ -22,43 +23,38 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
+import control.ControlManager;
 import lwjgl.debug.GLDebug;
+
+
 
 public class FBOTests extends RenderCommand {
 	
-	public static void main(String[] args) {
-		System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
-		GL.setTarget(new FBOTests());
-		try {
-			GL.startGL();
-		} catch (LWJGLException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	DynamicFloatVBO rectvbo;
-	DynamicFloatVBO quadvbo;
-	FBO fbo;
-	Texture2D tex;
-	Texture2D c0;
-	float[] rect = new float[] { 0, 0, 0, 1, //
+	DynamicFloatVBO	rectvbo;
+	DynamicFloatVBO	quadvbo;
+	FBO				fbo;
+	Texture2D		tex;
+	Texture2D		c0;
+	float[]			rect	= new float[] { 0, 0, 0, 1, //
 			0, 1, 0, 0, //
 			1, 1, 1, 0, //
 			1, 1, 1, 0, //
 			1, 0, 1, 1, //
-			0, 0, 0, 1 };
-	float[] quad = new float[] { 0, 0, 0, 0, //
+			0, 0, 0, 1		};
+	float[]			quad	= new float[] { 0, 0, 0, 0, //
 			0, 1, 0, 1, //
 			1, 1, 1, 1, //
 			1, 1, 1, 1, //
 			1, 0, 1, 0, //
-			0, 0, 0, 0 };
+			0, 0, 0, 0		};
+	
 	
 	@Override
 	public void init() {
+		ControlManager.select(new TestControlSet());
+		
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		
 		FBOs.constants();
@@ -74,8 +70,9 @@ public class FBOTests extends RenderCommand {
 			tex.setFilter(MinifyFilter.NEAREST, MagnifyFilter.NEAREST);
 			tex.setWrap(TextureWrap.CLAMP_EDGE, TextureWrap.CLAMP_EDGE);
 			tex.update();
-		} catch (IOException e1) {
-			e1.printStackTrace();
+		}
+		catch (IOException e) {
+			GLDebug.logException(e);
 		}
 		
 		GLDebug.debug(tex);
@@ -111,25 +108,12 @@ public class FBOTests extends RenderCommand {
 		fbo.destroy();
 	}
 	
-	boolean swap = false;
-	
 	@Override
 	public void input() {
-		while (Keyboard.next()) {
-			switch (Keyboard.getEventKey()) {
-				case Keyboard.KEY_ESCAPE:
-					GL.close();
-					break;
-				case Keyboard.KEY_F11:
-					if (!Keyboard.getEventKeyState())
-						GL.toggleFS();
-					break;
-				case Keyboard.KEY_SPACE:
-					if (!Keyboard.getEventKeyState())
-						swap = !swap;
-					break;
-			}
-		}
+		if (TestControlSet.ESC.state())
+			GL.close();
+		if (TestControlSet.F11.state())
+			GL.toggleFS();
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -142,10 +126,7 @@ public class FBOTests extends RenderCommand {
 		
 		GL11.glViewport(0, 0, 1024, 1024);
 		
-		if (swap)
-			GL11.glClearColor(1, 0, 0, 1);
-		else
-			GL11.glClearColor(0, 0, 1, 1);
+		GL11.glClearColor(0, 0, 1, 1);
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		
 		tex.bind();
@@ -163,9 +144,8 @@ public class FBOTests extends RenderCommand {
 		
 		tex.undobind();
 		
-		// FBO.bindDraw(null);
-		// GL30.glBlitFramebuffer(0, 0, 1024, 1024, 0, 0, 1024, 1024,
-		// GL11.GL_COLOR_BUFFER_BIT, GL11.GL_NEAREST);
+		// **GL30**.**glBlitFramebuffer(0, 0, 1024, 1024, 0, 0, 1024, 1024,
+		// **GL11**.**GL_COLOR_BUFFER_BIT, GL11.GL_NEAREST);
 		fbo.undobind();
 		
 		c0.bind();
@@ -193,4 +173,16 @@ public class FBOTests extends RenderCommand {
 		c0.bindNone();
 		
 	}
+	
+	public static void main(String[] args) {
+		System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
+		GL.setTarget(new FBOTests());
+		try {
+			GL.startGL();
+		}
+		catch (LWJGLException e) {
+			GLDebug.logException(e);
+		}
+	}
+	
 }

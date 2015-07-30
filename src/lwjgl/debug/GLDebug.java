@@ -90,12 +90,14 @@ public class GLDebug {
 		writeIndent();
 		out.write(string);
 		out.write("\n");
+		out.flush();
 	}
 	
 	public static void writef(String format, Object... args) {
 		writeIndent();
 		out.write(String.format(format, args));
 		out.write("\n");
+		out.flush();
 	}
 	
 	public static void write(Object o) {

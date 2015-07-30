@@ -1,9 +1,6 @@
 package globj.core;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import lwjgl.debug.GLDebug;
 
 import org.lwjgl.LWJGLException;
@@ -14,8 +11,6 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL43;
 import org.lwjgl.opengl.PixelFormat;
-import org.lwjgl.util.glu.GLU;
-
 import control.Control;
 import control.ControlManager;
 

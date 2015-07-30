@@ -1,5 +1,6 @@
 package globj.objects.textures;
 
+
 import globj.core.GL;
 import globj.core.V4f;
 import globj.objects.BindableGLObject;
@@ -23,28 +24,37 @@ import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GL43;
 
+
+
 public abstract class GLTexture extends BindableGLObject {
 	
-	protected final State<MinifyFilter> minFilter = new State<MinifyFilter>("Minification Filter", MinifyFilter.NEAREST_MIPMAP_LINEAR);
-	protected final State<MagnifyFilter> magFilter = new State<MagnifyFilter>("Magnification Filter", MagnifyFilter.LINEAR);
+	protected final State<MinifyFilter>			minFilter	= new State<MinifyFilter>("Minification Filter", MinifyFilter.NEAREST_MIPMAP_LINEAR);
+	protected final State<MagnifyFilter>		magFilter	= new State<MagnifyFilter>("Magnification Filter", MagnifyFilter.LINEAR);
 	
-	protected final State<Float> lodMin = new State<Float>("Minimum LOD", -1000f);
-	protected final State<Float> lodMax = new State<Float>("Maximum LOD", 1000f);
-	protected final State<Float> lodBias = new State<Float>("LOD Bias", 0f);
+	protected final State<Float>				lodMin		= new State<Float>("Minimum LOD", -1000f);
+	protected final State<Float>				lodMax		= new State<Float>("Maximum LOD", 1000f);
+	protected final State<Float>				lodBias		= new State<Float>("LOD Bias", 0f);
 	
-	protected final State<Swizzle> swizzleR = new State<Swizzle>("Swizzle Red", Swizzle.R);
-	protected final State<Swizzle> swizzleG = new State<Swizzle>("Swizzle Green", Swizzle.G);
-	protected final State<Swizzle> swizzleB = new State<Swizzle>("Swizzle Blue", Swizzle.B);
-	protected final State<Swizzle> swizzleA = new State<Swizzle>("Swizzle Alpha", Swizzle.A);
+	protected final State<Swizzle>				swizzleR	= new State<Swizzle>("Swizzle Red", Swizzle.R);
+	protected final State<Swizzle>				swizzleG	= new State<Swizzle>("Swizzle Green", Swizzle.G);
+	protected final State<Swizzle>				swizzleB	= new State<Swizzle>("Swizzle Blue", Swizzle.B);
+	protected final State<Swizzle>				swizzleA	= new State<Swizzle>("Swizzle Alpha", Swizzle.A);
 	
-	protected final State<V4f> border = new State<V4f>("Border", new V4f(0, 0, 0, 0));
+	protected final State<V4f>					border		= new State<V4f>("Border", new V4f(0, 0, 0, 0));
 	
-	protected final State<DepthStencilMode> dsmode = new State<DepthStencilMode>("Depth Stencil Mode", DepthStencilMode.DEPTH);
+	protected final State<DepthStencilMode>		dsmode		= new State<DepthStencilMode>("Depth Stencil Mode", DepthStencilMode.DEPTH);
 	
-	protected final State<TextureComparison> comparison = new State<TextureComparison>("Depth Comparison Mode", TextureComparison.NONE);
+	protected final State<TextureComparison>	comparison	= new State<TextureComparison>("Depth Comparison Mode", TextureComparison.NONE);
 	
-	protected final TextureFormat texformat;
-	protected final TextureTarget target;
+	protected final TextureFormat				texformat;
+	protected final TextureTarget				target;
+	
+	
+	protected GLTexture(String name, TextureFormat texformat, TextureTarget target) {
+		super(name, GL11.glGenTextures());
+		this.texformat = texformat;
+		this.target = target;
+	}
 	
 	public void update() {
 		bind();
@@ -101,26 +111,10 @@ public abstract class GLTexture extends BindableGLObject {
 	}
 	
 	/*
-	 * TODO : Textures
-	 * 
-	 * Texture Buffers
-	 * 
-	 * 2D Multisample & Arrays
-	 * 
-	 * https://www.opengl.org/registry/specs/ARB/texture_multisample.txt
-	 * 
-	 * Gen mipmaps
-	 * 
-	 * Texture views
-	 * 
-	 * Initialize texture with gltexstorage fallback to glteximage
+	 * TODO : Textures Texture Buffers 2D Multisample & Arrays
+	 * https://www.opengl.org/registry/specs/ARB/texture_multisample.txt Gen mipmaps Texture views Initialize texture
+	 * with gltexstorage fallback to glteximage
 	 */
-	
-	protected GLTexture(String name, TextureFormat texformat, TextureTarget target) {
-		super(name, GL11.glGenTextures());
-		this.texformat = texformat;
-		this.target = target;
-	}
 	
 	public void genMipmaps() {
 		// GL30.glGenerateMipmap(target());
@@ -173,9 +167,8 @@ public abstract class GLTexture extends BindableGLObject {
 		swizzleB.setState(b);
 		swizzleA.setState(a);
 		/*
-		 * IntBuffer swizzle = BufferUtils.createIntBuffer(4); swizzle.put(new
-		 * int[] { r.value, g.value, b.value, a.value }).flip();
-		 * GL11.glTexParameter(target(), GL33.GL_TEXTURE_SWIZZLE_RGBA, swizzle);
+		 * IntBuffer swizzle = BufferUtils.createIntBuffer(4); swizzle.put(new int[] { r.value, g.value, b.value,
+		 * a.value }).flip(); GL11.glTexParameter(target(), GL33.GL_TEXTURE_SWIZZLE_RGBA, swizzle);
 		 */
 	}
 	
@@ -206,8 +199,7 @@ public abstract class GLTexture extends BindableGLObject {
 	}
 	
 	/**
-	 * Sets the comparison mode for the texture. Only useful if the texture has
-	 * a depth component.
+	 * Sets the comparison mode for the texture. Only useful if the texture has a depth component.
 	 * 
 	 * @param func
 	 *            depth comparison function.
@@ -234,7 +226,6 @@ public abstract class GLTexture extends BindableGLObject {
 	public void destroy() {
 		super.destroy();
 	}
-
 	
 	/**************************************************/
 	/***************** Helper Methods *****************/
@@ -272,7 +263,7 @@ public abstract class GLTexture extends BindableGLObject {
 		for (int i = 0; i < args.length; i++)
 			if (args[i] > limits[i]) {
 				GLDebug.glObjError(tex, "Cannot initialize", "Dimensions " + dimensions(args) + " too large. Device only supports textures up to "
-						+ dimensions(limits) + ".");
+																+ dimensions(limits) + ".");
 				return false;
 			}
 		return true;
