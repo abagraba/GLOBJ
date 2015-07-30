@@ -35,7 +35,7 @@ public class RBO extends GLObject implements FBOAttachable {
 			return null;
 		}
 		
-		GL.flushErrors();
+		GLDebug.flushErrors();
 		rbo.bind();
 		GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, format, w, h);
 		rbo.undobind();
@@ -138,7 +138,7 @@ public class RBO extends GLObject implements FBOAttachable {
 	
 	@Override
 	public void debugQuery() {
-		GL.flushErrors();
+		GLDebug.flushErrors();
 		bind();
 		int w = GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_WIDTH);
 		int h = GL30.glGetRenderbufferParameteri(GL30.GL_RENDERBUFFER, GL30.GL_RENDERBUFFER_HEIGHT);
@@ -161,6 +161,6 @@ public class RBO extends GLObject implements FBOAttachable {
 		GLDebug.write(GLDebug.fixedString("Samples:") + String.format("%d samples", n));
 		GLDebug.write(GLDebug.fixedString("Format:") + f);
 		GLDebug.unindent();
-		GL.flushErrors();
+		GLDebug.flushErrors();
 	}
 }

@@ -1,12 +1,20 @@
 package globj.core.utils;
 
+
+import java.nio.FloatBuffer;
+
+import org.lwjgl.BufferUtils;
 import org.lwjgl.util.vector.Matrix4f;
+
+
 
 public class Transform {
 	
-	public float scale = 1;
-	private final V3f position;
-	private final UnitQuaternion rotation;
+	private final V3f				position;
+	private final UnitQuaternion	rotation;
+	
+	private float					scale	= 1;
+	
 	
 	public Transform(V3f position, UnitQuaternion rotation) {
 		this.position = new V3f(position);
@@ -120,4 +128,17 @@ public class Transform {
 		return mat;
 	}
 	
+	public FloatBuffer getModelMatrixBuffer() {
+		FloatBuffer mat = BufferUtils.createFloatBuffer(16);
+		getModelMatrix().store(mat);
+		mat.flip();
+		return mat;
+	}
+	
+	public FloatBuffer getViewMatrixBuffer() {
+		FloatBuffer mat = BufferUtils.createFloatBuffer(16);
+		getViewMatrix().store(mat);
+		mat.flip();
+		return mat;
+	}
 }

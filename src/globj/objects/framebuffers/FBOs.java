@@ -1,7 +1,6 @@
 package globj.objects.framebuffers;
 
 import globj.core.Context;
-import globj.core.GL;
 import globj.objects.GLObjectTracker;
 
 import org.lwjgl.opengl.GL30;
@@ -44,7 +43,7 @@ public class FBOs {
 	}
 	
 	public static void constants() {
-		GL.flushErrors();
+		GLDebug.flushErrors();
 		int rs = Context.intConst(GL30.GL_MAX_RENDERBUFFER_SIZE);
 		int ca = Context.intConst(GL30.GL_MAX_COLOR_ATTACHMENTS);
 		GLDebug.write("FBO Constants:");
@@ -52,7 +51,7 @@ public class FBOs {
 		GLDebug.write(GLDebug.fixedString("Max Color Attachments") + ca);
 		GLDebug.write(GLDebug.fixedString("Max Renderbuffer Size") + String.format("%d x %d", rs, rs));
 		GLDebug.unindent();
-		GL.flushErrors();
+		GLDebug.flushErrors();
 	}
 	
 }

@@ -1,5 +1,6 @@
 package globj.objects.shaders;
 
+
 import globj.core.Context;
 import globj.core.GL;
 import globj.objects.BindTracker;
@@ -22,16 +23,19 @@ import org.lwjgl.opengl.GL42;
 import org.lwjgl.opengl.GL43;
 import org.lwjgl.util.vector.Matrix4f;
 
+
+
 public class Program extends BindableGLObject {
 	
-	private GLObjectTracker<ShaderUniformBlock> blocks = new GLObjectTracker<ShaderUniformBlock>();
-	private GLObjectTracker<ShaderUniform> uniforms = new GLObjectTracker<ShaderUniform>();
-	private GLObjectTracker<ShaderInput> inputs = new GLObjectTracker<ShaderInput>();
+	private GLObjectTracker<ShaderUniformBlock>	blocks		= new GLObjectTracker<ShaderUniformBlock>();
+	private GLObjectTracker<ShaderUniform>		uniforms	= new GLObjectTracker<ShaderUniform>();
+	private GLObjectTracker<ShaderInput>		inputs		= new GLObjectTracker<ShaderInput>();
 	
-	private Set<ShaderType> types = new TreeSet<ShaderType>();
-	private ArrayList<Shader> shaders = new ArrayList<Shader>();
+	private Set<ShaderType>						types		= new TreeSet<ShaderType>();
+	private ArrayList<Shader>					shaders		= new ArrayList<Shader>();
 	
-	private String[] errors = null;
+	private String[]							errors		= null;
+	
 	
 	private Program(String name) {
 		super(name, GL20.glCreateProgram());
@@ -76,11 +80,13 @@ public class Program extends BindableGLObject {
 		GL20.glLinkProgram(id);
 	}
 	
+	
 	/**************************************************/
 	/********************** Bind **********************/
 	/**************************************************/
 	
-	protected static final BindTracker bindTracker = new BindTracker();
+	protected static final BindTracker	bindTracker	= new BindTracker();
+	
 	
 	@Override
 	protected BindTracker bindingTracker() {
@@ -111,15 +117,31 @@ public class Program extends BindableGLObject {
 		GL20.glUniformMatrix4(uni, transpose, buff);
 	}
 	
+	public void setUniform(String uniform, FloatBuffer mat, boolean transpose) {
+		int uni = uniformLocation(uniform);
+		if (uni == -1) {
+			GLDebug.glObjError(this, "Could not set uniform for ", "Could not locate uniform [" + uniform + "]");
+			return;
+		}
+		if (mat.remaining() < 16)
+			GLDebug.write("Could not set Uniform to data in buffer. Buffer does not contain 16 values.");
+		else
+			GL20.glUniformMatrix4(uni, transpose, mat);
+	}
+	
 	public int uniformLocation(String uniform) {
-		return uniforms.get(uniform).location;
+		ShaderUniform u = uniforms.get(uniform);
+		if (u != null)
+			return u.location;
+		GLDebug.writef("Could not locate shader uniform %s.", uniform);
+		return -1;
 	}
 	
 	/**************************************************/
 	
 	@Override
 	public void debugQuery() {
-		GL.flushErrors();
+		GLDebug.flushErrors();
 		GLDebug.setPad(32);
 		GLDebug.write(GLDebug.fixedString("Program:") + name);
 		GLDebug.indent();
@@ -167,12 +189,12 @@ public class Program extends BindableGLObject {
 		if (types.contains(ShaderType.GEOMETRY)) {
 			int geomax = GL20.glGetProgrami(id, GL32.GL_GEOMETRY_VERTICES_OUT);
 			GLDebug.write(GLDebug.fixedString("Geometry I/O:") + GL20.glGetProgrami(id, GL32.GL_GEOMETRY_INPUT_TYPE) + " -> Geometry Shader -> "
-					+ GL20.glGetProgrami(id, GL32.GL_GEOMETRY_OUTPUT_TYPE));
+							+ GL20.glGetProgrami(id, GL32.GL_GEOMETRY_OUTPUT_TYPE));
 			GLDebug.write(GLDebug.fixedString("Geometry Shader Max Vertices:") + geomax);
 		}
 		GLDebug.unindent();
 		GLDebug.unsetPad();
-		GL.flushErrors();
+		GLDebug.flushErrors();
 	}
 	
 	/**************************************************/

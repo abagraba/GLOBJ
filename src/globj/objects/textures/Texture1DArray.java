@@ -145,7 +145,7 @@ public final class Texture1DArray extends GLTexture1D implements FBOAttachable {
 	
 	@Override
 	public void debugQuery() {
-		GL.flushErrors();
+		GLDebug.flushErrors();
 		GLDebug.setPad(32);
 		
 		GLDebug.write(GLDebug.fixedString(target + ":") + String.format("%s\t(%d) x %d", name, w, layers));
@@ -178,7 +178,7 @@ public final class Texture1DArray extends GLTexture1D implements FBOAttachable {
 		GLDebug.unindent();
 		
 		GLDebug.unsetPad();
-		GL.flushErrors();
+		GLDebug.flushErrors();
 	}
 	
 }

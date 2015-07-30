@@ -121,7 +121,7 @@ public final class TextureCubemap extends GLTexture2D implements FBOAttachable {
 	
 	@Override
 	public void debugQuery() {
-		GL.flushErrors();
+		GLDebug.flushErrors();
 		GLDebug.setPad(32);
 		
 		GLDebug.write(GLDebug.fixedString(target + ":") + String.format("%s\t(%d x %d)", name, s, s));
@@ -155,7 +155,7 @@ public final class TextureCubemap extends GLTexture2D implements FBOAttachable {
 		GLDebug.unindent();
 		
 		GLDebug.unsetPad();
-		GL.flushErrors();
+		GLDebug.flushErrors();
 	}
 	
 }

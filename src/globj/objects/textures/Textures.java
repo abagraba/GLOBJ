@@ -1,7 +1,6 @@
 package globj.objects.textures;
 
 import globj.core.Context;
-import globj.core.GL;
 import globj.objects.GLObjectTracker;
 import globj.objects.textures.values.TextureFormat;
 
@@ -291,7 +290,7 @@ public class Textures {
 	/**************************************************/
 	
 	public static void constants() {
-		GL.flushErrors();
+		GLDebug.flushErrors();
 		int maxSize = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
 		int maxLayers = Context.intConst(GL30.GL_MAX_ARRAY_TEXTURE_LAYERS);
 		int maxCube = Context.intConst(GL13.GL_MAX_CUBE_MAP_TEXTURE_SIZE);
@@ -312,11 +311,11 @@ public class Textures {
 		GLDebug.write(GLDebug.fixedString("Max Texture Units:") + String.format("%d units", maxTexture));
 		GLDebug.unindent();
 		GLDebug.unsetPad();
-		GL.flushErrors();
+		GLDebug.flushErrors();
 	}
 	
 	public static void states() {
-		GL.flushErrors();
+		GLDebug.flushErrors();
 		// Texture2D texture2dm =
 		// Texture2D.get(Context.intValue(GL32.GL_TEXTURE_BINDING_2D_MULTISAMPLE));
 		// Texture2D texture2dmarr =
@@ -359,7 +358,7 @@ public class Textures {
 		GLDebug.write(GLDebug.fixedString("Active Sampler Unit:") + Context.intValue(GL33.GL_SAMPLER_BINDING));
 		GLDebug.unindent();
 		GLDebug.unsetPad();
-		GL.flushErrors();
+		GLDebug.flushErrors();
 	}
 	
 }

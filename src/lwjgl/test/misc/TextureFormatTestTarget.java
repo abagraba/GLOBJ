@@ -9,6 +9,7 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
+import lwjgl.debug.GLDebug;
 import lwjgl.debug.Timer;
 
 /**
@@ -45,7 +46,7 @@ public class TextureFormatTestTarget extends RenderCommand {
 			Timer.debug.measure("Load Texture " + format + ":", 1024);
 			for (j = -1024; j < 1024; j++)
 				Textures.destroyTexture2D("Test" + j + format);
-			GL.flushErrors();
+			GLDebug.flushErrors();
 		}
 		
 	}

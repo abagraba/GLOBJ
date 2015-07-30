@@ -126,7 +126,7 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 	
 	@Override
 	public void debugQuery() {
-		GL.flushErrors();
+		GLDebug.flushErrors();
 		GLDebug.setPad(32);
 		
 		GLDebug.write(GLDebug.fixedString(target + ":") + String.format("%s\t(%d x %d) x %d", name, s, s, layers));
@@ -160,6 +160,6 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 		GLDebug.unindent();
 		
 		GLDebug.unsetPad();
-		GL.flushErrors();
+		GLDebug.flushErrors();
 	}
 }

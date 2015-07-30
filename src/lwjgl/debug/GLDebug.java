@@ -3,6 +3,10 @@ package lwjgl.debug;
 
 import java.io.PrintWriter;
 
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.glu.GLU;
+
+import globj.core.GL;
 import globj.core.GLException;
 import globj.objects.GLObject;
 
@@ -10,26 +14,32 @@ import globj.objects.GLObject;
 
 public class GLDebug {
 	
-	private static int			indent				= 0;
-	private static int			lastindent			= 0;
-	private static int			pad					= 24;
-	private static int			lastpad				= 24;
+	private static final boolean	debug				= true;
 	
-	public static final String	ATTRIB_STRING		= "%-24s:\t%s";
-	public static final String	ATTRIB_INT			= "%-24s:\t%d";
-	public static final String	ATTRIB_HEX_BYTE		= "%-24s:\t0x%02X";
-	public static final String	ATTRIB_HEX_INT		= "%-24s:\t0x%08X";
-	public static final String	ATTRIB_FLOAT_8		= "%-24s:\t%8f";
+	private static int				indent				= 0;
+	private static int				lastindent			= 0;
+	private static int				pad					= 24;
+	private static int				lastpad				= 24;
 	
-	public static final String	ATTRIB_L_STRING		= "%-48s:\t%s";
-	public static final String	ATTRIB_L_INT		= "%-48s:\t%d";
-	public static final String	ATTRIB_L_HEX_BYTE	= "%-48s:\t0x%02X";
-	public static final String	ATTRIB_L_HEX_INT	= "%-48s:\t0x%08X";
-	public static final String	ATTRIB_L_FLOAT_8	= "%-48s:\t%8f";
+	public static final String		ATTRIB				= "%-24s:\t";
 	
-	private static String		separator			= "_____________________________________________________________________________________________";
+	public static final String		ATTRIB_STRING		= "%-24s:\t%s";
+	public static final String		ATTRIB_INT			= "%-24s:\t%d";
+	public static final String		ATTRIB_HEX_BYTE		= "%-24s:\t0x%02X";
+	public static final String		ATTRIB_HEX_INT		= "%-24s:\t0x%08X";
+	public static final String		ATTRIB_FLOAT_8		= "%-24s:\t%8f";
 	
-	private static PrintWriter	out					= new PrintWriter(System.out);
+	public static final String		ATTRIB_L			= "%-48s:\t";
+	
+	public static final String		ATTRIB_L_STRING		= "%-48s:\t%s";
+	public static final String		ATTRIB_L_INT		= "%-48s:\t%d";
+	public static final String		ATTRIB_L_HEX_BYTE	= "%-48s:\t0x%02X";
+	public static final String		ATTRIB_L_HEX_INT	= "%-48s:\t0x%08X";
+	public static final String		ATTRIB_L_FLOAT_8	= "%-48s:\t%8f";
+	
+	private static String			separator			= "_____________________________________________________________________________________________";
+	
+	private static PrintWriter		out					= new PrintWriter(System.out);
 	
 	
 	private GLDebug() {
@@ -45,6 +55,10 @@ public class GLDebug {
 	
 	public static void indent(int i) {
 		indent = Math.max(0, indent + i);
+	}
+	
+	public static void unindent(int i) {
+		indent = Math.max(0, indent - i);
 	}
 	
 	public static void setIndent(int i) {
@@ -184,6 +198,26 @@ public class GLDebug {
 	
 	public static void glObjError(GLObject obj, String error, String message) {
 		glObjError(obj.getClass(), obj.name, error, message);
+	}
+	
+	public static void flushErrors() {
+		int err = GL11.glGetError();
+		while (err != GL11.GL_NO_ERROR) {
+			if (debug)
+				write(GLU.gluErrorString(err));
+			err = GL11.glGetError();
+		}
+	}
+	
+	public static void flushErrorsV() {
+		int err = GL11.glGetError();
+		if (err == GL11.GL_NO_ERROR)
+			write("No Error");
+		while (err != GL11.GL_NO_ERROR) {
+			if (debug)
+				write(GLU.gluErrorString(err));
+			err = GL11.glGetError();
+		}
 	}
 	
 }

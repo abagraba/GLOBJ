@@ -10,6 +10,7 @@ import lwjgl.debug.GLDebug;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
 
@@ -67,19 +68,21 @@ public class VAO extends BindableGLObject {
 	}
 	
 	/**************************************************/
-	public void attachBuffer(VBO vbo, VBOFormat format, int vertexAttrib) {
+	public void attachBuffer(int vertexAttrib, VBO vbo, VBOFormat format) {
 		if (vbo.target != VBOTarget.ARRAY) {
 			GLDebug.glError(NON_ARRAY_ERROR, null);
 			return;
 		}
+		bind();
 		vbo.bind();
-		GL30.glVertexAttribIPointer(vertexAttrib, format.components(), format.type().value(), format.stride(), format.offset());
+		GL20.glVertexAttribPointer(vertexAttrib, format.components(), format.type().value(), false, format.stride(), format.offset());
 		vbo.undobind();
+		undobind();
 	}
 	
 	// Attaches VBO to the uniform location specified in the currently bound
 	// shader program.
-	public void attachBuffer(VBO vbo, VBOFormat format, String uniform) {
+	public void attachBuffer(String uniform, VBO vbo, VBOFormat format) {
 		if (vbo.target != VBOTarget.ARRAY) {
 			GLDebug.glError(NON_ARRAY_ERROR, null);
 			return;

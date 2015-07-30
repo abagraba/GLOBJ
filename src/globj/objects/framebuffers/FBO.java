@@ -104,7 +104,7 @@ public class FBO extends BindableGLObject {
 	
 	@Override
 	public void debugQuery() {
-		GL.flushErrors();
+		GLDebug.flushErrors();
 		GLDebug.setPad(24);
 		
 		GLDebug.write(GLDebug.fixedString("FBO:") + name);
@@ -140,7 +140,7 @@ public class FBO extends BindableGLObject {
 		undobind();
 		GLDebug.unindent();
 		GLDebug.unsetPad();
-		GL.flushErrors();
+		GLDebug.flushErrors();
 	}
 	
 	private static boolean debugBindingStatus(FBOAttachment attach) {

@@ -2,6 +2,7 @@ package globj.core;
 
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 
 
 
@@ -13,7 +14,9 @@ public enum DataType {
 	SHORT("Short", GL11.GL_SHORT, 2),
 	UINT("Unsigned Integer", GL11.GL_UNSIGNED_INT, 4),
 	INT("Integer", GL11.GL_INT, 4),
-	FLOAT("Float", GL11.GL_FLOAT, 4);
+	HALF_FLOAT("Float", GL30.GL_HALF_FLOAT, 2),
+	FLOAT("Float", GL11.GL_FLOAT, 4),
+	DOUBLE("Double", GL11.GL_DOUBLE, 8);
 	
 	private final String	name;
 	private final int		value;

@@ -1,6 +1,5 @@
 package globj.objects.shaders;
 
-import globj.core.GL;
 import globj.objects.GLObject;
 import lwjgl.debug.GLDebug;
 
@@ -43,7 +42,7 @@ public class Shader extends GLObject {
 	
 	@Override
 	public void debugQuery() {
-		GL.flushErrors();
+		GLDebug.flushErrors();
 		GLDebug.setPad(24);
 		
 		GLDebug.write(GLDebug.fixedString("Shader:") + this);
@@ -56,7 +55,7 @@ public class Shader extends GLObject {
 		
 		GLDebug.unindent();
 		GLDebug.unsetPad();
-		GL.flushErrors();
+		GLDebug.flushErrors();
 	}
 	
 	@Override
