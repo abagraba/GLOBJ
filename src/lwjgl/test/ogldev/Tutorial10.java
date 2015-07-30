@@ -1,8 +1,11 @@
-package lwjgl.test.ogldev.t10;
+package lwjgl.test.ogldev;
 
 
+import globj.core.DataType;
 import globj.core.GL;
 import globj.core.RenderCommand;
+import globj.objects.arrays.VAO;
+import globj.objects.arrays.VBOFormat;
 import globj.objects.bufferobjects.StaticVBO;
 import globj.objects.bufferobjects.VBO;
 import globj.objects.bufferobjects.VBOTarget;
@@ -12,44 +15,43 @@ import globj.objects.shaders.Shader;
 import globj.objects.shaders.ShaderType;
 import globj.objects.shaders.Shaders;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.FloatBuffer;
 
 import lwjgl.debug.GLDebug;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+
+import control.ControlManager;
 
 
 
 public class Tutorial10 extends RenderCommand {
 	
-	VBO		vbo;
-	VBO		ibo;
-	Shader	vert;
-	Shader	frag;
-	Program	prog;
-	int		t;
+	private VBO		vbo;
+	private VBO		ibo;
+	private Shader	vert;
+	private Shader	frag;
+	private Program	prog;
+	
+	private float	t;
 	
 	
 	@Override
 	public void init() {
-		vbo = StaticVBO.create(	"Test VBO", VBOTarget.ARRAY,
-								new float[] { -0.6122f, -0.707f, -0.3535f, 0, -0.707f, 0.707f, 0.6122f, -0.707f, -0.3535f, 0, 1, 0 });
-		ibo = StaticVBO.create("Test IBO", VBOTarget.ELEMENT_ARRAY, new int[] { 0, 3, 1, 1, 3, 2, 2, 3, 0, 0, 1, 2 });
+		float[] vertices = new float[] { -0.6122f, -0.707f, -0.3535f, 0, -0.707f, 0.707f, 0.6122f, -0.707f, -0.3535f, 0, 1, 0 };
+		int[] indices = new int[] { 0, 3, 1, 1, 3, 2, 2, 3, 0, 0, 1, 2 };
 		
-		InputStream vin;
-		InputStream fin;
+		ControlManager.select(new TutorialControlSet());
+		vbo = StaticVBO.create("Test VBO", VBOTarget.ARRAY, vertices);
+		ibo = StaticVBO.create("Test IBO", VBOTarget.ELEMENT_ARRAY, indices);
+		
 		try {
-			vin = new FileInputStream("src/lwjgl/test/ogldev/t09/shader.vs");
-			fin = new FileInputStream("src/lwjgl/test/ogldev/t09/shader.fs");
-			vert = Shaders.createShader("Vert", ShaderType.VERTEX, vin);
-			frag = Shaders.createShader("Frag", ShaderType.FRAGMENT, fin);
+			vert = Shaders.createShader("Vert", ShaderType.VERTEX, getClass().getResourceAsStream("shaders/tut09.vs"));
+			frag = Shaders.createShader("Frag", ShaderType.FRAGMENT, getClass().getResourceAsStream("shaders/tut09.fs"));
 		}
 		catch (IOException e) {
 			GLDebug.logException(e);
@@ -59,34 +61,39 @@ public class Tutorial10 extends RenderCommand {
 		
 		prog = Programs.createProgram("Test", vert, frag);
 		
+		Shaders.destroyShader(vert);
+		Shaders.destroyShader(frag);
+		
 		prog.debugQuery();
 		prog.bind();
 	}
 	
 	@Override
 	public void uninit() {
+		prog.destroy();
 		vbo.destroy();
 	}
 	
 	@Override
 	public void render() {
-		float s = (float) Math.sin(0.01 * t++);
-		float c = (float) Math.cos(0.01 * t++);
+		float s = (float) Math.sin(t);
+		float c = (float) Math.cos(t);
+		t += 0.01f;
 		FloatBuffer mat = BufferUtils.createFloatBuffer(16);
 		mat.put(new float[] { c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1 }).flip();
-		GL20.glUniformMatrix4(prog.uniformLocation("gWorld"), true, mat);
+		
+		Programs.current().setUniform("gWorld", mat, true);
 		
 		GL11.glClearColor(0, 0, 0, 0);
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		
-		GL20.glEnableVertexAttribArray(0);
-		vbo.bind();
+		VAO.defaultVAO.attachBuffer(0, vbo, new VBOFormat(3, DataType.FLOAT, 0, 0));
+		
 		ibo.bind();
-		GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0);
+		GL20.glEnableVertexAttribArray(0);
 		GL11.glDrawElements(GL11.GL_TRIANGLES, 12, GL11.GL_UNSIGNED_INT, 0);
 		GL20.glDisableVertexAttribArray(0);
 		ibo.bindNone();
-		vbo.bindNone();
 		
 	}
 	
@@ -102,18 +109,10 @@ public class Tutorial10 extends RenderCommand {
 	
 	@Override
 	public void input() {
-		while (Keyboard.next()) {
-			switch (Keyboard.getEventKey()) {
-				case Keyboard.KEY_ESCAPE:
-					GL.close();
-					break;
-				case Keyboard.KEY_F11:
-					if (!Keyboard.getEventKeyState())
-						GL.toggleFS();
-					break;
-				default:
-			}
-		}
+		if (TutorialControlSet.FULLSCR.state())
+			GL.toggleFS();
+		if (TutorialControlSet.ESC.state())
+			GL.close();
 	}
 	
 }

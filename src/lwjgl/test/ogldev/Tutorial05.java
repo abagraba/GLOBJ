@@ -1,8 +1,11 @@
-package lwjgl.test.ogldev.t05;
+package lwjgl.test.ogldev;
 
 
+import globj.core.DataType;
 import globj.core.GL;
 import globj.core.RenderCommand;
+import globj.objects.arrays.VAO;
+import globj.objects.arrays.VBOFormat;
 import globj.objects.bufferobjects.StaticVBO;
 import globj.objects.bufferobjects.VBO;
 import globj.objects.bufferobjects.VBOTarget;
@@ -17,36 +20,38 @@ import java.io.IOException;
 import lwjgl.debug.GLDebug;
 
 import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+
+import control.ControlManager;
 
 
 
 public class Tutorial05 extends RenderCommand {
 	
-	VBO		vbo;
-	Program	prog;
-	int		t;
+	private VBO		vbo;
+	private Shader	vert;
+	private Shader	frag;
+	private Program	prog;
+	private float	t;
 	
 	
 	@Override
 	public void init() {
 		float[] vertices = new float[] { -1, -1, 0, 1, -1, 0, 0, 1, 0 };
-		vbo = StaticVBO.create("Test VBO", VBOTarget.ARRAY, vertices);
-		GL11.glClearColor(0, 0, 0, 0);
 		
-		Shader vert = null;
-		Shader frag = null;
+		ControlManager.select(new TutorialControlSet());
+		vbo = StaticVBO.create("Test VBO", VBOTarget.ARRAY, vertices);
+		
 		try {
-			vert = Shaders.createShader("Vert", ShaderType.VERTEX, getClass().getResourceAsStream("shader.vs"));
-			frag = Shaders.createShader("Frag", ShaderType.FRAGMENT, getClass().getResourceAsStream("shader.fs"));
-			vert.debugQuery();
-			frag.debugQuery();
+			vert = Shaders.createShader("Vert", ShaderType.VERTEX, getClass().getResourceAsStream("shaders/tut05.vs"));
+			frag = Shaders.createShader("Frag", ShaderType.FRAGMENT, getClass().getResourceAsStream("shaders/tut05.fs"));
 		}
 		catch (IOException e) {
 			GLDebug.logException(e);
 		}
+		vert.debugQuery();
+		frag.debugQuery();
 		
 		prog = Programs.createProgram("Test", vert, frag);
 		
@@ -54,30 +59,28 @@ public class Tutorial05 extends RenderCommand {
 		Shaders.destroyShader(frag);
 		
 		prog.debugQuery();
+		prog.bind();
 	}
 	
 	@Override
 	public void uninit() {
+		prog.destroy();
 		vbo.destroy();
-		vbo = null;
 	}
 	
 	@Override
 	public void render() {
-		prog.bind();
+		GL20.glUniform1f(prog.uniformLocation("gScale"), (float) Math.sin(t));
+		t += 0.01f;
 		
-		GL20.glUniform1f(prog.uniformLocation("gScale"), (float) Math.sin(0.01 * t++));
-		
+		GL11.glClearColor(0, 0, 0, 0);
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+		
+		VAO.defaultVAO.attachBuffer(0, vbo, new VBOFormat(3, DataType.FLOAT, 0, 0));
+		
 		GL20.glEnableVertexAttribArray(0);
-		
-		vbo.bind();
-		GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0);
 		GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 3);
-		vbo.bindNone();
 		GL20.glDisableVertexAttribArray(0);
-		
-		prog.bindNone();
 	}
 	
 	public static void main(String[] args) {
@@ -92,18 +95,10 @@ public class Tutorial05 extends RenderCommand {
 	
 	@Override
 	public void input() {
-		while (Keyboard.next()) {
-			switch (Keyboard.getEventKey()) {
-				case Keyboard.KEY_ESCAPE:
-					GL.close();
-					break;
-				case Keyboard.KEY_F11:
-					if (!Keyboard.getEventKeyState())
-						GL.toggleFS();
-					break;
-				default:
-			}
-		}
+		if (TutorialControlSet.FULLSCR.state())
+			GL.toggleFS();
+		if (TutorialControlSet.ESC.state())
+			GL.close();
 	}
 	
 }

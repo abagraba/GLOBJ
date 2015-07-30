@@ -1,4 +1,4 @@
-package lwjgl.test.ogldev.t01;
+package lwjgl.test.ogldev;
 
 
 import lwjgl.debug.GLDebug;
@@ -6,7 +6,8 @@ import globj.core.GL;
 import globj.core.RenderCommand;
 
 import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Keyboard;
+
+import control.ControlManager;
 
 
 
@@ -14,7 +15,7 @@ public class Tutorial01 extends RenderCommand {
 	
 	@Override
 	public void init() {
-		// No initialization necessary.
+		ControlManager.select(new TutorialControlSet());
 	}
 	
 	@Override
@@ -39,19 +40,10 @@ public class Tutorial01 extends RenderCommand {
 	
 	@Override
 	public void input() {
-		while (Keyboard.next()) {
-			switch (Keyboard.getEventKey()) {
-				case Keyboard.KEY_ESCAPE:
-					GL.close();
-					break;
-				case Keyboard.KEY_F11:
-					if (!Keyboard.getEventKeyState())
-						GL.toggleFS();
-					break;
-				default:
-					
-			}
-		}
+		if (TutorialControlSet.FULLSCR.state())
+			GL.toggleFS();
+		if (TutorialControlSet.ESC.state())
+			GL.close();
 	}
 	
 }
