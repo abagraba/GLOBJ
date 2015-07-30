@@ -12,102 +12,49 @@ import globj.objects.textures.values.TextureComparison;
 import globj.objects.textures.values.TextureFormat;
 import globj.objects.textures.values.TextureTarget;
 
-import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import lwjgl.core.states.State;
 import lwjgl.debug.GLDebug;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL14;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL43;
 
 
 
+@NonNullByDefault
 public abstract class GLTexture extends BindableGLObject {
 	
-	protected final State<MinifyFilter>			minFilter	= new State<MinifyFilter>("Minification Filter", MinifyFilter.NEAREST_MIPMAP_LINEAR);
-	protected final State<MagnifyFilter>		magFilter	= new State<MagnifyFilter>("Magnification Filter", MagnifyFilter.LINEAR);
+	protected MinifyFilter			minFilter	= MinifyFilter.NEAREST_MIPMAP_LINEAR;
+	protected MagnifyFilter			magFilter	= MagnifyFilter.LINEAR;
 	
-	protected final State<Float>				lodMin		= new State<Float>("Minimum LOD", -1000f);
-	protected final State<Float>				lodMax		= new State<Float>("Maximum LOD", 1000f);
-	protected final State<Float>				lodBias		= new State<Float>("LOD Bias", 0f);
+	protected float					lodMin		= -1000f;
+	protected float					lodMax		= 1000f;
+	protected float					lodBias		= 0f;
 	
-	protected final State<Swizzle>				swizzleR	= new State<Swizzle>("Swizzle Red", Swizzle.R);
-	protected final State<Swizzle>				swizzleG	= new State<Swizzle>("Swizzle Green", Swizzle.G);
-	protected final State<Swizzle>				swizzleB	= new State<Swizzle>("Swizzle Blue", Swizzle.B);
-	protected final State<Swizzle>				swizzleA	= new State<Swizzle>("Swizzle Alpha", Swizzle.A);
+	protected Swizzle				swizzleR	= Swizzle.R;
+	protected Swizzle				swizzleG	= Swizzle.G;
+	protected Swizzle				swizzleB	= Swizzle.B;
+	protected Swizzle				swizzleA	= Swizzle.A;
 	
-	protected final State<V4f>					border		= new State<V4f>("Border", new V4f(0, 0, 0, 0));
+	protected V4f					border		= new V4f(0, 0, 0, 0);
 	
-	protected final State<DepthStencilMode>		dsmode		= new State<DepthStencilMode>("Depth Stencil Mode", DepthStencilMode.DEPTH);
+	protected DepthStencilMode		dsmode		= DepthStencilMode.DEPTH;
 	
-	protected final State<TextureComparison>	comparison	= new State<TextureComparison>("Depth Comparison Mode", TextureComparison.NONE);
+	protected TextureComparison		comparison	= TextureComparison.NONE;
 	
-	protected final TextureFormat				texformat;
-	protected final TextureTarget				target;
+	protected final TextureFormat	texformat;
+	protected final TextureTarget	target;
 	
 	
 	protected GLTexture(String name, TextureFormat texformat, TextureTarget target) {
 		super(name, GL11.glGenTextures());
 		this.texformat = texformat;
 		this.target = target;
-	}
-	
-	public void update() {
-		bind();
-		resolveStates();
-		undobind();
-	}
-	
-	protected void resolveStates() {
-		if (!minFilter.resolved()) {
-			GL11.glTexParameteri(target.value, GL11.GL_TEXTURE_MIN_FILTER, minFilter.state().value);
-			minFilter.resolve();
-		}
-		if (!magFilter.resolved()) {
-			GL11.glTexParameteri(target.value, GL11.GL_TEXTURE_MAG_FILTER, magFilter.state().value);
-			magFilter.resolve();
-		}
-		if (!lodMin.resolved()) {
-			GL11.glTexParameterf(target.value, GL12.GL_TEXTURE_MIN_LOD, lodMin.state());
-			lodMin.resolve();
-		}
-		if (!lodMax.resolved()) {
-			GL11.glTexParameterf(target.value, GL12.GL_TEXTURE_MAX_LOD, lodMax.state());
-			lodMax.resolve();
-		}
-		if (!lodBias.resolved()) {
-			GL11.glTexParameterf(target.value, GL14.GL_TEXTURE_LOD_BIAS, lodBias.state());
-			lodBias.resolve();
-		}
-		if (!swizzleR.resolved() || !swizzleG.resolved() || !swizzleB.resolved() || !swizzleA.resolved()) {
-			IntBuffer swizzle = BufferUtils.createIntBuffer(4);
-			swizzle.put(new int[] { swizzleR.state().value, swizzleG.state().value, swizzleB.state().value, swizzleA.state().value }).flip();
-			GL11.glTexParameter(target.value, GL11.GL_TEXTURE_BORDER_COLOR, swizzle);
-			swizzleR.resolve();
-			swizzleG.resolve();
-			swizzleB.resolve();
-			swizzleA.resolve();
-		}
-		if (!border.resolved()) {
-			FloatBuffer color = BufferUtils.createFloatBuffer(4);
-			V4f c = border.state();
-			color.put(new float[] { c.x, c.y, c.z, c.w }).flip();
-			GL11.glTexParameter(target.value, GL11.GL_TEXTURE_BORDER_COLOR, color);
-			border.resolve();
-		}
-		if (!dsmode.resolved() && GL.versionCheck(4, 3)) {
-			GL11.glTexParameteri(target.value, GL43.GL_DEPTH_STENCIL_TEXTURE_MODE, dsmode.state().value);
-			dsmode.resolve();
-		}
-		if (!comparison.resolved()) {
-			GL11.glTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_MODE, comparison.state().mode);
-			GL11.glTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_FUNC, comparison.state().func);
-			comparison.resolve();
-		}
 	}
 	
 	/*
@@ -117,7 +64,9 @@ public abstract class GLTexture extends BindableGLObject {
 	 */
 	
 	public void genMipmaps() {
-		// GL30.glGenerateMipmap(target());
+		bind();
+		GL30.glGenerateMipmap(target.value);
+		undobind();
 	}
 	
 	/**
@@ -131,9 +80,11 @@ public abstract class GLTexture extends BindableGLObject {
 	 *            LOD bias.
 	 */
 	public void setLOD(float min, float max, float bias) {
-		lodMin.setState(min);
-		lodMax.setState(max);
-		lodBias.setState(bias);
+		bind();
+		GL11.glTexParameterf(target.value, GL12.GL_TEXTURE_MIN_LOD, lodMin = min);
+		GL11.glTexParameterf(target.value, GL12.GL_TEXTURE_MAX_LOD, lodMax = max);
+		GL11.glTexParameterf(target.value, GL14.GL_TEXTURE_LOD_BIAS, lodBias = bias);
+		undobind();
 	}
 	
 	/**
@@ -145,8 +96,10 @@ public abstract class GLTexture extends BindableGLObject {
 	 *            magnification filter.
 	 */
 	public void setFilter(MinifyFilter min, MagnifyFilter mag) {
-		minFilter.setState(min);
-		magFilter.setState(mag);
+		bind();
+		GL11.glTexParameteri(target.value, GL11.GL_TEXTURE_MIN_FILTER, (minFilter = min).value);
+		GL11.glTexParameteri(target.value, GL11.GL_TEXTURE_MAG_FILTER, (magFilter = mag).value);
+		undobind();
 	}
 	
 	/**
@@ -162,14 +115,11 @@ public abstract class GLTexture extends BindableGLObject {
 	 *            the fourth component.
 	 */
 	public void setSwizzle(Swizzle r, Swizzle g, Swizzle b, Swizzle a) {
-		swizzleR.setState(r);
-		swizzleG.setState(g);
-		swizzleB.setState(b);
-		swizzleA.setState(a);
-		/*
-		 * IntBuffer swizzle = BufferUtils.createIntBuffer(4); swizzle.put(new int[] { r.value, g.value, b.value,
-		 * a.value }).flip(); GL11.glTexParameter(target(), GL33.GL_TEXTURE_SWIZZLE_RGBA, swizzle);
-		 */
+		bind();
+		IntBuffer swizzle = BufferUtils.createIntBuffer(4);
+		swizzle.put(new int[] { (swizzleR = r).value, (swizzleG = g).value, (swizzleB = b).value, (swizzleA = a).value }).flip();
+		GL11.glTexParameter(target.value, GL11.GL_TEXTURE_BORDER_COLOR, swizzle);
+		undobind();
 	}
 	
 	/**
@@ -185,7 +135,9 @@ public abstract class GLTexture extends BindableGLObject {
 	 *            alpha component.
 	 */
 	public void setBorderColor(float r, float g, float b, float a) {
-		border.setState(new V4f(r, g, b, a));
+		bind();
+		GL11.glTexParameter(target.value, GL11.GL_TEXTURE_BORDER_COLOR, (border = new V4f(r, g, b, a)).asBuffer());
+		undobind();
 	}
 	
 	/**
@@ -194,8 +146,12 @@ public abstract class GLTexture extends BindableGLObject {
 	 * @param func
 	 *            depth/stencil mode.
 	 */
-	public void setDepthStencilMode(DepthStencilMode dsmode) {
-		this.dsmode.setState(dsmode);
+	public void setDepthStencilMode(DepthStencilMode mode) {
+		if (GL.versionCheck(4, 3)) {
+			bind();
+			GL11.glTexParameteri(target.value, GL43.GL_DEPTH_STENCIL_TEXTURE_MODE, (dsmode = mode).value);
+			undobind();
+		}
 	}
 	
 	/**
@@ -205,7 +161,10 @@ public abstract class GLTexture extends BindableGLObject {
 	 *            depth comparison function.
 	 */
 	public void setDepthComparisonMode(TextureComparison func) {
-		comparison.setState(func);
+		bind();
+		GL11.glTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_MODE, (comparison = func).mode);
+		GL11.glTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_FUNC, comparison.func);
+		undobind();
 	}
 	
 	/**************************************************/
@@ -214,24 +173,24 @@ public abstract class GLTexture extends BindableGLObject {
 	
 	@Override
 	protected void bindOP(int id) {
+		bind();
 		GL11.glBindTexture(target.value, id);
+		undobind();
 	}
 	
 	@Override
 	protected void destroyOP() {
+		bind();
 		GL11.glDeleteTextures(id);
-	}
-	
-	@Override
-	public void destroy() {
-		super.destroy();
+		undobind();
 	}
 	
 	/**************************************************/
 	/***************** Helper Methods *****************/
 	/**************************************************/
 	
-	protected static int levels(int x) {
+	protected static int levels(int level) {
+		int x = level;
 		if (x <= 0)
 			return 0;
 		int log = 0;
@@ -286,4 +245,21 @@ public abstract class GLTexture extends BindableGLObject {
 	}
 	
 	/**************************************************/
+	/********************** Debug *********************/
+	/**************************************************/
+	
+	@Override
+	public void debugQuery() {
+		GLDebug.writef(GLDebug.ATTRIB_STRING, "Minification Filter", minFilter);
+		GLDebug.writef(GLDebug.ATTRIB_STRING, "Magnification Filter", magFilter);
+		
+		GLDebug.writef(GLDebug.ATTRIB + "[%4f, %4f] + %4f", "LOD Range", lodMin, lodMax, lodBias);
+		
+		GLDebug.writef(GLDebug.ATTRIB_STRING + "\t%s\t%s\t%s", "Texture Swizzle", swizzleR, swizzleG, swizzleB, swizzleA);
+		
+		GLDebug.writef(GLDebug.ATTRIB_STRING, "Border Color", border);
+		
+		GLDebug.writef(GLDebug.ATTRIB_STRING, "Depth Stencil Mode", dsmode);
+		GLDebug.writef(GLDebug.ATTRIB_STRING, "Depth Comparison Mode", comparison);
+	}
 }
