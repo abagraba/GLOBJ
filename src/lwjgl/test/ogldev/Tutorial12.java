@@ -80,8 +80,8 @@ public class Tutorial12 extends SceneCommand {
 			Shader vert = Shaders.createShader("Vert", ShaderType.VERTEX, getClass().getResourceAsStream("shaders/tut12.vs"));
 			Shader frag = Shaders.createShader("Frag", ShaderType.FRAGMENT, getClass().getResourceAsStream("shaders/tut12.fs"));
 			prog = Programs.createProgram("Test", vert, frag);
-			Shaders.destroyShader(vert);
-			Shaders.destroyShader(frag);
+			vert.destroy();
+			frag.destroy();
 		}
 		catch (IOException ex) {
 			GLDebug.logException(ex);

@@ -1,11 +1,14 @@
 package globj.core;
 
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
 
 
+@NonNullByDefault
 public enum DataType {
 	
 	UBYTE("Unsigned Byte", GL11.GL_UNSIGNED_BYTE, 1),
@@ -29,21 +32,36 @@ public enum DataType {
 		this.size = size;
 	}
 	
-	public static DataType get(int i) {
+	/**
+	 * @param glInt
+	 *            the GLint representing a shader type
+	 * @return the DataType object represented by glInt
+	 */
+	@Nullable
+	public static DataType get(int glInt) {
 		for (DataType type : values())
-			if (type.value == i)
+			if (type.value == glInt)
 				return type;
 		return null;
 	}
 	
+	/**
+	 * @return the name of this data type
+	 */
 	public String typeName() {
 		return name;
 	}
 	
+	/**
+	 * @return the GLint representing this shader type
+	 */
 	public int value() {
 		return value;
 	}
 	
+	/**
+	 * @return the size of this data type in bytes
+	 */
 	public int size() {
 		return size;
 	}

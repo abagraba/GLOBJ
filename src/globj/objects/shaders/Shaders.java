@@ -1,5 +1,6 @@
 package globj.objects.shaders;
 
+
 import globj.objects.GLObjectTracker;
 
 import java.io.BufferedReader;
@@ -7,15 +8,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
-import org.lwjgl.opengl.GL20;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 import lwjgl.debug.GLDebug;
 
+
+
+@NonNullByDefault
 public class Shaders {
 	
-	private static final GLObjectTracker<Shader> tracker = new GLObjectTracker<Shader>();
+	private static final GLObjectTracker<Shader>	tracker	= new GLObjectTracker<Shader>();
 	
+	
+	private Shaders() {
+	}
+	
+	@Nullable
 	public static Shader createShader(String name, ShaderType type) {
 		if (tracker.contains(name)) {
 			GLDebug.glObjError(Shader.class, name, "Cannot create", "Already exists");
@@ -27,6 +38,7 @@ public class Shaders {
 		return s;
 	}
 	
+	@Nullable
 	public static Shader createShader(String name, ShaderType type, InputStream in) throws IOException {
 		if (tracker.contains(name)) {
 			GLDebug.glObjError(Shader.class, name, "Cannot create", "Already exists");
@@ -36,7 +48,7 @@ public class Shaders {
 		if (s != null) {
 			tracker.add(s);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-			ArrayList<String> data = new ArrayList<String>();
+			List<String> data = new ArrayList<String>();
 			String line;
 			while ((line = br.readLine()) != null)
 				data.add(line + '\n');
@@ -45,22 +57,7 @@ public class Shaders {
 		return s;
 	}
 	
-	public static Shader destroyShader(Shader shader) {
-		if (shader != null) {
-			GL20.glDeleteShader(shader.id);
-			tracker.remove(shader);
-		}
-		return null;
-	}
-	
-	public static Shader destroyShader(String name) {
-		if (!tracker.contains(name)) {
-			GLDebug.glObjError(Shader.class, name, "Cannot destroy", "Does not exist");
-			return null;
-		}
-		return destroyShader(getShader(name));
-	}
-	
+	@Nullable
 	public static Shader getShader(String name) {
 		return tracker.get(name);
 	}

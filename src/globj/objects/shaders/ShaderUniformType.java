@@ -1,5 +1,8 @@
 package globj.objects.shaders;
 
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL21;
@@ -8,6 +11,9 @@ import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.GL32;
 import org.lwjgl.opengl.GL40;
 
+
+
+@NonNullByDefault
 public enum ShaderUniformType {
 	BOOL("Boolean", GL20.GL_BOOL),
 	BOOL_VEC2("Boolean Vec2", GL20.GL_BOOL_VEC2),
@@ -32,21 +38,21 @@ public enum ShaderUniformType {
 	FLOAT_MAT2("Float Matrix [2x2]", GL20.GL_FLOAT_MAT2),
 	FLOAT_MAT3("Float Matrix [3x3]", GL20.GL_FLOAT_MAT3),
 	FLOAT_MAT4("Float Matrix [4x4]", GL20.GL_FLOAT_MAT4),
-	FLOAT_MAT2x3("Float Matrix [2x3]", GL21.GL_FLOAT_MAT2x3),
-	FLOAT_MAT2x4("Float Matrix [2x4]", GL21.GL_FLOAT_MAT2x4),
-	FLOAT_MAT3x2("Float Matrix [3x2]", GL21.GL_FLOAT_MAT3x2),
-	FLOAT_MAT3x4("Float Matrix [3x4]", GL21.GL_FLOAT_MAT3x4),
-	FLOAT_MAT4x2("Float Matrix [4x2]", GL21.GL_FLOAT_MAT4x2),
-	FLOAT_MAT4x3("Float Matrix [4x3]", GL21.GL_FLOAT_MAT4x3),
+	FLOAT_MAT2X3("Float Matrix [2x3]", GL21.GL_FLOAT_MAT2x3),
+	FLOAT_MAT2X4("Float Matrix [2x4]", GL21.GL_FLOAT_MAT2x4),
+	FLOAT_MAT3X2("Float Matrix [3x2]", GL21.GL_FLOAT_MAT3x2),
+	FLOAT_MAT3X4("Float Matrix [3x4]", GL21.GL_FLOAT_MAT3x4),
+	FLOAT_MAT4X2("Float Matrix [4x2]", GL21.GL_FLOAT_MAT4x2),
+	FLOAT_MAT4X3("Float Matrix [4x3]", GL21.GL_FLOAT_MAT4x3),
 	DOUBLE_MAT2("Double Matrix [2x2]", GL40.GL_DOUBLE_MAT2),
 	DOUBLE_MAT3("Double Matrix [3x3]", GL40.GL_DOUBLE_MAT3),
 	DOUBLE_MAT4("Double Matrix [4x4]", GL40.GL_DOUBLE_MAT4),
-	DOUBLE_MAT2x3("Double Matrix [2x3]", GL40.GL_DOUBLE_MAT2x3),
-	DOUBLE_MAT2x4("Double Matrix [2x4]", GL40.GL_DOUBLE_MAT2x4),
-	DOUBLE_MAT3x2("Double Matrix [3x2]", GL40.GL_DOUBLE_MAT3x2),
-	DOUBLE_MAT3x4("Double Matrix [3x4]", GL40.GL_DOUBLE_MAT3x4),
-	DOUBLE_MAT4x2("Double Matrix [4x2]", GL40.GL_DOUBLE_MAT4x2),
-	DOUBLE_MAT4x3("Double Matrix [4x3]", GL40.GL_DOUBLE_MAT4x3),
+	DOUBLE_MAT2X3("Double Matrix [2x3]", GL40.GL_DOUBLE_MAT2x3),
+	DOUBLE_MAT2X4("Double Matrix [2x4]", GL40.GL_DOUBLE_MAT2x4),
+	DOUBLE_MAT3X2("Double Matrix [3x2]", GL40.GL_DOUBLE_MAT3x2),
+	DOUBLE_MAT3X4("Double Matrix [3x4]", GL40.GL_DOUBLE_MAT3x4),
+	DOUBLE_MAT4X2("Double Matrix [4x2]", GL40.GL_DOUBLE_MAT4x2),
+	DOUBLE_MAT4X3("Double Matrix [4x3]", GL40.GL_DOUBLE_MAT4x3),
 	
 	SAMPLER_1D("1D Texture Sampler", GL20.GL_SAMPLER_1D),
 	SAMPLER_1D_INT("1D Texture Sampler [Integer]", GL30.GL_INT_SAMPLER_1D),
@@ -94,19 +100,40 @@ public enum ShaderUniformType {
 	SAMPLER_BUFFER_INT("Buffer Texture Sampler [Integer]", GL30.GL_INT_SAMPLER_BUFFER),
 	SAMPLER_BUFFER_UINT("Buffer Texture Sampler [Unsigned Integer]", GL30.GL_UNSIGNED_INT_SAMPLER_BUFFER);
 	
-	public final String name;
-	public final int value;
+	private final String	name;
+	private final int		value;
+	
 	
 	private ShaderUniformType(String name, int value) {
 		this.name = name;
 		this.value = value;
 	}
 	
-	public static ShaderUniformType get(int i) {
+	/**
+	 * @param glInt
+	 *            the GLint representing a shader uniform type
+	 * @return the ShaderUniformType object represented by glInt
+	 */
+	@Nullable
+	public static ShaderUniformType get(int glInt) {
 		for (ShaderUniformType target : values())
-			if (target.value == i)
+			if (target.value == glInt)
 				return target;
 		return null;
+	}
+	
+	/**
+	 * @return the name of this shader uniform type
+	 */
+	public String typeName() {
+		return name;
+	}
+	
+	/**
+	 * @return the GLint representing this shader uniform type
+	 */
+	public int value() {
+		return value;
 	}
 	
 	@Override

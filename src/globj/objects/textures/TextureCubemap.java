@@ -29,7 +29,7 @@ import org.lwjgl.opengl.GL42;
 @NonNullByDefault
 public final class TextureCubemap extends GLTexture2D implements FBOAttachable {
 	
-	private int	s, basemap, maxmap;
+	private int s, basemap, maxmap;
 	
 	
 	private TextureCubemap(String name, TextureFormat texformat) {
@@ -52,7 +52,7 @@ public final class TextureCubemap extends GLTexture2D implements FBOAttachable {
 		int max = Context.intConst(GL13.GL_MAX_CUBE_MAP_TEXTURE_SIZE);
 		if (!checkBounds(new int[] { s, s }, new int[] { max, max }, tex))
 			return null;
-		
+			
 		tex.s = s;
 		tex.basemap = Math.min(Math.max(0, basemap), levels(s));
 		tex.maxmap = Math.min(Math.max(tex.basemap, maxmap), levels(s));
@@ -60,13 +60,13 @@ public final class TextureCubemap extends GLTexture2D implements FBOAttachable {
 		tex.bind();
 		setMipmaps(tex.target, tex.basemap, tex.maxmap);
 		if (GL.versionCheck(4, 2)) {
-			GL42.glTexStorage2D(tex.target.value, tex.maxmap + 1, texformat.value, s, s);
+			GL42.glTexStorage2D(tex.target.value(), tex.maxmap + 1, texformat.value(), s, s);
 		}
 		else {
 			s = Math.max(1, s >> tex.basemap);
 			for (int i = tex.basemap; i <= tex.maxmap; i++) {
 				for (CubemapTarget target : CubemapTarget.values())
-					GL11.glTexImage2D(target.value, i, texformat.value, s, s, 0, texformat.base, ImageDataType.UBYTE.value, (ByteBuffer) null);
+					GL11.glTexImage2D(target.value(), i, texformat.value(), s, s, 0, texformat.base(), ImageDataType.UBYTE.value(), (ByteBuffer) null);
 				s = Math.max(1, s / 2);
 			}
 		}
@@ -74,12 +74,13 @@ public final class TextureCubemap extends GLTexture2D implements FBOAttachable {
 		return tex;
 	}
 	
-	
 	/**************************************************/
+	
+	
 	/********************** Bind **********************/
 	/**************************************************/
 	
-	private static final BindTracker	bindTracker	= new BindTracker();
+	private static final BindTracker bindTracker = new BindTracker();
 	
 	
 	@Override
@@ -95,7 +96,7 @@ public final class TextureCubemap extends GLTexture2D implements FBOAttachable {
 	public void makeSeamless(boolean seamless) {
 		if (GL.versionCheck(4, 4)) {
 			bind();
-			GL11.glTexParameteri(target.value, GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS, seamless ? 1 : 0);
+			GL11.glTexParameteri(target.value(), GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS, seamless ? 1 : 0);
 			undobind();
 		}
 		else
@@ -109,12 +110,13 @@ public final class TextureCubemap extends GLTexture2D implements FBOAttachable {
 	 */
 	public void setData(int x, int y, int w, int h, int map, ImageFormat format, ImageDataType type, ByteBuffer data) {
 		bind();
-		GL11.glTexSubImage2D(target.value, map, x, y, w, h, format.value, type.value, data);
+		GL11.glTexSubImage2D(target.value(), map, x, y, w, h, format.value(), type.value(), data);
 		undobind();
 	}
 	
 	/**************************************************/
 	/****************** FBOAttachable *****************/
+	
 	/**************************************************/
 	/**
 	 * @param level
@@ -124,10 +126,11 @@ public final class TextureCubemap extends GLTexture2D implements FBOAttachable {
 	 */
 	@Override
 	public void attachToFBO(FBOAttachment attachment, int level, int layer) {
-		GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value, target.value, id, level);
+		GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value(), target.value(), id, level);
 	}
 	
 	/**************************************************/
+	
 	/********************** Debug *********************/
 	/**************************************************/
 	// TODO log state of seamless!!!
@@ -143,9 +146,9 @@ public final class TextureCubemap extends GLTexture2D implements FBOAttachable {
 		GLDebug.writef(GLDebug.ATTRIB_STRING, "Wrapping Mode [S]", sWrap);
 		GLDebug.writef(GLDebug.ATTRIB_STRING, "Wrapping Mode [T]", tWrap);
 		
-		if (minFilter.mipmaps && maxmap > 0)
+		if (minFilter.mipmaps() && maxmap > 0)
 			GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range", basemap, maxmap);
-		
+			
 		super.debugQuery();
 		
 		GLDebug.unindent();

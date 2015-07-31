@@ -1,10 +1,16 @@
 package globj.objects.textures.values;
 
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
 
+
+
+@NonNullByDefault
 public enum ImageDataType {
 	
 	UBYTE("Unsigned Byte", GL11.GL_UNSIGNED_BYTE),
@@ -33,19 +39,40 @@ public enum ImageDataType {
 	UINT_1010102("Unsigned Integer 10 10 10 2", GL12.GL_UNSIGNED_INT_10_10_10_2),
 	UINT_2101010R("Unsigned Integer 2 10 10 10 Reversed", GL12.GL_UNSIGNED_INT_2_10_10_10_REV);
 	
-	public final String name;
-	public final int value;
+	private final String name;
+	private final int value;
+	
 	
 	private ImageDataType(String name, int value) {
 		this.name = name;
 		this.value = value;
 	}
 	
-	public static ImageDataType get(int i) {
+	/**
+	 * @param glInt
+	 *            the GLint representing an image data type
+	 * @return the ImageDataType object represented by glInt
+	 */
+	@Nullable
+	public static ImageDataType get(int glInt) {
 		for (ImageDataType type : values())
-			if (type.value == i)
+			if (type.value == glInt)
 				return type;
 		return null;
+	}
+	
+	/**
+	 * @return the name of this image data type
+	 */
+	public String typeName() {
+		return name;
+	}
+	
+	/**
+	 * @return the GLint representing this image data type
+	 */
+	public int value() {
+		return value;
 	}
 	
 	@Override

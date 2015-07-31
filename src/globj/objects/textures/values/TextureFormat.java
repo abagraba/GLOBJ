@@ -1,5 +1,8 @@
 package globj.objects.textures.values;
 
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GL21;
@@ -8,6 +11,9 @@ import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL42;
 
+
+
+@NonNullByDefault
 public enum TextureFormat {
 	RGBA2("RGBA 2 bit depth: Unsigned normalized integer", GL11.GL_RGBA2, GL11.GL_RGBA),
 	RGB4("RGB 4 bit depth: Unsigned normalized integer", GL11.GL_RGB4, GL11.GL_RGB),
@@ -73,7 +79,7 @@ public enum TextureFormat {
 	SRGB8("sRGB 8 bit depth", GL21.GL_SRGB8, GL11.GL_RGB),
 	SRGBA8("sRGB 8 bit depth: Linear 8 bit alpha", GL21.GL_SRGB8_ALPHA8, GL11.GL_RGBA),
 	
-	//Compressed Formats cannot be used in RECTANGLE or ARRAY_1D targets.
+	// Compressed Formats cannot be used in RECTANGLE or ARRAY_1D targets.
 	COMPRESSED_RGTC1("1 Component RGTC Compressed: Unsigned normalized integer", GL30.GL_COMPRESSED_RED_RGTC1, GL11.GL_RED),
 	COMPRESSED_RGTC1_SIGNED("1 Component RGTC Compressed: Signed normalized integer", GL30.GL_COMPRESSED_SIGNED_RED_RGTC1, GL11.GL_RED),
 	COMPRESSED_RGTC2("2 Component RGTC Compressed: Unsigned normalized integer", GL30.GL_COMPRESSED_RG_RGTC2, GL30.GL_RG),
@@ -87,19 +93,22 @@ public enum TextureFormat {
 	D24("24 bit Depth", GL14.GL_DEPTH_COMPONENT24, GL11.GL_DEPTH_COMPONENT, true, false),
 	D32("32 bit Depth", GL14.GL_DEPTH_COMPONENT32, GL11.GL_DEPTH_COMPONENT, true, false),
 	D32_F("32 bit Depth: Float", GL30.GL_DEPTH_COMPONENT32F, GL11.GL_DEPTH_COMPONENT, true, false),
-//	D24S8("24 bit Depth, 8 bit Stencil", GL30.GL_DEPTH24_STENCIL8, GL30.GL_DEPTH_STENCIL, true, true),
-//	D32S8_F("32 bit Depth, 8 bit Stencil: Float", GL30.GL_DEPTH32F_STENCIL8, GL30.GL_DEPTH_STENCIL, true, true),
+	// D24S8("24 bit Depth, 8 bit Stencil", GL30.GL_DEPTH24_STENCIL8, GL30.GL_DEPTH_STENCIL,
+	// true, true),
+	// D32S8_F("32 bit Depth, 8 bit Stencil: Float", GL30.GL_DEPTH32F_STENCIL8,
+	// GL30.GL_DEPTH_STENCIL, true, true),
 	// S1("1 bit Stencil", GL30.GL_STENCIL_INDEX1, GL11.GL_STENCIL_INDEX),
 	// S4("4 bit Stencil", GL30.GL_STENCIL_INDEX4, GL11.GL_STENCIL_INDEX),
 	S8("8 bit Stencil", GL30.GL_STENCIL_INDEX8, GL11.GL_STENCIL_INDEX, false, true),
 	// S16("16 bit Stencil", GL30.GL_STENCIL_INDEX16, GL11.GL_STENCIL_INDEX)
 	;
 	
-	public final String name;
-	public final int value;
-	public final int base;
-	public final boolean depth;
-	public final boolean stencil;
+	private final String name;
+	private final int value;
+	private final int base;
+	private final boolean depth;
+	private final boolean stencil;
+	
 	
 	private TextureFormat(String name, int value, int base) {
 		this(name, value, base, false, false);
@@ -113,11 +122,52 @@ public enum TextureFormat {
 		this.stencil = stencil;
 	}
 	
-	public static TextureFormat get(int i) {
+	/**
+	 * @param glInt
+	 *            the GLint representing a texture format
+	 * @return the TextureFormat object represented by glInt
+	 */
+	@Nullable
+	public static TextureFormat get(int glInt) {
 		for (TextureFormat format : values())
-			if (format.value == i)
+			if (format.value == glInt)
 				return format;
 		return null;
+	}
+	
+	/**
+	 * @return the name of this texture format
+	 */
+	public String formatName() {
+		return name;
+	}
+	
+	/**
+	 * @return the GLint representing this texture format
+	 */
+	public int value() {
+		return value;
+	}
+	
+	/**
+	 * @return the GLint representing the base format of this texture format
+	 */
+	public int base() {
+		return base;
+	}
+	
+	/**
+	 * @return whether this texture format has a depth component
+	 */
+	public boolean depth() {
+		return depth;
+	}
+	
+	/**
+	 * @return whether this texture format has a stencil component
+	 */
+	public boolean stencil() {
+		return stencil;
 	}
 	
 	@Override

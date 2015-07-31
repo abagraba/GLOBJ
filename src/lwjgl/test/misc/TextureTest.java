@@ -59,7 +59,6 @@ public class TextureTest extends RenderCommand {
 			Timer.debug.mark();
 			tex = Textures.createTexture2D("Test", img, 1);
 			tex.setFilter(MinifyFilter.NEAREST, MagnifyFilter.NEAREST);
-			tex.update();
 			Timer.debug.measure("Load Texture:");
 			GLDebug.debug(tex);
 		}

@@ -53,8 +53,8 @@ public class Tutorial04 extends RenderCommand {
 		
 		prog = Programs.createProgram("Test", vert, frag);
 		
-		Shaders.destroyShader(vert);
-		Shaders.destroyShader(frag);
+		vert.destroy();
+		frag.destroy();
 		
 		prog.debugQuery();
 		prog.bind();

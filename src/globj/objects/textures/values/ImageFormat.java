@@ -1,9 +1,15 @@
 package globj.objects.textures.values;
 
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL30;
 
+
+
+@NonNullByDefault
 public enum ImageFormat {
 	
 	R("R", GL11.GL_RED),
@@ -23,23 +29,44 @@ public enum ImageFormat {
 	S("Stencil", GL11.GL_STENCIL_INDEX),
 	DS("Depth & Stencil", GL30.GL_DEPTH_STENCIL);
 	
-	public final String name;
-	public final int value;
+	private final String name;
+	private final int value;
+	
 	
 	private ImageFormat(String name, int value) {
 		this.name = name;
 		this.value = value;
 	}
 	
-	public static ImageFormat get(int i){
-		for (ImageFormat format : values()) 
-			if (format.value == i)
+	/**
+	 * @param glInt
+	 *            the GLint representing an image format
+	 * @return the ImageFormat object represented by glInt
+	 */
+	@Nullable
+	public static ImageFormat get(int glInt) {
+		for (ImageFormat format : values())
+			if (format.value == glInt)
 				return format;
 		return null;
 	}
 	
+	/**
+	 * @return the name of this image format
+	 */
+	public String formatName() {
+		return name;
+	}
+	
+	/**
+	 * @return the GLint representing this image format
+	 */
+	public int value() {
+		return value;
+	}
+	
 	@Override
-	public String toString(){
+	public String toString() {
 		return name;
 	}
 	

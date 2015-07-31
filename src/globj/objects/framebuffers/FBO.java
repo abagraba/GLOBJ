@@ -1,5 +1,6 @@
 package globj.objects.framebuffers;
 
+
 import globj.core.Context;
 import globj.core.GL;
 import globj.objects.BindTracker;
@@ -15,6 +16,8 @@ import lwjgl.debug.GLDebug;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL43;
+
+
 
 public class FBO extends BindableGLObject {
 	
@@ -34,10 +37,13 @@ public class FBO extends BindableGLObject {
 	}
 	
 	/**************************************************/
+	
+	
 	/********************** Bind **********************/
 	/**************************************************/
 	
 	private static final BindTracker bindTracker = new BindTracker();
+	
 	
 	@Override
 	protected BindTracker bindingTracker() {
@@ -62,14 +68,11 @@ public class FBO extends BindableGLObject {
 	/**************************************************/
 	
 	/*
-	 * 
-	 * Bind textures to fbos? bind function in texture? Separate texture to one
-	 * target per class?
+	 * Bind textures to fbos? bind function in texture? Separate texture to one target per class?
 	 */
 	/**
-	 * Be cautious about deleting the attached RBO/Texture. If the FBO is bound,
-	 * deleted RBO/Textures are automatically detached. However, non-active FBOs
-	 * will not.
+	 * Be cautious about deleting the attached RBO/Texture. If the FBO is bound, deleted RBO/Textures are automatically
+	 * detached. However, non-active FBOs will not.
 	 * 
 	 * @param level
 	 *            Texture1D: mipmap level.<br/>
@@ -80,7 +83,7 @@ public class FBO extends BindableGLObject {
 	 *            &nbsp;&nbsp;&nbsp;TextureRectangle: unused.<br/>
 	 *            &nbsp;&nbsp;&nbsp;TextureCubemap: mipmap level.<br/>
 	 *            &nbsp;&nbsp;&nbsp;TextureCubemapArray: mipmap level.<br/>
-	 * 
+	 * 			
 	 * @param layer
 	 *            Texture1D: unused.<br/>
 	 *            &nbsp;&nbsp;&nbsp;Texture1DArray: texture index.<br/>
@@ -88,15 +91,14 @@ public class FBO extends BindableGLObject {
 	 *            &nbsp;&nbsp;&nbsp;Texture2DArray: texture index.<br/>
 	 *            &nbsp;&nbsp;&nbsp;Texture3D: z-offset.<br/>
 	 *            &nbsp;&nbsp;&nbsp;TextureRectangle: unused.<br/>
-	 *            &nbsp;&nbsp;&nbsp;TextureCubemap: cubemap face. Use
-	 *            {@link CubemapTarget#layer}.<br/>
-	 *            &nbsp;&nbsp;&nbsp;TextureCubemapArray: cubemap index and face.
-	 *            Use 6 * cubemap index + {@link CubemapTarget#layer}.
+	 *            &nbsp;&nbsp;&nbsp;TextureCubemap: cubemap face. Use {@link CubemapTarget#layer}.<br/>
+	 *            &nbsp;&nbsp;&nbsp;TextureCubemapArray: cubemap index and face. Use 6 * cubemap index +
+	 *            {@link CubemapTarget#layer}.
 	 */
 	public void attach(FBOAttachable att, FBOAttachment attach, int level, int layer) {
 		bind();
 		if (att == null)
-			GL30.glFramebufferTextureLayer(GL30.GL_DRAW_FRAMEBUFFER, attach.value, 0, 0, 0);
+			GL30.glFramebufferTextureLayer(GL30.GL_DRAW_FRAMEBUFFER, attach.value(), 0, 0, 0);
 		else
 			att.attachToFBO(attach, level, layer);
 		undobind();
@@ -122,7 +124,7 @@ public class FBO extends BindableGLObject {
 			if (attach != FBOAttachment.DEPTH_STENCIL)
 				if (debugBindingStatus(attach))
 					count++;
-
+					
 		int w = 0, h = 0, l = 0, s = 0, f = 0;
 		if (count == 0 && GL.versionCheck(4, 3)) {
 			w = GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER, GL43.GL_FRAMEBUFFER_DEFAULT_WIDTH);
@@ -136,7 +138,7 @@ public class FBO extends BindableGLObject {
 			GLDebug.write(GLDebug.fixedString("Default Sample Locations:") + f);
 			GLDebug.write("");
 		}
-
+		
 		undobind();
 		GLDebug.unindent();
 		GLDebug.unsetPad();
@@ -145,23 +147,25 @@ public class FBO extends BindableGLObject {
 	
 	private static boolean debugBindingStatus(FBOAttachment attach) {
 		int ca = Context.intConst(GL30.GL_MAX_COLOR_ATTACHMENTS);
-		if (attach.colorindex >= ca)
+		if (attach.colorIndex() >= ca)
 			return true;
-		int type = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE);
+		int type = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value(), GL30.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE);
 		if (type == GL11.GL_NONE)
 			return false;
 		GLDebug.write(attach.toString() + ":");
 		switch (type) {
 			case GL11.GL_TEXTURE:
-				GLTexture tex = Textures.getTexture(GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value,
-						GL30.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME));
+				GLTexture tex = Textures.getTexture(GL30.glGetFramebufferAttachmentParameteri(	GL30.GL_DRAW_FRAMEBUFFER, attach.value(),
+																								GL30.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME));
 				GLDebug.indent();
 				if (tex == null) {
 					GLDebug.write(GLDebug.fixedString("Texture:") + "none");
 				}
 				else {
-					int level = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL);
-					int layer = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER);
+					int level =
+							GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value(), GL30.GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL);
+					int layer =
+							GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value(), GL30.GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER);
 					GLDebug.write(GLDebug.fixedString("Texture:") + tex.name);
 					GLDebug.indent();
 					GLDebug.write(GLDebug.fixedString("Layer:") + layer);
@@ -177,15 +181,15 @@ public class FBO extends BindableGLObject {
 				return true;
 			case GL30.GL_RENDERBUFFER:
 				RBO rbo = RBO
-						.get(GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME));
-				int r = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE);
-				int g = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE);
-				int b = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE);
-				int a = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE);
-				int d = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE);
-				int s = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value, GL30.GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE);
-				ImageDataType f = ImageDataType.get(GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value,
-						GL30.GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE));
+						.get(GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value(), GL30.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME));
+				int r = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value(), GL30.GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE);
+				int g = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value(), GL30.GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE);
+				int b = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value(), GL30.GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE);
+				int a = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value(), GL30.GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE);
+				int d = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value(), GL30.GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE);
+				int s = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER, attach.value(), GL30.GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE);
+				ImageDataType f = ImageDataType.get(GL30.glGetFramebufferAttachmentParameteri(	GL30.GL_DRAW_FRAMEBUFFER, attach.value(),
+																								GL30.GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE));
 				// TODO sRGB
 				GLDebug.indent();
 				GLDebug.write(GLDebug.fixedString("Renderbuffer") + rbo.name);

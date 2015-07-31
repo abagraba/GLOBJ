@@ -1,5 +1,6 @@
 package globj.objects.framebuffers;
 
+
 import globj.core.Context;
 import globj.core.GL;
 import globj.objects.GLObject;
@@ -13,12 +14,15 @@ import lwjgl.debug.GLDebug;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
+
+
 public class RBO extends GLObject implements FBOAttachable {
 	
-	protected static final HashMap<String, RBO> rboname = new HashMap<String, RBO>();
-	protected static final HashMap<Integer, RBO> rboid = new HashMap<Integer, RBO>();
-	protected static int currentRBO = 0;
-	private static int lastRBO = 0;
+	protected static final HashMap<String, RBO>		rboname		= new HashMap<String, RBO>();
+	protected static final HashMap<Integer, RBO>	rboid		= new HashMap<Integer, RBO>();
+	protected static int							currentRBO	= 0;
+	private static int								lastRBO		= 0;
+	
 	
 	private RBO(String name) {
 		super(name, GL30.glGenRenderbuffers());
@@ -41,29 +45,29 @@ public class RBO extends GLObject implements FBOAttachable {
 		rbo.undobind();
 		if (checkError())
 			return null;
-		
+			
 		rboname.put(rbo.name, rbo);
 		rboid.put(rbo.id, rbo);
 		return rbo;
 	}
 	
 	private static boolean checkError() {
-		int err = GL.nextError();
+		int err = GLDebug.nextError();
 		while (err != GL11.GL_NO_ERROR) {
 			switch (err) {
 				case GL11.GL_INVALID_ENUM:
 					GLDebug.glError("Cannot create Renderbuffer Object. Invalid format.", null);
 					return true;
 				case GL11.GL_INVALID_VALUE:
-					GLDebug.glError(
-							"Cannot create Renderbuffer Object. Renderbuffer Object too large. Max Size is " + Context.intConst(GL30.GL_MAX_RENDERBUFFER_SIZE)
-									+ " pixels.", null);
+					GLDebug.glError("Cannot create Renderbuffer Object. Renderbuffer Object too large. Max Size is "
+									+ Context.intConst(GL30.GL_MAX_RENDERBUFFER_SIZE) + " pixels.", null);
 					return true;
 				case GL11.GL_OUT_OF_MEMORY:
 					GLDebug.glError("Cannot create Renderbuffer Object. Out of Memory.", null);
 					return true;
+				default:
 			}
-			err = GL.nextError();
+			err = GLDebug.nextError();
 		}
 		return false;
 	}
@@ -122,6 +126,7 @@ public class RBO extends GLObject implements FBOAttachable {
 	
 	/**************************************************/
 	/****************** FBOAttachable *****************/
+	
 	/**************************************************/
 	/**
 	 * @param level
@@ -131,7 +136,7 @@ public class RBO extends GLObject implements FBOAttachable {
 	 */
 	@Override
 	public void attachToFBO(FBOAttachment attachment, int level, int layer) {
-		GL30.glFramebufferRenderbuffer(GL30.GL_DRAW_FRAMEBUFFER, attachment.value, GL30.GL_RENDERBUFFER, id);
+		GL30.glFramebufferRenderbuffer(GL30.GL_DRAW_FRAMEBUFFER, attachment.value(), GL30.GL_RENDERBUFFER, id);
 	}
 	
 	/**************************************************/

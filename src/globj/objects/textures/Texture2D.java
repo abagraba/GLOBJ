@@ -60,13 +60,13 @@ public final class Texture2D extends GLTexture2D implements FBOAttachable {
 		tex.bind();
 		setMipmaps(tex.target, tex.basemap, tex.maxmap);
 		if (GL.versionCheck(4, 2)) {
-			GL42.glTexStorage2D(tex.target.value, tex.maxmap + 1, texformat.value, w, h);
+			GL42.glTexStorage2D(tex.target.value(), tex.maxmap + 1, texformat.value(), w, h);
 		}
 		else {
 			w = Math.max(1, w >> tex.basemap);
 			h = Math.max(1, h >> tex.basemap);
 			for (int i = tex.basemap; i <= tex.maxmap; i++) {
-				GL11.glTexImage2D(tex.target.value, i, texformat.value, w, h, 0, texformat.base, ImageDataType.UBYTE.value, (ByteBuffer) null);
+				GL11.glTexImage2D(tex.target.value(), i, texformat.value(), w, h, 0, texformat.base(), ImageDataType.UBYTE.value(), (ByteBuffer) null);
 				w = Math.max(1, w / 2);
 				h = Math.max(1, h / 2);
 			}
@@ -100,18 +100,18 @@ public final class Texture2D extends GLTexture2D implements FBOAttachable {
 		tex.bind();
 		setMipmaps(tex.target, tex.basemap, tex.maxmap);
 		if (GL.versionCheck(4, 2)) {
-			GL42.glTexStorage2D(tex.target.value, maps, texformat.value, w, h);
+			GL42.glTexStorage2D(tex.target.value(), maps, texformat.value(), w, h);
 		}
 		else {
 			for (int i = 0; i < maps; i++) {
-				GL11.glTexImage2D(tex.target.value, i, texformat.value, w, h, 0, texformat.base, ImageDataType.UBYTE.value, (ByteBuffer) null);
+				GL11.glTexImage2D(tex.target.value(), i, texformat.value(), w, h, 0, texformat.base(), ImageDataType.UBYTE.value(), (ByteBuffer) null);
 				w = Math.max(1, w / 2);
 				h = Math.max(1, h / 2);
 			}
 		}
-		GL11.glTexSubImage2D(tex.target.value, 0, 0, 0, w, h, ImageFormat.RGBA.value, ImageDataType.UBYTE.value, ImageUtil.imageRGBAData(image));
+		GL11.glTexSubImage2D(tex.target.value(), 0, 0, 0, w, h, ImageFormat.RGBA.value(), ImageDataType.UBYTE.value(), ImageUtil.imageRGBAData(image));
 		if (maps > 1)
-			GL30.glGenerateMipmap(tex.target.value);
+			GL30.glGenerateMipmap(tex.target.value());
 		tex.undobind();
 		return tex;
 	}
@@ -138,7 +138,7 @@ public final class Texture2D extends GLTexture2D implements FBOAttachable {
 	 */
 	public void setData(int x, int y, int w, int h, int map, ImageFormat format, ImageDataType type, ByteBuffer data) {
 		bind();
-		GL11.glTexSubImage2D(target.value, map, x, y, w, h, format.value, type.value, data);
+		GL11.glTexSubImage2D(target.value(), map, x, y, w, h, format.value(), type.value(), data);
 		undobind();
 	}
 	
@@ -146,7 +146,7 @@ public final class Texture2D extends GLTexture2D implements FBOAttachable {
 		int w = src.getWidth();
 		int h = src.getHeight();
 		bind();
-		GL11.glTexSubImage2D(target.value, 0, 0, 0, w, h, ImageFormat.RGBA.value, ImageDataType.UBYTE.value, ImageUtil.imageRGBAData(src));
+		GL11.glTexSubImage2D(target.value(), 0, 0, 0, w, h, ImageFormat.RGBA.value(), ImageDataType.UBYTE.value(), ImageUtil.imageRGBAData(src));
 		undobind();
 		return;
 	}
@@ -162,7 +162,7 @@ public final class Texture2D extends GLTexture2D implements FBOAttachable {
 	 */
 	@Override
 	public void attachToFBO(FBOAttachment attachment, int level, int layer) {
-		GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value, target.value, id, level);
+		GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value(), target.value(), id, level);
 	}
 	
 	/**************************************************/
@@ -181,7 +181,7 @@ public final class Texture2D extends GLTexture2D implements FBOAttachable {
 		GLDebug.writef(GLDebug.ATTRIB_STRING, "Wrapping Mode [S]", sWrap);
 		GLDebug.writef(GLDebug.ATTRIB_STRING, "Wrapping Mode [T]", tWrap);
 		
-		if (minFilter.mipmaps && maxmap > 0)
+		if (minFilter.mipmaps() && maxmap > 0)
 			GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range", basemap, maxmap);
 		
 		super.debugQuery();

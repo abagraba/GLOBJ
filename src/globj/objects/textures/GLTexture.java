@@ -29,23 +29,23 @@ import org.lwjgl.opengl.GL43;
 @NonNullByDefault
 public abstract class GLTexture extends BindableGLObject {
 	
-	protected MinifyFilter			minFilter	= MinifyFilter.NEAREST_MIPMAP_LINEAR;
-	protected MagnifyFilter			magFilter	= MagnifyFilter.LINEAR;
+	protected MinifyFilter	minFilter	= MinifyFilter.NEAREST_MIPMAP_LINEAR;
+	protected MagnifyFilter	magFilter	= MagnifyFilter.LINEAR;
 	
-	protected float					lodMin		= -1000f;
-	protected float					lodMax		= 1000f;
-	protected float					lodBias		= 0f;
+	protected float	lodMin	= -1000f;
+	protected float	lodMax	= 1000f;
+	protected float	lodBias	= 0f;
 	
-	protected Swizzle				swizzleR	= Swizzle.R;
-	protected Swizzle				swizzleG	= Swizzle.G;
-	protected Swizzle				swizzleB	= Swizzle.B;
-	protected Swizzle				swizzleA	= Swizzle.A;
+	protected Swizzle	swizzleR	= Swizzle.R;
+	protected Swizzle	swizzleG	= Swizzle.G;
+	protected Swizzle	swizzleB	= Swizzle.B;
+	protected Swizzle	swizzleA	= Swizzle.A;
 	
-	protected V4f					border		= new V4f(0, 0, 0, 0);
+	protected V4f border = new V4f(0, 0, 0, 0);
 	
-	protected DepthStencilMode		dsmode		= DepthStencilMode.DEPTH;
+	protected DepthStencilMode dsmode = DepthStencilMode.DEPTH;
 	
-	protected TextureComparison		comparison	= TextureComparison.NONE;
+	protected TextureComparison comparison = TextureComparison.NONE;
 	
 	protected final TextureFormat	texformat;
 	protected final TextureTarget	target;
@@ -65,7 +65,7 @@ public abstract class GLTexture extends BindableGLObject {
 	
 	public void genMipmaps() {
 		bind();
-		GL30.glGenerateMipmap(target.value);
+		GL30.glGenerateMipmap(target.value());
 		undobind();
 	}
 	
@@ -81,9 +81,9 @@ public abstract class GLTexture extends BindableGLObject {
 	 */
 	public void setLOD(float min, float max, float bias) {
 		bind();
-		GL11.glTexParameterf(target.value, GL12.GL_TEXTURE_MIN_LOD, lodMin = min);
-		GL11.glTexParameterf(target.value, GL12.GL_TEXTURE_MAX_LOD, lodMax = max);
-		GL11.glTexParameterf(target.value, GL14.GL_TEXTURE_LOD_BIAS, lodBias = bias);
+		GL11.glTexParameterf(target.value(), GL12.GL_TEXTURE_MIN_LOD, lodMin = min);
+		GL11.glTexParameterf(target.value(), GL12.GL_TEXTURE_MAX_LOD, lodMax = max);
+		GL11.glTexParameterf(target.value(), GL14.GL_TEXTURE_LOD_BIAS, lodBias = bias);
 		undobind();
 	}
 	
@@ -97,8 +97,8 @@ public abstract class GLTexture extends BindableGLObject {
 	 */
 	public void setFilter(MinifyFilter min, MagnifyFilter mag) {
 		bind();
-		GL11.glTexParameteri(target.value, GL11.GL_TEXTURE_MIN_FILTER, (minFilter = min).value);
-		GL11.glTexParameteri(target.value, GL11.GL_TEXTURE_MAG_FILTER, (magFilter = mag).value);
+		GL11.glTexParameteri(target.value(), GL11.GL_TEXTURE_MIN_FILTER, (minFilter = min).value());
+		GL11.glTexParameteri(target.value(), GL11.GL_TEXTURE_MAG_FILTER, (magFilter = mag).value());
 		undobind();
 	}
 	
@@ -117,8 +117,8 @@ public abstract class GLTexture extends BindableGLObject {
 	public void setSwizzle(Swizzle r, Swizzle g, Swizzle b, Swizzle a) {
 		bind();
 		IntBuffer swizzle = BufferUtils.createIntBuffer(4);
-		swizzle.put(new int[] { (swizzleR = r).value, (swizzleG = g).value, (swizzleB = b).value, (swizzleA = a).value }).flip();
-		GL11.glTexParameter(target.value, GL11.GL_TEXTURE_BORDER_COLOR, swizzle);
+		swizzle.put(new int[] { (swizzleR = r).value(), (swizzleG = g).value(), (swizzleB = b).value(), (swizzleA = a).value() }).flip();
+		GL11.glTexParameter(target.value(), GL11.GL_TEXTURE_BORDER_COLOR, swizzle);
 		undobind();
 	}
 	
@@ -136,7 +136,7 @@ public abstract class GLTexture extends BindableGLObject {
 	 */
 	public void setBorderColor(float r, float g, float b, float a) {
 		bind();
-		GL11.glTexParameter(target.value, GL11.GL_TEXTURE_BORDER_COLOR, (border = new V4f(r, g, b, a)).asBuffer());
+		GL11.glTexParameter(target.value(), GL11.GL_TEXTURE_BORDER_COLOR, (border = new V4f(r, g, b, a)).asBuffer());
 		undobind();
 	}
 	
@@ -149,7 +149,7 @@ public abstract class GLTexture extends BindableGLObject {
 	public void setDepthStencilMode(DepthStencilMode mode) {
 		if (GL.versionCheck(4, 3)) {
 			bind();
-			GL11.glTexParameteri(target.value, GL43.GL_DEPTH_STENCIL_TEXTURE_MODE, (dsmode = mode).value);
+			GL11.glTexParameteri(target.value(), GL43.GL_DEPTH_STENCIL_TEXTURE_MODE, (dsmode = mode).value());
 			undobind();
 		}
 	}
@@ -162,19 +162,20 @@ public abstract class GLTexture extends BindableGLObject {
 	 */
 	public void setDepthComparisonMode(TextureComparison func) {
 		bind();
-		GL11.glTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_MODE, (comparison = func).mode);
-		GL11.glTexParameteri(target.value, GL14.GL_TEXTURE_COMPARE_FUNC, comparison.func);
+		GL11.glTexParameteri(target.value(), GL14.GL_TEXTURE_COMPARE_MODE, (comparison = func).mode());
+		GL11.glTexParameteri(target.value(), GL14.GL_TEXTURE_COMPARE_FUNC, comparison.func());
 		undobind();
 	}
 	
 	/**************************************************/
+	
 	/********************** Bind **********************/
 	/**************************************************/
 	
 	@Override
 	protected void bindOP(int id) {
 		bind();
-		GL11.glBindTexture(target.value, id);
+		GL11.glBindTexture(target.value(), id);
 		undobind();
 	}
 	
@@ -186,6 +187,7 @@ public abstract class GLTexture extends BindableGLObject {
 	}
 	
 	/**************************************************/
+	
 	/***************** Helper Methods *****************/
 	/**************************************************/
 	
@@ -221,8 +223,8 @@ public abstract class GLTexture extends BindableGLObject {
 			}
 		for (int i = 0; i < args.length; i++)
 			if (args[i] > limits[i]) {
-				GLDebug.glObjError(tex, "Cannot initialize", "Dimensions " + dimensions(args) + " too large. Device only supports textures up to "
-																+ dimensions(limits) + ".");
+				GLDebug.glObjError(	tex, "Cannot initialize",
+									"Dimensions " + dimensions(args) + " too large. Device only supports textures up to " + dimensions(limits) + ".");
 				return false;
 			}
 		return true;
@@ -230,8 +232,8 @@ public abstract class GLTexture extends BindableGLObject {
 	
 	protected static void setMipmaps(TextureTarget target, int base, int max) {
 		if (base != 0)
-			GL11.glTexParameteri(target.value, GL12.GL_TEXTURE_BASE_LEVEL, base);
-		GL11.glTexParameteri(target.value, GL12.GL_TEXTURE_MAX_LEVEL, max);
+			GL11.glTexParameteri(target.value(), GL12.GL_TEXTURE_BASE_LEVEL, base);
+		GL11.glTexParameteri(target.value(), GL12.GL_TEXTURE_MAX_LEVEL, max);
 		
 	}
 	
@@ -245,6 +247,7 @@ public abstract class GLTexture extends BindableGLObject {
 	}
 	
 	/**************************************************/
+	
 	/********************** Debug *********************/
 	/**************************************************/
 	

@@ -63,12 +63,12 @@ public final class Texture1DArray extends GLTexture1D implements FBOAttachable {
 		setMipmaps(tex.target, tex.basemap, tex.maxmap);
 		
 		if (GL.versionCheck(4, 2)) {
-			GL42.glTexStorage2D(tex.target.value, tex.maxmap + 1, texformat.value, w, layers);
+			GL42.glTexStorage2D(tex.target.value(), tex.maxmap + 1, texformat.value(), w, layers);
 		}
 		else {
 			w = Math.max(1, w >> tex.basemap);
 			for (int i = tex.basemap; i <= tex.maxmap; i++) {
-				GL11.glTexImage2D(tex.target.value, i, texformat.value, w, layers, 0, texformat.base, ImageDataType.UBYTE.value, (ByteBuffer) null);
+				GL11.glTexImage2D(tex.target.value(), i, texformat.value(), w, layers, 0, texformat.base(), ImageDataType.UBYTE.value(), (ByteBuffer) null);
 				w = Math.max(1, w / 2);
 			}
 		}
@@ -99,19 +99,19 @@ public final class Texture1DArray extends GLTexture1D implements FBOAttachable {
 		tex.maxmap = maps - 1;
 		
 		tex.bind();
-		GL11.glTexParameteri(tex.target.value, GL12.GL_TEXTURE_MAX_LEVEL, maps - 1);
+		GL11.glTexParameteri(tex.target.value(), GL12.GL_TEXTURE_MAX_LEVEL, maps - 1);
 		if (GL.versionCheck(4, 2)) {
-			GL42.glTexStorage2D(tex.target.value, maps, texformat.value, w, layers);
+			GL42.glTexStorage2D(tex.target.value(), maps, texformat.value(), w, layers);
 		}
 		else {
 			for (int i = 0; i <= maps; i++) {
-				GL11.glTexImage2D(tex.target.value, i, texformat.value, w, layers, 0, texformat.base, ImageDataType.UBYTE.value, (ByteBuffer) null);
+				GL11.glTexImage2D(tex.target.value(), i, texformat.value(), w, layers, 0, texformat.base(), ImageDataType.UBYTE.value(), (ByteBuffer) null);
 				w = Math.max(1, w / 2);
 			}
 		}
-		GL11.glTexSubImage2D(tex.target.value, 0, 0, 0, w, layers, ImageFormat.RGBA.value, ImageDataType.UBYTE.value, ImageUtil.imageRGBAData(image));
+		GL11.glTexSubImage2D(tex.target.value(), 0, 0, 0, w, layers, ImageFormat.RGBA.value(), ImageDataType.UBYTE.value(), ImageUtil.imageRGBAData(image));
 		if (mipmaps > 1)
-			GL30.glGenerateMipmap(tex.target.value);
+			GL30.glGenerateMipmap(tex.target.value());
 		tex.undobind();
 		return tex;
 	}
@@ -138,7 +138,7 @@ public final class Texture1DArray extends GLTexture1D implements FBOAttachable {
 	 */
 	public void setData(int x, int w, int layeri, int layerf, int map, ImageFormat format, ImageDataType type, ByteBuffer data) {
 		bind();
-		GL11.glTexSubImage2D(target.value, map, x, layeri, w, layerf, format.value, type.value, data);
+		GL11.glTexSubImage2D(target.value(), map, x, layeri, w, layerf, format.value(), type.value(), data);
 		undobind();
 	}
 	
@@ -153,7 +153,7 @@ public final class Texture1DArray extends GLTexture1D implements FBOAttachable {
 	 */
 	@Override
 	public void attachToFBO(FBOAttachment attachment, int level, int layer) {
-		GL30.glFramebufferTextureLayer(GL30.GL_DRAW_FRAMEBUFFER, attachment.value, id, level, layer);
+		GL30.glFramebufferTextureLayer(GL30.GL_DRAW_FRAMEBUFFER, attachment.value(), id, level, layer);
 	}
 	
 	/**************************************************/
@@ -169,7 +169,7 @@ public final class Texture1DArray extends GLTexture1D implements FBOAttachable {
 		
 		GLDebug.writef(GLDebug.ATTRIB_STRING, "Wrapping Mode", sWrap);
 		
-		if (minFilter.mipmaps && maxmap > 0)
+		if (minFilter.mipmaps() && maxmap > 0)
 			GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range", basemap, maxmap);
 		
 		super.debugQuery();

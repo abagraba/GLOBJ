@@ -30,7 +30,7 @@ import org.lwjgl.opengl.GL42;
 @NonNullByDefault
 public final class TextureCubemapArray extends GLTexture2D implements FBOAttachable {
 	
-	private int	s, layers, basemap, maxmap;
+	private int s, layers, basemap, maxmap;
 	
 	
 	private TextureCubemapArray(String name, TextureFormat texformat) {
@@ -54,7 +54,7 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 		int maxlayers = Context.intConst(GL30.GL_MAX_ARRAY_TEXTURE_LAYERS);
 		if (!checkBounds(new int[] { s, s, cubemaps }, new int[] { max, max, maxlayers / 6 }, tex))
 			return null;
-		
+			
 		tex.s = s;
 		tex.layers = cubemaps;
 		tex.basemap = Math.min(Math.max(0, basemap), levels(s));
@@ -63,12 +63,13 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 		tex.bind();
 		setMipmaps(tex.target, tex.basemap, tex.maxmap);
 		if (GL.versionCheck(4, 2)) {
-			GL42.glTexStorage3D(tex.target.value, tex.maxmap + 1, texformat.value, s, s, cubemaps * 6);
+			GL42.glTexStorage3D(tex.target.value(), tex.maxmap + 1, texformat.value(), s, s, cubemaps * 6);
 		}
 		else {
 			s = Math.max(1, s >> tex.basemap);
 			for (int i = tex.basemap; i <= tex.maxmap; i++) {
-				GL12.glTexImage3D(tex.target.value, i, texformat.value, s, s, cubemaps * 6, 0, texformat.base, ImageDataType.UBYTE.value, (ByteBuffer) null);
+				GL12.glTexImage3D(	tex.target.value(), i, texformat.value(), s, s, cubemaps * 6, 0, texformat.base(), ImageDataType.UBYTE.value(),
+									(ByteBuffer) null);
 				s = Math.max(1, s / 2);
 			}
 		}
@@ -76,12 +77,13 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 		return tex;
 	}
 	
-	
 	/**************************************************/
+	
+	
 	/********************** Bind **********************/
 	/**************************************************/
 	
-	private static final BindTracker	bindTracker	= new BindTracker();
+	private static final BindTracker bindTracker = new BindTracker();
 	
 	
 	@Override
@@ -97,7 +99,7 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 	public void makeSeamless(boolean seamless) {
 		if (GL.versionCheck(4, 4)) {
 			bind();
-			GL11.glTexParameteri(target.value, GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS, seamless ? 1 : 0);
+			GL11.glTexParameteri(target.value(), GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS, seamless ? 1 : 0);
 			undobind();
 		}
 		else
@@ -113,12 +115,13 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 	// TODO make work for cubemaps
 	public void setData(int x, int y, int w, int h, int map, ImageFormat format, ImageDataType type, ByteBuffer data) {
 		bind();
-		GL11.glTexSubImage2D(target.value, map, x, y, w, h, format.value, type.value, data);
+		GL11.glTexSubImage2D(target.value(), map, x, y, w, h, format.value(), type.value(), data);
 		undobind();
 	}
 	
 	/**************************************************/
 	/****************** FBOAttachable *****************/
+	
 	/**************************************************/
 	/**
 	 * @param level
@@ -128,10 +131,11 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 	 */
 	@Override
 	public void attachToFBO(FBOAttachment attachment, int level, int layer) {
-		GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value, target.value, id, level);
+		GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value(), target.value(), id, level);
 	}
 	
 	/**************************************************/
+	
 	/********************** Debug *********************/
 	/**************************************************/
 	// TODO log state of seamless!!!
@@ -147,9 +151,9 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 		GLDebug.writef(GLDebug.ATTRIB_STRING, "Wrapping Mode [S]", sWrap);
 		GLDebug.writef(GLDebug.ATTRIB_STRING, "Wrapping Mode [T]", tWrap);
 		
-		if (minFilter.mipmaps && maxmap > 0)
+		if (minFilter.mipmaps() && maxmap > 0)
 			GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range", basemap, maxmap);
-		
+			
 		super.debugQuery();
 		
 		GLDebug.unindent();

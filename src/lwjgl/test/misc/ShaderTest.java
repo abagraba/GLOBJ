@@ -33,6 +33,7 @@ public class ShaderTest extends RenderCommand {
 	private Program	prog;
 	
 	
+	@SuppressWarnings("null")
 	@Override
 	public void init() {
 		ControlManager.select(new TestControlSet());
@@ -46,10 +47,10 @@ public class ShaderTest extends RenderCommand {
 			prog = Programs.createProgram("Test", vert, frag);
 			vert.debugQuery();
 			frag.debugQuery();
-			Shaders.destroyShader(vert);
-			Shaders.destroyShader(frag);
+			vert.destroy();
+			frag.destroy();
 		}
-		catch (IOException e) {
+		catch (IOException | NullPointerException e) {
 			GLDebug.logException(e);
 		}
 		

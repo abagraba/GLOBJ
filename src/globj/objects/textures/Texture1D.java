@@ -57,12 +57,12 @@ public final class Texture1D extends GLTexture1D implements FBOAttachable {
 		tex.bind();
 		setMipmaps(tex.target, tex.basemap, tex.maxmap);
 		if (GL.versionCheck(4, 2)) {
-			GL42.glTexStorage1D(tex.target.value, tex.maxmap + 1, texformat.value, w);
+			GL42.glTexStorage1D(tex.target.value(), tex.maxmap + 1, texformat.value(), w);
 		}
 		else {
 			w = Math.max(1, w >> tex.basemap);
 			for (int i = tex.basemap; i <= tex.maxmap; i++) {
-				GL11.glTexImage1D(tex.target.value, i, texformat.value, w, 0, texformat.base, ImageDataType.UBYTE.value, (ByteBuffer) null);
+				GL11.glTexImage1D(tex.target.value(), i, texformat.value(), w, 0, texformat.base(), ImageDataType.UBYTE.value(), (ByteBuffer) null);
 				w = Math.max(1, w / 2);
 			}
 		}
@@ -92,7 +92,7 @@ public final class Texture1D extends GLTexture1D implements FBOAttachable {
 	 */
 	public void setData(int x, int w, int map, ImageFormat format, ImageDataType type, ByteBuffer data) {
 		bind();
-		GL11.glTexSubImage1D(target.value, map, x, w, format.value, type.value, data);
+		GL11.glTexSubImage1D(target.value(), map, x, w, format.value(), type.value(), data);
 		undobind();
 	}
 	
@@ -108,7 +108,7 @@ public final class Texture1D extends GLTexture1D implements FBOAttachable {
 	 */
 	@Override
 	public void attachToFBO(FBOAttachment attachment, int level, int layer) {
-		GL30.glFramebufferTexture1D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value, target.value, id, level);
+		GL30.glFramebufferTexture1D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value(), target.value(), id, level);
 	}
 	
 	/**************************************************/
@@ -124,7 +124,7 @@ public final class Texture1D extends GLTexture1D implements FBOAttachable {
 		
 		GLDebug.writef(GLDebug.ATTRIB_STRING, "Wrapping Mode", sWrap);
 		
-		if (minFilter.mipmaps && maxmap > 0)
+		if (minFilter.mipmaps() && maxmap > 0)
 			GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range", basemap, maxmap);
 		
 		super.debugQuery();

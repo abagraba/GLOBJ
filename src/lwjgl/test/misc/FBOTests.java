@@ -15,7 +15,7 @@ import globj.objects.textures.Textures;
 import globj.objects.textures.values.MagnifyFilter;
 import globj.objects.textures.values.MinifyFilter;
 import globj.objects.textures.values.TextureFormat;
-import globj.objects.textures.values.TextureWrap;
+import globj.objects.textures.values.TextureWrapMode;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,8 +68,7 @@ public class FBOTests extends RenderCommand {
 		try {
 			tex = Textures.createTexture2D("Tex", ImageIO.read(file), 1);
 			tex.setFilter(MinifyFilter.NEAREST, MagnifyFilter.NEAREST);
-			tex.setWrap(TextureWrap.CLAMP_EDGE, TextureWrap.CLAMP_EDGE);
-			tex.update();
+			tex.setWrap(TextureWrapMode.CLAMP_EDGE, TextureWrapMode.CLAMP_EDGE);
 		}
 		catch (IOException e) {
 			GLDebug.logException(e);
