@@ -26,20 +26,19 @@ import org.lwjgl.opengl.GL42;
 @NonNullByDefault
 public final class Texture1D extends GLTexture1D implements FBOAttachable {
 	
-	private int	w, basemap, maxmap;
-	
+	private int w, basemap, maxmap;
 	
 	private Texture1D(String name, TextureFormat texformat) {
 		super(name, texformat, TextureTarget.TEXTURE_1D);
 	}
 	
 	@Nullable
-	protected static Texture1D create(String name, TextureFormat texformat, int w, int mipmaps) {
-		return create(name, texformat, w, 0, mipmaps - 1);
+	protected static Texture1D create(String name, TextureFormat texformat, int width, int mipmaps) {
+		return create(name, texformat, width, 0, mipmaps - 1);
 	}
 	
 	@Nullable
-	protected static Texture1D create(String name, TextureFormat texformat, int w, int basemap, int maxmap) {
+	protected static Texture1D create(String name, TextureFormat texformat, int width, int basemap, int maxmap) {
 		Texture1D tex = new Texture1D(name, texformat);
 		if (tex.id == 0) {
 			GLDebug.glObjError(Texture1D.class, name, "Cannot create", "No ID could be allocated");
@@ -47,20 +46,20 @@ public final class Texture1D extends GLTexture1D implements FBOAttachable {
 		}
 		
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
-		if (!checkBounds(new int[] { w }, new int[] { max }, tex))
+		if (!checkBounds(new int[] { width }, new int[] { max }, tex))
 			return null;
-		
-		tex.w = w;
-		tex.basemap = Math.min(Math.max(0, basemap), levels(w));
-		tex.maxmap = Math.min(Math.max(tex.basemap, maxmap), levels(w));
+			
+		tex.w = width;
+		tex.basemap = Math.min(Math.max(0, basemap), levels(width));
+		tex.maxmap = Math.min(Math.max(tex.basemap, maxmap), levels(width));
 		
 		tex.bind();
 		setMipmaps(tex.target, tex.basemap, tex.maxmap);
 		if (GL.versionCheck(4, 2)) {
-			GL42.glTexStorage1D(tex.target.value(), tex.maxmap + 1, texformat.value(), w);
+			GL42.glTexStorage1D(tex.target.value(), tex.maxmap + 1, texformat.value(), width);
 		}
 		else {
-			w = Math.max(1, w >> tex.basemap);
+			int w = Math.max(1, width >> tex.basemap);
 			for (int i = tex.basemap; i <= tex.maxmap; i++) {
 				GL11.glTexImage1D(tex.target.value(), i, texformat.value(), w, 0, texformat.base(), ImageDataType.UBYTE.value(), (ByteBuffer) null);
 				w = Math.max(1, w / 2);
@@ -70,13 +69,11 @@ public final class Texture1D extends GLTexture1D implements FBOAttachable {
 		return tex;
 	}
 	
+	/**************************************************
+	 ********************** Bind **********************
+	 **************************************************/
 	
-	/**************************************************/
-	/********************** Bind **********************/
-	/**************************************************/
-	
-	private static final BindTracker	bindTracker	= new BindTracker();
-	
+	private static final BindTracker bindTracker = new BindTracker();
 	
 	@Override
 	protected BindTracker bindingTracker() {
@@ -96,9 +93,9 @@ public final class Texture1D extends GLTexture1D implements FBOAttachable {
 		undobind();
 	}
 	
-	/**************************************************/
-	/****************** FBOAttachable *****************/
-	/**************************************************/
+	/**************************************************
+	 ****************** FBOAttachable *****************
+	 **************************************************/
 	
 	/**
 	 * @param level
@@ -111,7 +108,9 @@ public final class Texture1D extends GLTexture1D implements FBOAttachable {
 		GL30.glFramebufferTexture1D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value(), target.value(), id, level);
 	}
 	
-	/**************************************************/
+	/**************************************************
+	 ********************** Debug *********************
+	 **************************************************/
 	
 	@Override
 	public void debugQuery() {
@@ -126,7 +125,7 @@ public final class Texture1D extends GLTexture1D implements FBOAttachable {
 		
 		if (minFilter.mipmaps() && maxmap > 0)
 			GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range", basemap, maxmap);
-		
+			
 		super.debugQuery();
 		
 		GLDebug.unindent();

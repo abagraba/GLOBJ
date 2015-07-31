@@ -35,12 +35,11 @@ public class Program extends BindableGLObject {
 	private GLObjectTracker<ShaderUniform>		uniforms	= new GLObjectTracker<ShaderUniform>();
 	private GLObjectTracker<ShaderInput>		inputs		= new GLObjectTracker<ShaderInput>();
 	
-	private Set<ShaderType>						types		= new TreeSet<ShaderType>();
-	private List<Shader>						shaders		= new ArrayList<Shader>();
+	private Set<ShaderType>	types	= new TreeSet<ShaderType>();
+	private List<Shader>	shaders	= new ArrayList<Shader>();
 	
 	@Nullable
-	private String[]							errors;
-	
+	private String[] errors;
 	
 	private Program(String name) {
 		super(name, GL20.glCreateProgram());
@@ -83,17 +82,15 @@ public class Program extends BindableGLObject {
 	
 	private void setShaders(Shader[] shaders) {
 		for (Shader shader : shaders)
-			GL20.glAttachShader(id, shader.id);
+			GL20.glAttachShader(id, shader.id());
 		GL20.glLinkProgram(id);
 	}
 	
+	/**************************************************
+	 ********************** Bind **********************
+	 **************************************************/
 	
-	/**************************************************/
-	/********************** Bind **********************/
-	/**************************************************/
-	
-	protected static final BindTracker	bindTracker	= new BindTracker();
-	
+	protected static final BindTracker bindTracker = new BindTracker();
 	
 	@Override
 	protected BindTracker bindingTracker() {
@@ -144,9 +141,9 @@ public class Program extends BindableGLObject {
 		return -1;
 	}
 	
-	/**************************************************/
-	/********************** Debug *********************/
-	/**************************************************/
+	/**************************************************
+	 ********************** Debug *********************
+	 **************************************************/
 	
 	@Override
 	public void debugQuery() {

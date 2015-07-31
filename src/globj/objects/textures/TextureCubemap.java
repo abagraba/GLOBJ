@@ -31,18 +31,17 @@ public final class TextureCubemap extends GLTexture2D implements FBOAttachable {
 	
 	private int s, basemap, maxmap;
 	
-	
 	private TextureCubemap(String name, TextureFormat texformat) {
 		super(name, texformat, TextureTarget.TEXTURE_CUBEMAP);
 	}
 	
 	@Nullable
-	protected static TextureCubemap create(String name, TextureFormat texformat, int s, int mipmaps) {
-		return create(name, texformat, s, 0, mipmaps - 1);
+	protected static TextureCubemap create(String name, TextureFormat texformat, int size, int mipmaps) {
+		return create(name, texformat, size, 0, mipmaps - 1);
 	}
 	
 	@Nullable
-	protected static TextureCubemap create(String name, TextureFormat texformat, int s, int basemap, int maxmap) {
+	protected static TextureCubemap create(String name, TextureFormat texformat, int size, int basemap, int maxmap) {
 		TextureCubemap tex = new TextureCubemap(name, texformat);
 		if (tex.id == 0) {
 			GLDebug.glObjError(TextureCubemap.class, name, "Cannot create", "No ID could be allocated");
@@ -50,20 +49,20 @@ public final class TextureCubemap extends GLTexture2D implements FBOAttachable {
 		}
 		
 		int max = Context.intConst(GL13.GL_MAX_CUBE_MAP_TEXTURE_SIZE);
-		if (!checkBounds(new int[] { s, s }, new int[] { max, max }, tex))
+		if (!checkBounds(new int[] { size, size }, new int[] { max, max }, tex))
 			return null;
 			
-		tex.s = s;
-		tex.basemap = Math.min(Math.max(0, basemap), levels(s));
-		tex.maxmap = Math.min(Math.max(tex.basemap, maxmap), levels(s));
+		tex.s = size;
+		tex.basemap = Math.min(Math.max(0, basemap), levels(size));
+		tex.maxmap = Math.min(Math.max(tex.basemap, maxmap), levels(size));
 		
 		tex.bind();
 		setMipmaps(tex.target, tex.basemap, tex.maxmap);
 		if (GL.versionCheck(4, 2)) {
-			GL42.glTexStorage2D(tex.target.value(), tex.maxmap + 1, texformat.value(), s, s);
+			GL42.glTexStorage2D(tex.target.value(), tex.maxmap + 1, texformat.value(), size, size);
 		}
 		else {
-			s = Math.max(1, s >> tex.basemap);
+			int s = Math.max(1, size >> tex.basemap);
 			for (int i = tex.basemap; i <= tex.maxmap; i++) {
 				for (CubemapTarget target : CubemapTarget.values())
 					GL11.glTexImage2D(target.value(), i, texformat.value(), s, s, 0, texformat.base(), ImageDataType.UBYTE.value(), (ByteBuffer) null);
@@ -74,14 +73,11 @@ public final class TextureCubemap extends GLTexture2D implements FBOAttachable {
 		return tex;
 	}
 	
-	/**************************************************/
-	
-	
-	/********************** Bind **********************/
-	/**************************************************/
+	/**************************************************
+	 ********************** Bind **********************
+	 **************************************************/
 	
 	private static final BindTracker bindTracker = new BindTracker();
-	
 	
 	@Override
 	protected BindTracker bindingTracker() {
@@ -114,10 +110,10 @@ public final class TextureCubemap extends GLTexture2D implements FBOAttachable {
 		undobind();
 	}
 	
-	/**************************************************/
-	/****************** FBOAttachable *****************/
+	/**************************************************
+	 ****************** FBOAttachable *****************
+	 **************************************************/
 	
-	/**************************************************/
 	/**
 	 * @param level
 	 *            mipmap level.
@@ -129,10 +125,9 @@ public final class TextureCubemap extends GLTexture2D implements FBOAttachable {
 		GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value(), target.value(), id, level);
 	}
 	
-	/**************************************************/
-	
-	/********************** Debug *********************/
-	/**************************************************/
+	/**************************************************
+	 ********************** Debug *********************
+	 **************************************************/
 	// TODO log state of seamless!!!
 	@Override
 	public void debugQuery() {

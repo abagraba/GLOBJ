@@ -1,19 +1,25 @@
 package globj.objects.framebuffers;
 
+
 import globj.core.Context;
 import globj.objects.GLObjectTracker;
 
 import org.lwjgl.opengl.GL30;
 
-import lwjgl.debug.GLDebug;
+import static lwjgl.debug.GLDebug.*;
+
+
 
 public class FBOs {
 	
 	private static GLObjectTracker<FBO> tracker = new GLObjectTracker<FBO>();
 	
+	private FBOs() {
+	}
+	
 	public static FBO createFBO(String name) {
 		if (tracker.contains(name)) {
-			GLDebug.glError("Cannot create Framebuffer Object. Framebuffer Object [" + name + "] already exists.", null);
+			glError("Cannot create Framebuffer Object. Framebuffer Object [" + name + "] already exists.", null);
 			return null;
 		}
 		FBO fbo = FBO.create(name);
@@ -36,22 +42,23 @@ public class FBOs {
 	
 	public static FBO destroyFBO(String name) {
 		if (!tracker.contains(name)) {
-			GLDebug.glObjError(FBO.class, name, "Cannot destroy", "Does not exist");
+			glObjError(FBO.class, name, "Cannot destroy", "Does not exist");
 			return null;
 		}
 		return destroyFBO(getFBO(name));
 	}
 	
 	public static void constants() {
-		GLDebug.flushErrors();
-		int rs = Context.intConst(GL30.GL_MAX_RENDERBUFFER_SIZE);
-		int ca = Context.intConst(GL30.GL_MAX_COLOR_ATTACHMENTS);
-		GLDebug.write("FBO Constants:");
-		GLDebug.indent();
-		GLDebug.write(GLDebug.fixedString("Max Color Attachments") + ca);
-		GLDebug.write(GLDebug.fixedString("Max Renderbuffer Size") + String.format("%d x %d", rs, rs));
-		GLDebug.unindent();
-		GLDebug.flushErrors();
+		flushErrors();
+		//	#formatter:off
+		write("FBO Constants:");
+		indent();
+			writef(ATTRIB_INT, "Max Color Attachments:", Context.intConst(GL30.GL_MAX_COLOR_ATTACHMENTS));
+			int rs = Context.intConst(GL30.GL_MAX_RENDERBUFFER_SIZE);
+			writef(ATTRIB + "%d x %d", "Max Renderbuffer Size:", rs, rs);
+		unindent();
+		//	#formatter:on
+		flushErrors();
 	}
 	
 }

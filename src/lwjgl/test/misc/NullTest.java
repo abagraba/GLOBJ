@@ -10,7 +10,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class NullTest {
 	
 	@Nullable
-	String[]	strings;
+	String[] strings;
 	
 	
 	public void print() {

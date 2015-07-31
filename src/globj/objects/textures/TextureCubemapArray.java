@@ -32,18 +32,17 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 	
 	private int s, layers, basemap, maxmap;
 	
-	
 	private TextureCubemapArray(String name, TextureFormat texformat) {
 		super(name, texformat, TextureTarget.TEXTURE_CUBEMAP_ARRAY);
 	}
 	
 	@Nullable
-	protected static TextureCubemapArray create(String name, TextureFormat texformat, int s, int cubemaps, int mipmaps) {
-		return create(name, texformat, s, cubemaps, 0, mipmaps - 1);
+	protected static TextureCubemapArray create(String name, TextureFormat texformat, int size, int cubemaps, int mipmaps) {
+		return create(name, texformat, size, cubemaps, 0, mipmaps - 1);
 	}
 	
 	@Nullable
-	protected static TextureCubemapArray create(String name, TextureFormat texformat, int s, int cubemaps, int basemap, int maxmap) {
+	protected static TextureCubemapArray create(String name, TextureFormat texformat, int size, int cubemaps, int basemap, int maxmap) {
 		TextureCubemapArray tex = new TextureCubemapArray(name, texformat);
 		if (tex.id == 0) {
 			GLDebug.glObjError(TextureCubemapArray.class, name, "Cannot create", "No ID could be allocated");
@@ -52,21 +51,21 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 		
 		int max = Context.intConst(GL13.GL_MAX_CUBE_MAP_TEXTURE_SIZE);
 		int maxlayers = Context.intConst(GL30.GL_MAX_ARRAY_TEXTURE_LAYERS);
-		if (!checkBounds(new int[] { s, s, cubemaps }, new int[] { max, max, maxlayers / 6 }, tex))
+		if (!checkBounds(new int[] { size, size, cubemaps }, new int[] { max, max, maxlayers / 6 }, tex))
 			return null;
 			
-		tex.s = s;
+		tex.s = size;
 		tex.layers = cubemaps;
-		tex.basemap = Math.min(Math.max(0, basemap), levels(s));
-		tex.maxmap = Math.min(Math.max(tex.basemap, maxmap), levels(s));
+		tex.basemap = Math.min(Math.max(0, basemap), levels(size));
+		tex.maxmap = Math.min(Math.max(tex.basemap, maxmap), levels(size));
 		
 		tex.bind();
 		setMipmaps(tex.target, tex.basemap, tex.maxmap);
 		if (GL.versionCheck(4, 2)) {
-			GL42.glTexStorage3D(tex.target.value(), tex.maxmap + 1, texformat.value(), s, s, cubemaps * 6);
+			GL42.glTexStorage3D(tex.target.value(), tex.maxmap + 1, texformat.value(), size, size, cubemaps * 6);
 		}
 		else {
-			s = Math.max(1, s >> tex.basemap);
+			int s = Math.max(1, size >> tex.basemap);
 			for (int i = tex.basemap; i <= tex.maxmap; i++) {
 				GL12.glTexImage3D(	tex.target.value(), i, texformat.value(), s, s, cubemaps * 6, 0, texformat.base(), ImageDataType.UBYTE.value(),
 									(ByteBuffer) null);
@@ -77,14 +76,11 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 		return tex;
 	}
 	
-	/**************************************************/
-	
-	
-	/********************** Bind **********************/
-	/**************************************************/
+	/**************************************************
+	 ********************** Bind **********************
+	 **************************************************/
 	
 	private static final BindTracker bindTracker = new BindTracker();
-	
 	
 	@Override
 	protected BindTracker bindingTracker() {
@@ -119,10 +115,9 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 		undobind();
 	}
 	
-	/**************************************************/
-	/****************** FBOAttachable *****************/
-	
-	/**************************************************/
+	/**************************************************
+	 ****************** FBOAttachable *****************
+	 **************************************************/
 	/**
 	 * @param level
 	 *            mipmap level.
@@ -134,10 +129,9 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 		GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value(), target.value(), id, level);
 	}
 	
-	/**************************************************/
-	
-	/********************** Debug *********************/
-	/**************************************************/
+	/**************************************************
+	 ********************** Debug *********************
+	 **************************************************/
 	// TODO log state of seamless!!!
 	@Override
 	public void debugQuery() {

@@ -26,8 +26,7 @@ public class ShaderUniform extends GLObject {
 	private ShaderUniformType	type;
 	private int					arraySize;
 	
-	protected List<ShaderType>	shaders	= new ArrayList<ShaderType>();
-	
+	protected List<ShaderType> shaders = new ArrayList<ShaderType>();
 	
 	private ShaderUniform(int program, int index, boolean legacy) {
 		super(name31(program, index), index);
@@ -66,9 +65,9 @@ public class ShaderUniform extends GLObject {
 			return new ShaderUniform(program, index, false);
 	}
 	
-	/**************************************************/
-	/********************** Util **********************/
-	/**************************************************/
+	/**************************************************
+	 ********************** Util **********************
+	 **************************************************/
 	
 	@SuppressWarnings("all")
 	private static IntBuffer getResource(int program, int[] args, int index, int results) {
@@ -92,9 +91,9 @@ public class ShaderUniform extends GLObject {
 		return stripArray(GL43.glGetProgramResourceName(program, GL43.GL_UNIFORM, index, length));
 	}
 	
-	/**************************************************/
-	/********************* Getters ********************/
-	/**************************************************/
+	/**************************************************
+	 ********************* Getters ********************
+	 **************************************************/
 	
 	/**
 	 * @return the location of this shader uniform
@@ -124,9 +123,9 @@ public class ShaderUniform extends GLObject {
 		return arraySize;
 	}
 	
-	/**************************************************/
-	/********************** Debug *********************/
-	/**************************************************/
+	/**************************************************
+	 ********************** Debug *********************
+	 **************************************************/
 	@Override
 	public void debugQuery() {
 		GLDebug.write(this);

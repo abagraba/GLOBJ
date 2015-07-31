@@ -24,8 +24,7 @@ public class ShaderInput extends GLObject {
 	private final ShaderUniformType	type;
 	private final int				arraySize;
 	
-	protected List<ShaderType>		shaders	= new ArrayList<ShaderType>();
-	
+	protected List<ShaderType> shaders = new ArrayList<ShaderType>();
 	
 	private ShaderInput(int program, int index, boolean legacy) {
 		super(name31(program, index), index);
@@ -63,9 +62,9 @@ public class ShaderInput extends GLObject {
 			return new ShaderInput(program, index, true);
 	}
 	
-	/**************************************************/
-	/********************** Util **********************/
-	/**************************************************/
+	/**************************************************
+	 ********************** Util **********************
+	 **************************************************/
 	
 	@SuppressWarnings("all")
 	private static IntBuffer getResource(int program, int[] args, int index, int results) {
@@ -91,9 +90,9 @@ public class ShaderInput extends GLObject {
 		return GL43.glGetProgramResourceName(program, GL43.GL_PROGRAM_INPUT, index, length);
 	}
 	
-	/**************************************************/
-	/********************* Getters ********************/
-	/**************************************************/
+	/**************************************************
+	 ********************* Getters ********************
+	 **************************************************/
 	/**
 	 * @return the location of this shader input
 	 */
@@ -115,9 +114,9 @@ public class ShaderInput extends GLObject {
 		return arraySize;
 	}
 	
-	/**************************************************/
-	/********************** Debug *********************/
-	/**************************************************/
+	/**************************************************
+	 ********************** Debug *********************
+	 **************************************************/
 	@Override
 	public void debugQuery() {
 		GLDebug.write(this);

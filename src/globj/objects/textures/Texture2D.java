@@ -28,20 +28,19 @@ import org.lwjgl.opengl.GL42;
 @NonNullByDefault
 public final class Texture2D extends GLTexture2D implements FBOAttachable {
 	
-	private int	w, h, basemap, maxmap;
-	
+	private int w, h, basemap, maxmap;
 	
 	private Texture2D(String name, TextureFormat texformat) {
 		super(name, texformat, TextureTarget.TEXTURE_2D);
 	}
 	
 	@Nullable
-	protected static Texture2D create(String name, TextureFormat texformat, int w, int h, int mipmaps) {
-		return create(name, texformat, w, h, 0, mipmaps - 1);
+	protected static Texture2D create(String name, TextureFormat texformat, int width, int height, int mipmaps) {
+		return create(name, texformat, width, height, 0, mipmaps - 1);
 	}
 	
 	@Nullable
-	protected static Texture2D create(String name, TextureFormat texformat, int w, int h, int basemap, int maxmap) {
+	protected static Texture2D create(String name, TextureFormat texformat, int width, int height, int basemap, int maxmap) {
 		Texture2D tex = new Texture2D(name, texformat);
 		if (tex.id == 0) {
 			GLDebug.glObjError(Texture2D.class, name, "Cannot create", "No ID could be allocated");
@@ -49,22 +48,22 @@ public final class Texture2D extends GLTexture2D implements FBOAttachable {
 		}
 		
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
-		if (!checkBounds(new int[] { w, h }, new int[] { max, max }, tex))
+		if (!checkBounds(new int[] { width, height }, new int[] { max, max }, tex))
 			return null;
-		
-		tex.w = w;
-		tex.h = h;
-		tex.basemap = Math.min(Math.max(0, basemap), levels(Math.max(w, h)));
-		tex.maxmap = Math.min(Math.max(tex.basemap, maxmap), levels(Math.max(w, h)));
+			
+		tex.w = width;
+		tex.h = height;
+		tex.basemap = Math.min(Math.max(0, basemap), levels(Math.max(width, height)));
+		tex.maxmap = Math.min(Math.max(tex.basemap, maxmap), levels(Math.max(width, height)));
 		
 		tex.bind();
 		setMipmaps(tex.target, tex.basemap, tex.maxmap);
 		if (GL.versionCheck(4, 2)) {
-			GL42.glTexStorage2D(tex.target.value(), tex.maxmap + 1, texformat.value(), w, h);
+			GL42.glTexStorage2D(tex.target.value(), tex.maxmap + 1, texformat.value(), width, height);
 		}
 		else {
-			w = Math.max(1, w >> tex.basemap);
-			h = Math.max(1, h >> tex.basemap);
+			int w = Math.max(1, width >> tex.basemap);
+			int h = Math.max(1, height >> tex.basemap);
 			for (int i = tex.basemap; i <= tex.maxmap; i++) {
 				GL11.glTexImage2D(tex.target.value(), i, texformat.value(), w, h, 0, texformat.base(), ImageDataType.UBYTE.value(), (ByteBuffer) null);
 				w = Math.max(1, w / 2);
@@ -91,7 +90,7 @@ public final class Texture2D extends GLTexture2D implements FBOAttachable {
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
 		if (!checkBounds(new int[] { tex.w, tex.h }, new int[] { max, max }, tex))
 			return null;
-		
+			
 		tex.w = w;
 		tex.h = h;
 		tex.basemap = 0;
@@ -116,13 +115,11 @@ public final class Texture2D extends GLTexture2D implements FBOAttachable {
 		return tex;
 	}
 	
+	/**************************************************
+	 ********************** Bind **********************
+	 **************************************************/
 	
-	/**************************************************/
-	/********************** Bind **********************/
-	/**************************************************/
-	
-	private static final BindTracker	bindTracker	= new BindTracker();
-	
+	private static final BindTracker bindTracker = new BindTracker();
 	
 	@Override
 	protected BindTracker bindingTracker() {
@@ -143,17 +140,18 @@ public final class Texture2D extends GLTexture2D implements FBOAttachable {
 	}
 	
 	public void setDataRGBA(BufferedImage src, int maps) {
-		int w = src.getWidth();
-		int h = src.getHeight();
+		int width = src.getWidth();
+		int height = src.getHeight();
 		bind();
-		GL11.glTexSubImage2D(target.value(), 0, 0, 0, w, h, ImageFormat.RGBA.value(), ImageDataType.UBYTE.value(), ImageUtil.imageRGBAData(src));
+		GL11.glTexSubImage2D(target.value(), 0, 0, 0, width, height, ImageFormat.RGBA.value(), ImageDataType.UBYTE.value(), ImageUtil.imageRGBAData(src));
 		undobind();
 		return;
 	}
 	
-	/**************************************************/
-	/****************** FBOAttachable *****************/
-	/**************************************************/
+	/**************************************************
+	 ****************** FBOAttachable *****************
+	 **************************************************/
+	
 	/**
 	 * @param level
 	 *            mipmap level.
@@ -165,9 +163,9 @@ public final class Texture2D extends GLTexture2D implements FBOAttachable {
 		GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attachment.value(), target.value(), id, level);
 	}
 	
-	/**************************************************/
-	/********************** Debug *********************/
-	/**************************************************/
+	/**************************************************
+	 ********************** Debug *********************
+	 **************************************************/
 	
 	@Override
 	public void debugQuery() {
@@ -183,7 +181,7 @@ public final class Texture2D extends GLTexture2D implements FBOAttachable {
 		
 		if (minFilter.mipmaps() && maxmap > 0)
 			GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range", basemap, maxmap);
-		
+			
 		super.debugQuery();
 		
 		GLDebug.unindent();

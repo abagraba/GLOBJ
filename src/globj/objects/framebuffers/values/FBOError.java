@@ -1,7 +1,13 @@
 package globj.objects.framebuffers.values;
 
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.lwjgl.opengl.GL30;
 
+
+
+@NonNullByDefault
 public enum FBOError {
 	NONE("None", GL30.GL_FRAMEBUFFER_COMPLETE),
 	INCOMPLETE_ATTACHMENT("Incomplete Attachment", GL30.GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT),
@@ -11,19 +17,39 @@ public enum FBOError {
 	INCOMPLETE_MULTISAMPLE("Incomplete Multisample", GL30.GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE),
 	UNSUPPORTED("Unsupported Combination", GL30.GL_FRAMEBUFFER_UNSUPPORTED);
 	
-	public final String name;
-	public final int value;
+	private final String name;
+	private final int value;
 	
 	private FBOError(String name, int value) {
 		this.name = name;
 		this.value = value;
 	}
 	
-	public static FBOError get(int i) {
+	/**
+	 * @param glInt
+	 *            the GLint representing a FBO error
+	 * @return the FBOError object represented by glInt
+	 */
+	@Nullable
+	public static FBOError get(int glInt) {
 		for (FBOError error : values())
-			if (error.value == i)
+			if (error.value == glInt)
 				return error;
 		return null;
+	}
+	
+	/**
+	 * @return the name of this FBO error
+	 */
+	public String errorName() {
+		return name;
+	}
+	
+	/**
+	 * @return the glInt representing this FBO Error
+	 */
+	public int value() {
+		return value;
 	}
 	
 	@Override

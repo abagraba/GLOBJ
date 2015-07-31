@@ -29,18 +29,17 @@ public final class Texture2DArray extends GLTexture2D implements FBOAttachable {
 	
 	private int w, h, layers, basemap, maxmap;
 	
-	
 	private Texture2DArray(String name, TextureFormat texformat) {
 		super(name, texformat, TextureTarget.TEXTURE_2D_ARRAY);
 	}
 	
 	@Nullable
-	protected static Texture2DArray create(String name, TextureFormat texformat, int w, int h, int layers, int mipmaps) {
-		return create(name, texformat, w, h, layers, 0, mipmaps - 1);
+	protected static Texture2DArray create(String name, TextureFormat texformat, int width, int height, int layers, int mipmaps) {
+		return create(name, texformat, width, height, layers, 0, mipmaps - 1);
 	}
 	
 	@Nullable
-	protected static Texture2DArray create(String name, TextureFormat texformat, int w, int h, int layers, int basemap, int maxmap) {
+	protected static Texture2DArray create(String name, TextureFormat texformat, int width, int height, int layers, int basemap, int maxmap) {
 		Texture2DArray tex = new Texture2DArray(name, texformat);
 		if (tex.id == 0) {
 			GLDebug.glObjError(Texture2DArray.class, name, "Cannot create", "No ID could be allocated");
@@ -49,23 +48,23 @@ public final class Texture2DArray extends GLTexture2D implements FBOAttachable {
 		
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
 		int maxlayers = Context.intConst(GL30.GL_MAX_ARRAY_TEXTURE_LAYERS);
-		if (!checkBounds(new int[] { w, h, layers }, new int[] { max, max, maxlayers }, tex))
+		if (!checkBounds(new int[] { width, height, layers }, new int[] { max, max, maxlayers }, tex))
 			return null;
 			
-		tex.w = w;
-		tex.h = h;
+		tex.w = width;
+		tex.h = height;
 		tex.layers = layers;
-		tex.basemap = Math.min(Math.max(0, basemap), levels(Math.max(w, h)));
-		tex.maxmap = Math.min(Math.max(tex.basemap, maxmap), levels(Math.max(w, h)));
+		tex.basemap = Math.min(Math.max(0, basemap), levels(Math.max(width, height)));
+		tex.maxmap = Math.min(Math.max(tex.basemap, maxmap), levels(Math.max(width, height)));
 		
 		tex.bind();
 		setMipmaps(tex.target, tex.basemap, tex.maxmap);
 		if (GL.versionCheck(4, 2)) {
-			GL42.glTexStorage3D(tex.target.value(), tex.maxmap + 1, texformat.value(), w, h, layers);
+			GL42.glTexStorage3D(tex.target.value(), tex.maxmap + 1, texformat.value(), width, height, layers);
 		}
 		else {
-			w = Math.max(1, w >> tex.basemap);
-			h = Math.max(1, h >> tex.basemap);
+			int w = Math.max(1, width >> tex.basemap);
+			int h = Math.max(1, height >> tex.basemap);
 			for (int i = tex.basemap; i <= tex.maxmap; i++) {
 				GL12.glTexImage3D(tex.target.value(), i, texformat.value(), w, h, layers, 0, texformat.base(), ImageDataType.UBYTE.value(), (ByteBuffer) null);
 				w = Math.max(1, w / 2);
@@ -76,14 +75,11 @@ public final class Texture2DArray extends GLTexture2D implements FBOAttachable {
 		return tex;
 	}
 	
-	/**************************************************/
-	
-	
-	/********************** Bind **********************/
-	/**************************************************/
+	/**************************************************
+	 ********************** Bind **********************
+	 **************************************************/
 	
 	private static final BindTracker bindTracker = new BindTracker();
-	
 	
 	@Override
 	protected BindTracker bindingTracker() {
@@ -103,10 +99,10 @@ public final class Texture2DArray extends GLTexture2D implements FBOAttachable {
 		undobind();
 	}
 	
-	/**************************************************/
-	/****************** FBOAttachable *****************/
+	/**************************************************
+	 ****************** FBOAttachable *****************
+	 **************************************************/
 	
-	/**************************************************/
 	/**
 	 * @param level
 	 *            mipmap level.
@@ -118,10 +114,9 @@ public final class Texture2DArray extends GLTexture2D implements FBOAttachable {
 		GL30.glFramebufferTextureLayer(GL30.GL_DRAW_FRAMEBUFFER, attachment.value(), id, level, layer);
 	}
 	
-	/**************************************************/
-	
-	/********************** Debug *********************/
-	/**************************************************/
+	/**************************************************
+	 ********************** Debug *********************
+	 **************************************************/
 	
 	@Override
 	public void debugQuery() {

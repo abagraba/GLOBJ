@@ -27,8 +27,7 @@ public class ShaderUniformBlock extends GLObject {
 	private final int								blockIndex;
 	private final int								minimumSize;
 	
-	protected List<ShaderType>						shaders		= new ArrayList<ShaderType>();
-	
+	protected List<ShaderType> shaders = new ArrayList<ShaderType>();
 	
 	private ShaderUniformBlock(int program, int index, boolean legacy) {
 		super(name31(program, index), index);
@@ -69,9 +68,9 @@ public class ShaderUniformBlock extends GLObject {
 		uniforms.add(uniform);
 	}
 	
-	/**************************************************/
-	/********************** Util **********************/
-	/**************************************************/
+	/**************************************************
+	 ********************** Util **********************
+	 **************************************************/
 	
 	@SuppressWarnings("all")
 	private static IntBuffer getResource(int program, int[] args, int index, int results) {
@@ -95,9 +94,9 @@ public class ShaderUniformBlock extends GLObject {
 		return stripArray(GL43.glGetProgramResourceName(program, GL43.GL_UNIFORM_BLOCK, index, length));
 	}
 	
-	/**************************************************/
-	/********************* Getters ********************/
-	/**************************************************/
+	/**************************************************
+	 ********************* Getters ********************
+	 **************************************************/
 	
 	/**
 	 * @return the block index of this shader uniform block
@@ -120,9 +119,9 @@ public class ShaderUniformBlock extends GLObject {
 		return uniforms;
 	}
 	
-	/**************************************************/
-	/********************** Debug *********************/
-	/**************************************************/
+	/**************************************************
+	 ********************** Debug *********************
+	 **************************************************/
 	
 	@Override
 	public void debugQuery() {
