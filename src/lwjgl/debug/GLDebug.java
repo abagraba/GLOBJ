@@ -199,7 +199,7 @@ public class GLDebug {
 	}
 	
 	public static void glObjError(GLObject obj, String error, String message) {
-		glObjError(obj.getClass(), obj.name, error, message);
+		glObjError(obj.getClass(), obj.name(), error, message);
 	}
 	
 	public static int nextError() {
