@@ -3,6 +3,7 @@ package globj.objects.shaders;
 
 import globj.core.Context;
 import globj.core.GL;
+import globj.math.Matrix4x4f;
 import globj.objects.BindTracker;
 import globj.objects.BindableGLObject;
 import globj.objects.GLObjectTracker;
@@ -109,16 +110,13 @@ public class Program extends BindableGLObject {
 	
 	/**************************************************/
 	
-	public void setUniform(String uniform, Matrix4f mat, boolean transpose) {
+	public void setUniform(String uniform, Matrix4x4f mat, boolean transpose) {
 		int uni = uniformLocation(uniform);
 		if (uni == -1) {
 			GLDebug.glObjError(this, "Could not set uniform for ", "Could not locate uniform [" + uniform + "]");
 			return;
 		}
-		FloatBuffer buff = BufferUtils.createFloatBuffer(16);
-		mat.storeTranspose(buff);
-		buff.flip();
-		GL20.glUniformMatrix4(uni, transpose, buff);
+		GL20.glUniformMatrix4(uni, transpose, mat.toBuffer());
 	}
 	
 	public void setUniform(String uniform, FloatBuffer mat, boolean transpose) {

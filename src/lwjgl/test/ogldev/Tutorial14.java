@@ -6,9 +6,10 @@ import globj.camera.Screen;
 import globj.core.DataType;
 import globj.core.GL;
 import globj.core.SceneCommand;
-import globj.core.utils.Transform;
-import globj.core.utils.UnitQuaternion;
-import globj.core.utils.V3f;
+import globj.math.Matrix4x4f;
+import globj.math.Transform;
+import globj.math.UnitQuaternion;
+import globj.math.Vector3f;
 import globj.objects.arrays.VAO;
 import globj.objects.arrays.VBOFormat;
 import globj.objects.bufferobjects.StaticVBO;
@@ -27,7 +28,6 @@ import lwjgl.debug.GLDebug;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
-import org.lwjgl.util.vector.Matrix4f;
 
 import control.ControlManager;
 
@@ -40,7 +40,6 @@ public class Tutorial14 extends SceneCommand {
 	private Program		prog;
 	private Transform	transform	= new Transform();
 	private float		fov			= 90;
-	
 	
 	public Tutorial14() {
 		super(new PerspectiveCamera(0.1f, 20, 90), Screen.left);
@@ -82,7 +81,7 @@ public class Tutorial14 extends SceneCommand {
 	}
 	
 	@Override
-	public void draw(Matrix4f viewMatrix, Matrix4f projectionMatrix) {
+	public void draw(Matrix4x4f viewMatrix, Matrix4x4f projectionMatrix) {
 		prog.bind();
 		
 		Programs.current().setUniform("mMatrix", transform.getModelMatrix(), false);
@@ -104,10 +103,10 @@ public class Tutorial14 extends SceneCommand {
 	@Override
 	public void input() {
 		
-		Transform target = TutorialControlSet.SPACE.state() ? camera.transform : transform;
+		Transform target = TutorialControlSet.SPACE.state() ? camera.transform() : transform;
 		
-		target.translateBy(new V3f(TutorialControlSet.AD.position(), TutorialControlSet.WS.position(), 0));
-		target.rotateBy(UnitQuaternion.rotation(new V3f(0, 0, 1), TutorialControlSet.QE.position()));
+		target.translateBy(new Vector3f(TutorialControlSet.AD.position(), TutorialControlSet.WS.position(), 0));
+		target.rotateBy(UnitQuaternion.rotation(new Vector3f(0, 0, 1), TutorialControlSet.QE.position()));
 		
 		if (camera instanceof PerspectiveCamera) {
 			PerspectiveCamera camx = (PerspectiveCamera) camera;

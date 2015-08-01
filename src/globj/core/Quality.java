@@ -1,5 +1,6 @@
 package globj.core;
 
+
 import lwjgl.core.values.QualityHint;
 
 import org.lwjgl.opengl.GL11;
@@ -7,7 +8,15 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GL20;
 
+
+
+/**
+ * This Utility class is used for adjusting GL context quality parameters.
+ */
 public class Quality {
+	
+	private Quality() {
+	}
 	
 	public static void genMipmapQuality(QualityHint hint) {
 		GL11.glHint(GL14.GL_GENERATE_MIPMAP_HINT, hint.value);

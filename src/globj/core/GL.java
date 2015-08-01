@@ -114,7 +114,7 @@ public class GL {
 				next.init();
 		}
 		if (ControlManager.current() != null)
-			for (Control c : ControlManager.current().controls)
+			for (Control c : ControlManager.current().controls())
 				c.update();
 		current = next;
 		current.input();

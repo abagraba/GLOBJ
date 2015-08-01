@@ -7,10 +7,11 @@ import globj.camera.Screen;
 import globj.core.DataType;
 import globj.core.GL;
 import globj.core.SceneCommand;
-import globj.core.V4f;
-import globj.core.utils.Transform;
-import globj.core.utils.UnitQuaternion;
-import globj.core.utils.V3f;
+import globj.math.Matrix4x4f;
+import globj.math.Transform;
+import globj.math.UnitQuaternion;
+import globj.math.Vector3f;
+import globj.math.Vector4f;
 import globj.objects.arrays.VAO;
 import globj.objects.arrays.VBOFormat;
 import globj.objects.bufferobjects.StaticVBO;
@@ -22,13 +23,13 @@ import globj.objects.shaders.Shader;
 import globj.objects.shaders.ShaderType;
 import globj.objects.shaders.Shaders;
 
+import java.awt.Color;
 import java.io.IOException;
 import lwjgl.debug.GLDebug;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
-import org.lwjgl.util.vector.Matrix4f;
 
 import control.ControlManager;
 
@@ -36,29 +37,28 @@ import control.ControlManager;
 
 public class Tutorial12 extends SceneCommand {
 	
-	private static float	ar			= 1.8f;
+	private static float ar = 1.8f;
 	
-	private VBO				axis;
-	private VBO				iaxis;
-	private VBO				vbo;
-	private VBO				ibo;
-	private Program			prog;
-	private Transform		transform	= new Transform();
-	private float			fov			= 90;
+	private VBO			axis;
+	private VBO			iaxis;
+	private VBO			vbo;
+	private VBO			ibo;
+	private Program		prog;
+	private Transform	transform	= new Transform();
+	private float		fov			= 90;
 	
-	private boolean			toggle;
-	
+	private boolean toggle;
 	
 	public Tutorial12() {
-		super(ortho(new Transform()), Screen.left);
+		super(ortho(new Transform(new Vector3f(0, 0, -2))), Screen.left);
 	}
 	
 	private static PerspectiveCamera persp(Transform transform) {
-		return new PerspectiveCamera(transform, new V4f(1, 1, 0, 0), 0.1f, 20, 90);
+		return new PerspectiveCamera(transform, new Color(1, 1, 0, 0), 0.1f, 20, 90);
 	}
 	
 	private static OrthographicCamera ortho(Transform transform) {
-		return new OrthographicCamera(transform, new V4f(0, 1, 1, 0), ar, 1, -10, 10);
+		return new OrthographicCamera(transform, new Color(0, 1, 1, 0), ar, 1, -10, 10);
 	}
 	
 	@Override
@@ -67,11 +67,11 @@ public class Tutorial12 extends SceneCommand {
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		
 		float length = 0.1f;
-		axis = StaticVBO.create("Axis", VBOTarget.ARRAY, new float[] { 0, length, length, length, 0, length, length, length, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0,
-				0, 0 });
-		iaxis = StaticVBO.create("Axis Indices", VBOTarget.ELEMENT_ARRAY, new int[] { 0, 5, 1, 0, 2, 4, 2, 1, 3, 1, 0, 2, 6, 0, 4, 6, 5, 0, 6, 1, 5, 6, 3, 1,
-				6, 2, 3, 6, 4, 2 });
-		
+		axis = StaticVBO.create("Axis", VBOTarget.ARRAY,
+								new float[] { 0, length, length, length, 0, length, length, length, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 });
+		iaxis = StaticVBO.create(	"Axis Indices", VBOTarget.ELEMENT_ARRAY,
+									new int[] { 0, 5, 1, 0, 2, 4, 2, 1, 3, 1, 0, 2, 6, 0, 4, 6, 5, 0, 6, 1, 5, 6, 3, 1, 6, 2, 3, 6, 4, 2 });
+									
 		float size = 0.707f;
 		vbo = StaticVBO.create("Test VBO", VBOTarget.ARRAY, new float[] { -size, -size, 0, -size, size, 0.5f, size, size, 0, size, -size, 0.5f });
 		ibo = StaticVBO.create("Test IBO", VBOTarget.ELEMENT_ARRAY, new int[] { 0, 3, 1, 1, 3, 2, 2, 3, 0, 0, 1, 2 });
@@ -105,8 +105,10 @@ public class Tutorial12 extends SceneCommand {
 	}
 	
 	@Override
-	public void draw(Matrix4f viewMatrix, Matrix4f projectionMatrix) {
+	public void draw(Matrix4x4f viewMatrix, Matrix4x4f projectionMatrix) {
 		prog.bind();
+		
+		// GLDebug.write(transform.getPosition());
 		
 		GLDebug.write("Model");
 		GLDebug.indent();
@@ -133,7 +135,7 @@ public class Tutorial12 extends SceneCommand {
 		GL20.glDisableVertexAttribArray(0);
 		ibo.bindNone();
 		
-		Programs.current().setUniform("mMatrix", Matrix4f.setIdentity(new Matrix4f()), false);
+		Programs.current().setUniform("mMatrix", new Matrix4x4f(), false);
 		
 		VAO.defaultVAO.attachBuffer(0, axis, new VBOFormat(3, DataType.FLOAT, 0, 0));
 		
@@ -158,10 +160,10 @@ public class Tutorial12 extends SceneCommand {
 	
 	@Override
 	public void input() {
-		Transform target = TutorialControlSet.SPACE.state() ? camera.transform : transform;
+		Transform target = TutorialControlSet.SPACE.state() ? camera.transform() : transform;
 		
-		target.translateBy(new V3f(TutorialControlSet.AD.position(), TutorialControlSet.WS.position(), 0));
-		target.rotateBy(UnitQuaternion.rotation(new V3f(0, 0, 1), TutorialControlSet.QE.position()));
+		target.translateBy(new Vector3f(TutorialControlSet.AD.position(), TutorialControlSet.WS.position(), 0));
+		target.rotateBy(UnitQuaternion.rotation(new Vector3f(0, 0, 1), TutorialControlSet.QE.position()));
 		
 		if (camera instanceof PerspectiveCamera) {
 			PerspectiveCamera camx = (PerspectiveCamera) camera;
@@ -171,7 +173,7 @@ public class Tutorial12 extends SceneCommand {
 		
 		if (TutorialControlSet.LCTRL.state()) {
 			toggle = !toggle;
-			camera = toggle ? persp(camera.transform) : ortho(camera.transform);
+			camera = toggle ? persp(camera.transform()) : ortho(camera.transform());
 		}
 		
 		if (TutorialControlSet.FULLSCR.state())

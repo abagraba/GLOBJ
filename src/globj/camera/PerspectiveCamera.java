@@ -1,36 +1,37 @@
 package globj.camera;
 
 
-import globj.core.V4f;
-import globj.core.utils.Transform;
-import globj.core.utils.UnitQuaternion;
-import globj.core.utils.V3f;
+import globj.math.Matrix4x4f;
+import globj.math.Transform;
+
+import java.awt.Color;
 
 import org.lwjgl.opengl.Display;
-import org.lwjgl.util.vector.Matrix4f;
+
+
 
 public class PerspectiveCamera extends Camera {
 	
-	private float near, far;
-	private float ifovtan;
+	private float	near, far;
+	private float	ifovtan;
 	
-	public PerspectiveCamera(Transform transform, V4f background, float near, float far, float fov) {
+	public PerspectiveCamera(Transform transform, Color background, float near, float far, float fov) {
 		super(transform, background);
 		this.near = near;
 		this.far = far;
 		setFOV(fov);
 	}
 	
-	public PerspectiveCamera(V4f background, float near, float far, float fov) {
+	public PerspectiveCamera(Color background, float near, float far, float fov) {
 		this(new Transform(), background, near, far, fov);
 	}
 	
 	public PerspectiveCamera(Transform transform, float near, float far, float fov) {
-		this(transform, new V4f(), near, far, fov);
+		this(transform, new Color(0, 0, 0, 0), near, far, fov);
 	}
 	
 	public PerspectiveCamera(float near, float far, float fov) {
-		this(new V4f(), near, far, fov);
+		this(new Color(0, 0, 0, 0), near, far, fov);
 	}
 	
 	public void setFOV(float fov) {
@@ -46,24 +47,25 @@ public class PerspectiveCamera extends Camera {
 	
 	@Override
 	public void finishRender() {
-		
+	
 	}
-
+	
 	@Override
-	public Matrix4f viewMatrix() {
-		return  transform.getViewMatrix();
+	public Matrix4x4f viewMatrix() {
+		return transform().getViewMatrix();
 	}
-
+	
 	@Override
-	public Matrix4f projectionMatrix() {
+	public Matrix4x4f projectionMatrix() {
 		float ar = (float) Display.getWidth() / Display.getHeight();
 		float id = near == far ? 0 : (1 / (near - far));
-		Matrix4f projection = new Matrix4f();
+		Matrix4x4f projection = new Matrix4x4f();
 		projection.m00 = ifovtan / ar;
 		projection.m11 = ifovtan;
 		projection.m22 = -(far + near) * id;
-		projection.m32 = 1;
-		projection.m23 = 2 * far * near * id;
+		projection.m23 = 1;
+		projection.m32 = 2 * far * near * id;
+		projection.m33 = 0;
 		return projection;
 	}
 }

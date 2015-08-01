@@ -6,7 +6,6 @@ import java.io.PrintWriter;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 
-import globj.core.GL;
 import globj.core.GLException;
 import globj.objects.GLObject;
 
@@ -14,7 +13,7 @@ import globj.objects.GLObject;
 
 public class GLDebug {
 	
-	private static final boolean	debug				= true;
+	private static final boolean	DEBUG				= true;
 	
 	private static int				indent				= 0;
 	private static int				lastindent			= 0;
@@ -209,7 +208,7 @@ public class GLDebug {
 	public static void flushErrors() {
 		int err = GL11.glGetError();
 		while (err != GL11.GL_NO_ERROR) {
-			if (debug)
+			if (DEBUG)
 				write(GLU.gluErrorString(err));
 			err = GL11.glGetError();
 		}
@@ -220,7 +219,7 @@ public class GLDebug {
 		if (err == GL11.GL_NO_ERROR)
 			write("No Error");
 		while (err != GL11.GL_NO_ERROR) {
-			if (debug)
+			if (DEBUG)
 				write(GLU.gluErrorString(err));
 			err = GL11.glGetError();
 		}

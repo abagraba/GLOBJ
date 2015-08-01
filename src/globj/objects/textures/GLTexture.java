@@ -2,7 +2,7 @@ package globj.objects.textures;
 
 
 import globj.core.GL;
-import globj.core.V4f;
+import globj.math.Vector4f;
 import globj.objects.BindableGLObject;
 import globj.objects.textures.values.DepthStencilMode;
 import globj.objects.textures.values.MagnifyFilter;
@@ -41,7 +41,7 @@ public abstract class GLTexture extends BindableGLObject {
 	protected Swizzle	swizzleB	= Swizzle.B;
 	protected Swizzle	swizzleA	= Swizzle.A;
 	
-	protected V4f border = new V4f(0, 0, 0, 0);
+	protected Vector4f border = new Vector4f(0, 0, 0, 0);
 	
 	protected DepthStencilMode dsmode = DepthStencilMode.DEPTH;
 	
@@ -49,7 +49,6 @@ public abstract class GLTexture extends BindableGLObject {
 	
 	protected final TextureFormat	texformat;
 	protected final TextureTarget	target;
-	
 	
 	protected GLTexture(String name, TextureFormat texformat, TextureTarget target) {
 		super(name, GL11.glGenTextures());
@@ -136,7 +135,7 @@ public abstract class GLTexture extends BindableGLObject {
 	 */
 	public void setBorderColor(float r, float g, float b, float a) {
 		bind();
-		GL11.glTexParameter(target.value(), GL11.GL_TEXTURE_BORDER_COLOR, (border = new V4f(r, g, b, a)).asBuffer());
+		GL11.glTexParameter(target.value(), GL11.GL_TEXTURE_BORDER_COLOR, (border = new Vector4f(r, g, b, a)).toBuffer());
 		undobind();
 	}
 	

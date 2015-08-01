@@ -1,4 +1,4 @@
-package globj.core.utils;
+package globj.math;
 
 /**
  * 
@@ -9,11 +9,11 @@ public class UnitQuaternion {
 	
 	public float s, i, j, k;
 	
-	public UnitQuaternion(float a, float b, float c, float d) {
-		this.s = a;
-		this.i = b;
-		this.j = c;
-		this.k = d;
+	public UnitQuaternion(float s, float i, float j, float k) {
+		this.s = s;
+		this.i = i;
+		this.j = j;
+		this.k = k;
 		normalize();
 	}
 	
@@ -30,10 +30,8 @@ public class UnitQuaternion {
 	}
 	
 	public UnitQuaternion product(UnitQuaternion q) {
-		UnitQuaternion uq = new UnitQuaternion(s * q.s - i * q.i - j * q.j - k * q.k, 
-				s * q.i + i * q.s + j * q.k - k * q.j, 
-				s * q.j + j * q.s + k * q.i - i * q.k, 
-				s * q.k + k * q.s + i * q.j - j * q.i).normalize();
+		UnitQuaternion uq = new UnitQuaternion(s * q.s- i * q.i - j * q.j - k * q.k, s * q.i + i * q.s + j * q.k - k * q.j,
+												s * q.j + j * q.s + k * q.i - i * q.k, s * q.k + k * q.s + i * q.j - j * q.i).normalize();
 		return uq;
 	}
 	
@@ -45,10 +43,10 @@ public class UnitQuaternion {
 		return (float) Math.acos(dot(q));
 	}
 	
-	public static UnitQuaternion rotation(V3f axis, float theta) {
+	public static UnitQuaternion rotation(Vector3f axis, float theta) {
 		float s = (float) Math.sin(theta / 2);
 		float c = (float) Math.cos(theta / 2);
-		axis = axis.unit();
+		axis.normalize();
 		return new UnitQuaternion(c, s * axis.x, s * axis.y, s * axis.z).normalize();
 	}
 	
@@ -86,11 +84,11 @@ public class UnitQuaternion {
 	}
 	
 	private UnitQuaternion normalize() {
-		float norm = (float) Math.sqrt(s * s + i * i + j * j + k * k);
-		float inorm = norm == 0 ? 0 : 1 / norm;
+		float norm2 = s * s + i * i + j * j + k * k;
+		float inorm = norm2 == 0 ? 0 : (float) Math.sqrt(1 / norm2);
 		return multiply(inorm);
 	}
-
+	
 	public void set(UnitQuaternion q) {
 		s = q.s;
 		i = q.i;
@@ -100,8 +98,8 @@ public class UnitQuaternion {
 	}
 	
 	@Override
-	public String toString(){
-		return String.format("(%.2f, <%.2f, %.2f, %.2f>)", s, i, j, k); 
+	public String toString() {
+		return String.format("(%.2f, <%.2f, %.2f, %.2f>)", s, i, j, k);
 	}
 	
 }

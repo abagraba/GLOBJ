@@ -4,9 +4,9 @@ package lwjgl.test.ogldev;
 import globj.core.DataType;
 import globj.core.GL;
 import globj.core.RenderCommand;
-import globj.core.utils.Transform;
-import globj.core.utils.UnitQuaternion;
-import globj.core.utils.V3f;
+import globj.math.Transform;
+import globj.math.UnitQuaternion;
+import globj.math.Vector3f;
 import globj.objects.arrays.VAO;
 import globj.objects.arrays.VBOFormat;
 import globj.objects.bufferobjects.StaticVBO;
@@ -32,14 +32,13 @@ import control.ControlManager;
 
 public class Tutorial11 extends RenderCommand {
 	
-	private VBO			vbo;
-	private VBO			ibo;
-	private Shader		vert;
-	private Shader		frag;
-	private Program		prog;
+	private VBO		vbo;
+	private VBO		ibo;
+	private Shader	vert;
+	private Shader	frag;
+	private Program	prog;
 	
-	private Transform	trans	= new Transform();
-	
+	private Transform trans = new Transform();
 	
 	@Override
 	public void init() {
@@ -65,7 +64,7 @@ public class Tutorial11 extends RenderCommand {
 		
 		vert.destroy();
 		frag.destroy();
-	
+		
 		prog.debugQuery();
 		prog.bind();
 	}
@@ -105,8 +104,8 @@ public class Tutorial11 extends RenderCommand {
 	
 	@Override
 	public void input() {
-		trans.translateBy(new V3f(TutorialControlSet.AD.position(), TutorialControlSet.WS.position(), 0));
-		trans.rotateBy(UnitQuaternion.rotation(new V3f(0, 0, 1), -TutorialControlSet.QE.position()));
+		trans.translateBy(new Vector3f(TutorialControlSet.AD.position(), TutorialControlSet.WS.position(), 0));
+		trans.rotateBy(UnitQuaternion.rotation(new Vector3f(0, 0, 1), -TutorialControlSet.QE.position()));
 		if (TutorialControlSet.FULLSCR.state())
 			GL.toggleFS();
 		if (TutorialControlSet.ESC.state())
