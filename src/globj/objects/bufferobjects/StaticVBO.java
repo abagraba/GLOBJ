@@ -1,21 +1,25 @@
 package globj.objects.bufferobjects;
 
+
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL44;
 
 import globj.core.DataType;
 import globj.core.GL;
-import globj.core.utils.LWJGLBuffers;
+import globj.objects.bufferobjects.values.VBOTarget;
 import globj.objects.bufferobjects.values.VBOUsage;
 
+
+
 /**
- * Static VBOs are initialized with a set of values that will never change. If
- * you require VBOs to have modifiable data, see FixedVBO or Dynamic*VBO.
+ * Static VBOs are initialized with a set of values that will never change. If you require VBOs to have modifiable data,
+ * see FixedVBO or Dynamic*VBO.
  *
  */
 public class StaticVBO extends VBO {
@@ -27,9 +31,9 @@ public class StaticVBO extends VBO {
 		super(name, target, DataType.FLOAT, VBOUsage.STATIC_DRAW);
 		bind();
 		if (GL.versionCheck(4, 4))
-			GL44.glBufferStorage(target.value, buffer, 0);
+			GL44.glBufferStorage(target.value(), buffer, 0);
 		else
-			GL15.glBufferData(target.value, buffer, usage.value);
+			GL15.glBufferData(target.value(), buffer, usage().value());
 		undobind();
 	}
 	
@@ -37,9 +41,9 @@ public class StaticVBO extends VBO {
 		super(name, target, DataType.UINT, VBOUsage.STATIC_DRAW);
 		bind();
 		if (GL.versionCheck(4, 4))
-			GL44.glBufferStorage(target.value, buffer, 0);
+			GL44.glBufferStorage(target.value(), buffer, 0);
 		else
-			GL15.glBufferData(target.value, buffer, usage.value);
+			GL15.glBufferData(target.value(), buffer, usage().value());
 		undobind();
 	}
 	
@@ -47,9 +51,9 @@ public class StaticVBO extends VBO {
 		super(name, target, DataType.USHORT, VBOUsage.STATIC_DRAW);
 		bind();
 		if (GL.versionCheck(4, 4))
-			GL44.glBufferStorage(target.value, buffer, 0);
+			GL44.glBufferStorage(target.value(), buffer, 0);
 		else
-			GL15.glBufferData(target.value, buffer, usage.value);
+			GL15.glBufferData(target.value(), buffer, usage().value());
 		undobind();
 	}
 	
@@ -57,9 +61,9 @@ public class StaticVBO extends VBO {
 		super(name, target, DataType.UBYTE, VBOUsage.STATIC_DRAW);
 		bind();
 		if (GL.versionCheck(4, 4))
-			GL44.glBufferStorage(target.value, buffer, 0);
+			GL44.glBufferStorage(target.value(), buffer, 0);
 		else
-			GL15.glBufferData(target.value, buffer, usage.value);
+			GL15.glBufferData(target.value(), buffer, usage().value());
 		undobind();
 	}
 	
@@ -70,7 +74,9 @@ public class StaticVBO extends VBO {
 	}
 	
 	public static StaticVBO create(String name, VBOTarget target, float[] buffer) {
-		return create(name, target, LWJGLBuffers.floatBuffer(buffer));
+		FloatBuffer buff = BufferUtils.createFloatBuffer(buffer.length);
+		buff.put(buffer).flip();
+		return create(name, target, buff);
 	}
 	
 	public static StaticVBO create(String name, VBOTarget target, IntBuffer buffer) {
@@ -80,7 +86,9 @@ public class StaticVBO extends VBO {
 	}
 	
 	public static StaticVBO create(String name, VBOTarget target, int[] buffer) {
-		return create(name, target, LWJGLBuffers.intBuffer(buffer));
+		IntBuffer buff = BufferUtils.createIntBuffer(buffer.length);
+		buff.put(buffer).flip();
+		return create(name, target, buff);
 	}
 	
 	public static StaticVBO create(String name, VBOTarget target, ShortBuffer buffer) {
@@ -90,7 +98,9 @@ public class StaticVBO extends VBO {
 	}
 	
 	public static StaticVBO create(String name, VBOTarget target, short[] buffer) {
-		return create(name, target, LWJGLBuffers.shortBuffer(buffer));
+		ShortBuffer buff = BufferUtils.createShortBuffer(buffer.length);
+		buff.put(buffer).flip();
+		return create(name, target, buff);
 	}
 	
 	public static StaticVBO create(String name, VBOTarget target, ByteBuffer buffer) {
@@ -100,7 +110,9 @@ public class StaticVBO extends VBO {
 	}
 	
 	public static StaticVBO create(String name, VBOTarget target, byte[] buffer) {
-		return create(name, target, LWJGLBuffers.byteBuffer(buffer));
+		ByteBuffer buff = BufferUtils.createByteBuffer(buffer.length);
+		buff.put(buffer).flip();
+		return create(name, target, buff);
 	}
 	
 }

@@ -1,31 +1,30 @@
 package globj.objects.arrays;
 
 
-import globj.objects.BindTracker;
-import globj.objects.BindableGLObject;
-import globj.objects.bufferobjects.VBO;
-import globj.objects.bufferobjects.VBOTarget;
-import globj.objects.shaders.Programs;
-import lwjgl.debug.GLDebug;
-
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
+import globj.objects.BindTracker;
+import globj.objects.BindableGLObject;
+import globj.objects.bufferobjects.VBO;
+import globj.objects.bufferobjects.values.VBOTarget;
+import globj.objects.shaders.Programs;
+import lwjgl.debug.GLDebug;
+
 
 
 public class VAO extends BindableGLObject {
 	
-	private static final String	NON_ARRAY_ERROR	= "VBO target must be Array in order to be attached to VAOs.";
+	private static final String NON_ARRAY_ERROR = "VBO target must be Array in order to be attached to VAOs.";
 	
-	public static final VAO		defaultVAO		= new VAO() {
-													@Override
-													public void destroy() {
-														GLDebug.write("Cannot destroy default VAO");
-													}
-												};
-	
+	public static final VAO defaultVAO = new VAO() {
+		@Override
+		public void destroy() {
+			GLDebug.write("Cannot destroy default VAO");
+		}
+	};
 	
 	private VAO(String name) {
 		super(name, GL30.glGenVertexArrays());
@@ -44,13 +43,12 @@ public class VAO extends BindableGLObject {
 		return vao;
 	}
 	
-	
 	/**************************************************/
+	
 	/********************** Bind **********************/
 	/**************************************************/
 	
-	protected static final BindTracker	bindTracker	= new BindTracker();
-	
+	protected static final BindTracker bindTracker = new BindTracker();
 	
 	@Override
 	protected BindTracker bindingTracker() {
@@ -69,7 +67,7 @@ public class VAO extends BindableGLObject {
 	
 	/**************************************************/
 	public void attachBuffer(int vertexAttrib, VBO vbo, VBOFormat format) {
-		if (vbo.target != VBOTarget.ARRAY) {
+		if (vbo.target() != VBOTarget.ARRAY) {
 			GLDebug.glError(NON_ARRAY_ERROR, null);
 			return;
 		}
@@ -83,7 +81,7 @@ public class VAO extends BindableGLObject {
 	// Attaches VBO to the uniform location specified in the currently bound
 	// shader program.
 	public void attachBuffer(String uniform, VBO vbo, VBOFormat format) {
-		if (vbo.target != VBOTarget.ARRAY) {
+		if (vbo.target() != VBOTarget.ARRAY) {
 			GLDebug.glError(NON_ARRAY_ERROR, null);
 			return;
 		}
@@ -104,7 +102,7 @@ public class VAO extends BindableGLObject {
 	 */
 	@Deprecated
 	public void attachVertexBuffer(VBO vbo, VBOFormat format) {
-		if (vbo.target != VBOTarget.ARRAY) {
+		if (vbo.target() != VBOTarget.ARRAY) {
 			GLDebug.glError(NON_ARRAY_ERROR, null);
 			return;
 		}
@@ -122,7 +120,7 @@ public class VAO extends BindableGLObject {
 	 */
 	@Deprecated
 	public void attachTexCoordBuffer(VBO vbo, VBOFormat format) {
-		if (vbo.target != VBOTarget.ARRAY) {
+		if (vbo.target() != VBOTarget.ARRAY) {
 			GLDebug.glError(NON_ARRAY_ERROR, null);
 			return;
 		}
@@ -140,7 +138,7 @@ public class VAO extends BindableGLObject {
 	 */
 	@Deprecated
 	public void attachColorBuffer(VBO vbo, VBOFormat format) {
-		if (vbo.target != VBOTarget.ARRAY) {
+		if (vbo.target() != VBOTarget.ARRAY) {
 			GLDebug.glError(NON_ARRAY_ERROR, null);
 			return;
 		}
@@ -158,7 +156,7 @@ public class VAO extends BindableGLObject {
 	 */
 	@Deprecated
 	public void attachNormalBuffer(VBO vbo, VBOFormat format) {
-		if (vbo.target != VBOTarget.ARRAY) {
+		if (vbo.target() != VBOTarget.ARRAY) {
 			GLDebug.glError(NON_ARRAY_ERROR, null);
 			return;
 		}
@@ -184,7 +182,7 @@ public class VAO extends BindableGLObject {
 	 */
 	@Deprecated
 	public void attachEdgeFlagBuffer(VBO vbo, VBOFormat format) {
-		if (vbo.target != VBOTarget.ARRAY) {
+		if (vbo.target() != VBOTarget.ARRAY) {
 			GLDebug.glError(NON_ARRAY_ERROR, null);
 			return;
 		}
@@ -202,7 +200,7 @@ public class VAO extends BindableGLObject {
 	 */
 	@Deprecated
 	public void attachFogCoordBuffer(VBO vbo, VBOFormat format) {
-		if (vbo.target != VBOTarget.ARRAY) {
+		if (vbo.target() != VBOTarget.ARRAY) {
 			GLDebug.glError(NON_ARRAY_ERROR, null);
 			return;
 		}
@@ -216,6 +214,7 @@ public class VAO extends BindableGLObject {
 	// booleans to track which arrays are enabled.
 	
 	/**************************************************/
+	
 	/********************** Debug *********************/
 	/**************************************************/
 	

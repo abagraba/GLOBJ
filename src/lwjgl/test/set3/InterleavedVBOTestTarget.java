@@ -4,7 +4,7 @@ import globj.core.GL;
 import globj.core.RenderCommand;
 import globj.objects.bufferobjects.DynamicFloatVBO;
 import globj.objects.bufferobjects.VBO;
-import globj.objects.bufferobjects.VBOTarget;
+import globj.objects.bufferobjects.values.VBOTarget;
 
 import java.nio.FloatBuffer;
 

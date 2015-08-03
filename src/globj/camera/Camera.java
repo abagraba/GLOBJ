@@ -5,7 +5,6 @@ import java.awt.Color;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Matrix4f;
 
 import globj.math.Matrix4x4f;
 import globj.math.Transform;

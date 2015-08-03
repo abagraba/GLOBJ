@@ -7,11 +7,11 @@ import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL43;
 
 import globj.core.GL;
-import globj.core.utils.LWJGLBuffers;
 import globj.objects.GLObject;
 import lwjgl.debug.GLDebug;
 
@@ -68,8 +68,9 @@ public class ShaderInput extends GLObject {
 	
 	@SuppressWarnings("all")
 	private static IntBuffer getResource(int program, int[] args, int index, int results) {
-		IntBuffer req = LWJGLBuffers.intBuffer(args);
-		IntBuffer res = LWJGLBuffers.intBuffer(results);
+		IntBuffer req = BufferUtils.createIntBuffer(args.length);
+		IntBuffer res = BufferUtils.createIntBuffer(results);
+		req.put(args).flip();
 		GL43.glGetProgramResource(program, GL43.GL_PROGRAM_INPUT, index, req, null, res);
 		return res;
 	}

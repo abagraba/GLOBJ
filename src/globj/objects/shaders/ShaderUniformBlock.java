@@ -5,15 +5,14 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.GL43;
 
 import globj.core.GL;
-import globj.core.utils.LWJGLBuffers;
 import globj.objects.GLObject;
 import globj.objects.GLObjectTracker;
 import lwjgl.debug.GLDebug;
@@ -74,8 +73,9 @@ public class ShaderUniformBlock extends GLObject {
 	
 	@SuppressWarnings("all")
 	private static IntBuffer getResource(int program, int[] args, int index, int results) {
-		IntBuffer req = LWJGLBuffers.intBuffer(args);
-		IntBuffer res = LWJGLBuffers.intBuffer(results);
+		IntBuffer req = BufferUtils.createIntBuffer(args.length);
+		IntBuffer res = BufferUtils.createIntBuffer(results);
+		req.put(args).flip();
 		GL43.glGetProgramResource(program, GL43.GL_UNIFORM_BLOCK, index, req, null, res);
 		return res;
 	}

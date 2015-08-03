@@ -30,9 +30,8 @@ public class UnitQuaternion {
 	}
 	
 	public UnitQuaternion product(UnitQuaternion q) {
-		UnitQuaternion uq = new UnitQuaternion(s * q.s- i * q.i - j * q.j - k * q.k, s * q.i + i * q.s + j * q.k - k * q.j,
-												s * q.j + j * q.s + k * q.i - i * q.k, s * q.k + k * q.s + i * q.j - j * q.i).normalize();
-		return uq;
+		return new UnitQuaternion(s * q.s- i * q.i - j * q.j - k * q.k, s * q.i + i * q.s + j * q.k - k * q.j, s * q.j + j * q.s + k * q.i - i * q.k,
+									s * q.k + k * q.s + i * q.j - j * q.i).normalize();
 	}
 	
 	public float dot(UnitQuaternion q) {
@@ -56,14 +55,14 @@ public class UnitQuaternion {
 	
 	public UnitQuaternion slerp(UnitQuaternion target, float factor) {
 		float angle = angle(target);
-		factor = Math.max(0, Math.min(1, factor));
-		if (angle == 0 || factor == 0)
+		float f = Math.max(0, Math.min(1, factor));
+		if (angle == 0 || f <= 0)
 			return new UnitQuaternion(this);
-		if (factor == 1)
+		if (f >= 1)
 			return new UnitQuaternion(target);
 		float sa = (float) Math.sin(angle);
-		float s1 = (float) Math.sin(angle * (1 - factor));
-		float s2 = (float) Math.sin(angle * factor);
+		float s1 = (float) Math.sin(angle * (1 - f));
+		float s2 = (float) Math.sin(angle * f);
 		return new UnitQuaternion(this).multiply(s1 / sa).add(new UnitQuaternion(target).multiply(s2 / sa)).normalize();
 	}
 	

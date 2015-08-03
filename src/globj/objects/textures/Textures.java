@@ -1,9 +1,15 @@
 package globj.objects.textures;
 
 
-import globj.core.Context;
-import globj.objects.GLObjectTracker;
-import globj.objects.textures.values.TextureFormat;
+import static lwjgl.debug.GLDebug.ATTRIB;
+import static lwjgl.debug.GLDebug.ATTRIB_INT;
+import static lwjgl.debug.GLDebug.ATTRIB_STRING;
+import static lwjgl.debug.GLDebug.flushErrors;
+import static lwjgl.debug.GLDebug.glObjError;
+import static lwjgl.debug.GLDebug.indent;
+import static lwjgl.debug.GLDebug.unindent;
+import static lwjgl.debug.GLDebug.write;
+import static lwjgl.debug.GLDebug.writef;
 
 import java.awt.image.BufferedImage;
 
@@ -17,7 +23,9 @@ import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL40;
 
-import static lwjgl.debug.GLDebug.*;
+import globj.core.Context;
+import globj.objects.GLObjectTracker;
+import globj.objects.textures.values.TextureFormat;
 
 
 
@@ -25,14 +33,14 @@ public class Textures {
 	
 	protected static final GLObjectTracker<GLTexture> tracker = new GLObjectTracker<GLTexture>();
 	
-	private static final String	t1d		= "Texture_1D:";
-	private static final String	t2d		= "Texture_2D:";
-	private static final String	t3d		= "Texture_3D:";
-	private static final String	t1da	= "Texture_1DArray:";
-	private static final String	t2da	= "Texture_2DArray:";
-	private static final String	tc		= "Texture_Cubemap:";
-	private static final String	tca		= "Texture_CubemapArray:";
-	private static final String	tr		= "Texture_Rectangle:";
+	private static final String	T_1D	= "Texture_1D:";
+	private static final String	T_2D	= "Texture_2D:";
+	private static final String	T_3D	= "Texture_3D:";
+	private static final String	T_1D_A	= "Texture_1DArray:";
+	private static final String	T_2D_A	= "Texture_2DArray:";
+	private static final String	T_C		= "Texture_Cubemap:";
+	private static final String	T_C_A	= "Texture_CubemapArray:";
+	private static final String	T_R		= "Texture_Rectangle:";
 	
 	/**************************************************/
 	
@@ -44,11 +52,11 @@ public class Textures {
 	}
 	
 	public static Texture1D createTexture1D(String name, TextureFormat format, int w, int basemap, int maxmap) {
-		if (tracker.contains(t1d + name)) {
+		if (tracker.contains(T_1D + name)) {
 			glObjError(Texture1D.class, name, "Cannot create", "Already exists");
 			return null;
 		}
-		Texture1D tex = Texture1D.create(t1d + name, format, w, basemap, maxmap);
+		Texture1D tex = Texture1D.create(T_1D + name, format, w, basemap, maxmap);
 		tracker.add(tex);
 		return tex;
 	}
@@ -58,11 +66,11 @@ public class Textures {
 	}
 	
 	public static Texture2D createTexture2D(String name, TextureFormat format, int w, int h, int basemap, int maxmap) {
-		if (tracker.contains(t2d + name)) {
+		if (tracker.contains(T_2D + name)) {
 			glObjError(Texture2D.class, name, "Cannot create", "Already exists");
 			return null;
 		}
-		Texture2D tex = Texture2D.create(t2d + name, format, w, h, basemap, maxmap);
+		Texture2D tex = Texture2D.create(T_2D + name, format, w, h, basemap, maxmap);
 		tracker.add(tex);
 		return tex;
 	}
@@ -72,11 +80,11 @@ public class Textures {
 	}
 	
 	public static Texture3D createTexture3D(String name, TextureFormat format, int w, int h, int d, int basemap, int maxmap) {
-		if (tracker.contains(t3d + name)) {
+		if (tracker.contains(T_3D + name)) {
 			glObjError(Texture3D.class, name, "Cannot create", "Already exists");
 			return null;
 		}
-		Texture3D tex = Texture3D.create(t3d + name, format, w, h, d, basemap, maxmap);
+		Texture3D tex = Texture3D.create(T_3D + name, format, w, h, d, basemap, maxmap);
 		tracker.add(tex);
 		return tex;
 	}
@@ -86,11 +94,11 @@ public class Textures {
 	}
 	
 	public static Texture1DArray createTexture1DArray(String name, TextureFormat format, int w, int layers, int basemap, int maxmap) {
-		if (tracker.contains(t1da + name)) {
+		if (tracker.contains(T_1D_A + name)) {
 			glObjError(Texture1DArray.class, name, "Cannot create", "Already exists");
 			return null;
 		}
-		Texture1DArray tex = Texture1DArray.create(t1da + name, format, w, layers, basemap, maxmap);
+		Texture1DArray tex = Texture1DArray.create(T_1D_A + name, format, w, layers, basemap, maxmap);
 		tracker.add(tex);
 		return tex;
 	}
@@ -100,11 +108,11 @@ public class Textures {
 	}
 	
 	public static Texture2DArray createTexture2DArray(String name, TextureFormat format, int w, int h, int layers, int basemap, int maxmap) {
-		if (tracker.contains(t2da + name)) {
+		if (tracker.contains(T_2D_A + name)) {
 			glObjError(Texture2DArray.class, name, "Cannot create", "Already exists");
 			return null;
 		}
-		Texture2DArray tex = Texture2DArray.create(t2da + name, format, w, h, layers, basemap, maxmap);
+		Texture2DArray tex = Texture2DArray.create(T_2D_A + name, format, w, h, layers, basemap, maxmap);
 		tracker.add(tex);
 		return tex;
 	}
@@ -114,11 +122,11 @@ public class Textures {
 	}
 	
 	public static TextureCubemap createTextureCubemap(String name, TextureFormat format, int s, int basemap, int maxmap) {
-		if (tracker.contains(tc + name)) {
+		if (tracker.contains(T_C + name)) {
 			glObjError(TextureCubemap.class, name, "Cannot create", "Already exists");
 			return null;
 		}
-		TextureCubemap tex = TextureCubemap.create(tc + name, format, s, basemap, maxmap);
+		TextureCubemap tex = TextureCubemap.create(T_C + name, format, s, basemap, maxmap);
 		tracker.add(tex);
 		return tex;
 	}
@@ -128,21 +136,21 @@ public class Textures {
 	}
 	
 	public static TextureCubemapArray createTextureCubemapArray(String name, TextureFormat format, int s, int layers, int basemap, int maxmap) {
-		if (tracker.contains(tca + name)) {
+		if (tracker.contains(T_C_A + name)) {
 			glObjError(TextureCubemapArray.class, name, "Cannot create", "Already exists");
 			return null;
 		}
-		TextureCubemapArray tex = TextureCubemapArray.create(tca + name, format, s, layers, basemap, maxmap);
+		TextureCubemapArray tex = TextureCubemapArray.create(T_C_A + name, format, s, layers, basemap, maxmap);
 		tracker.add(tex);
 		return tex;
 	}
 	
 	public static TextureRectangle createTextureRectangle(String name, TextureFormat format, int w, int h) {
-		if (tracker.contains(tr + name)) {
+		if (tracker.contains(T_R + name)) {
 			glObjError(TextureRectangle.class, name, "Cannot create", "Already exists");
 			return null;
 		}
-		TextureRectangle tex = TextureRectangle.create(tr + name, format, w, h);
+		TextureRectangle tex = TextureRectangle.create(T_R + name, format, w, h);
 		tracker.add(tex);
 		return tex;
 	}
@@ -150,28 +158,28 @@ public class Textures {
 	/**************************************************/
 	
 	public static Texture2D createTexture2D(String name, BufferedImage image, int mipmaps) {
-		if (tracker.contains(tr + name)) {
+		if (tracker.contains(T_R + name)) {
 			glObjError(Texture2D.class, name, "Cannot create", "Already exists");
 			return null;
 		}
-		Texture2D tex = Texture2D.create(t2d + name, image, mipmaps);
+		Texture2D tex = Texture2D.create(T_2D + name, image, mipmaps);
 		tracker.add(tex);
 		return tex;
 	}
 	
 	public static Texture1DArray createTexture1DArray(String name, BufferedImage image, int mipmaps) {
-		if (tracker.contains(tr + name)) {
+		if (tracker.contains(T_R + name)) {
 			glObjError(Texture1DArray.class, name, "Cannot create", "Already exists");
 			return null;
 		}
-		Texture1DArray tex = Texture1DArray.create(t1da + name, image, mipmaps);
+		Texture1DArray tex = Texture1DArray.create(T_1D_A + name, image, mipmaps);
 		tracker.add(tex);
 		return tex;
 	}
 	
 	public static TextureRectangle createTextureRectangle(String name, BufferedImage image, int mipmaps) {
-		TextureRectangle tex = TextureRectangle.create(tr + name, image);
-		if (tracker.contains(tr + name)) {
+		TextureRectangle tex = TextureRectangle.create(T_R + name, image);
+		if (tracker.contains(T_R + name)) {
 			glObjError(TextureRectangle.class, name, "Cannot create", "Already exists");
 			return null;
 		}
@@ -182,35 +190,35 @@ public class Textures {
 	/**************************************************/
 	
 	public static Texture1D getTexture1D(String name) {
-		return (Texture1D) tracker.get(t1d + name);
+		return (Texture1D) tracker.get(T_1D + name);
 	}
 	
 	public static Texture2D getTexture2D(String name) {
-		return (Texture2D) tracker.get(t2d + name);
+		return (Texture2D) tracker.get(T_2D + name);
 	}
 	
 	public static Texture3D getTexture3D(String name) {
-		return (Texture3D) tracker.get(t3d + name);
+		return (Texture3D) tracker.get(T_3D + name);
 	}
 	
 	public static Texture1DArray getTexture1DArray(String name) {
-		return (Texture1DArray) tracker.get(t1da + name);
+		return (Texture1DArray) tracker.get(T_1D_A + name);
 	}
 	
 	public static Texture2DArray getTexture2DArray(String name) {
-		return (Texture2DArray) tracker.get(t2da + name);
+		return (Texture2DArray) tracker.get(T_2D_A + name);
 	}
 	
 	public static TextureCubemap getTextureCubemap(String name) {
-		return (TextureCubemap) tracker.get(tc + name);
+		return (TextureCubemap) tracker.get(T_C + name);
 	}
 	
 	public static TextureCubemapArray getTextureCubemapArray(String name) {
-		return (TextureCubemapArray) tracker.get(tca + name);
+		return (TextureCubemapArray) tracker.get(T_C_A + name);
 	}
 	
 	public static TextureRectangle getTextureRectangle(String name) {
-		return (TextureRectangle) tracker.get(tr + name);
+		return (TextureRectangle) tracker.get(T_R + name);
 	}
 	
 	/**************************************************/
@@ -262,35 +270,35 @@ public class Textures {
 	}
 	
 	public static void destroyTexture1D(String name) {
-		destroy(t1d + name);
+		destroy(T_1D + name);
 	}
 	
 	public static void destroyTexture2D(String name) {
-		destroy(t2d + name);
+		destroy(T_2D + name);
 	}
 	
 	public static void destroyTexture3D(String name) {
-		destroy(t3d + name);
+		destroy(T_3D + name);
 	}
 	
 	public static void destroyTexture1DArray(String name) {
-		destroy(t1da + name);
+		destroy(T_1D_A + name);
 	}
 	
 	public static void destroyTexture2DArray(String name) {
-		destroy(t2da + name);
+		destroy(T_2D_A + name);
 	}
 	
 	public static void destroyTextureCubemap(String name) {
-		destroy(tc + name);
+		destroy(T_C + name);
 	}
 	
 	public static void destroyTextureCubemapArray(String name) {
-		destroy(tca + name);
+		destroy(T_C_A + name);
 	}
 	
 	public static void destroyTextureRectangle(String name) {
-		destroy(tr + name);
+		destroy(T_R + name);
 	}
 	
 	/**************************************************/

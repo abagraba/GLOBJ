@@ -36,26 +36,9 @@ public final class TextureRectangle extends GLTexture2D implements FBOAttachable
 	
 	@Nullable
 	protected static TextureRectangle create(String name, TextureFormat texformat, int width, int height) {
-		TextureRectangle tex = new TextureRectangle(name, texformat);
-		if (tex.id == 0) {
-			GLDebug.glObjError(TextureRectangle.class, name, "Cannot create", "No ID could be allocated");
+		TextureRectangle tex = build(name, texformat, width, height);
+		if (tex == null)
 			return null;
-		}
-		
-		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
-		if (!checkBounds(new int[] { width, height }, new int[] { max, max }, tex))
-			return null;
-			
-		tex.w = width;
-		tex.h = height;
-		
-		tex.bind();
-		if (GL.versionCheck(4, 2)) {
-			GL42.glTexStorage2D(tex.target.value(), 0, texformat.value(), width, height);
-		}
-		else {
-			GL11.glTexImage2D(tex.target.value(), 0, texformat.value(), width, height, 0, texformat.base(), ImageDataType.UBYTE.value(), (ByteBuffer) null);
-		}
 		tex.undobind();
 		return tex;
 	}
@@ -65,6 +48,17 @@ public final class TextureRectangle extends GLTexture2D implements FBOAttachable
 		int width = image.getWidth();
 		int height = image.getHeight();
 		TextureFormat texformat = TextureFormat.RGBA8;
+		TextureRectangle tex = build(name, texformat, width, height);
+		if (tex == null)
+			return null;
+		// TODO BGRA more efficient?
+		GL11.glTexSubImage2D(tex.target.value(), 0, 0, 0, width, height, ImageFormat.RGBA.value(), ImageDataType.UBYTE.value(), ImageUtil.imageRGBAData(image));
+		tex.undobind();
+		return tex;
+	}
+	
+	@Nullable
+	private static TextureRectangle build(String name, TextureFormat texformat, int width, int height) {
 		TextureRectangle tex = new TextureRectangle(name, texformat);
 		if (tex.id == 0) {
 			GLDebug.glObjError(TextureRectangle.class, name, "Cannot create", "No ID could be allocated");
@@ -85,9 +79,6 @@ public final class TextureRectangle extends GLTexture2D implements FBOAttachable
 		else {
 			GL11.glTexImage2D(tex.target.value(), 0, texformat.value(), width, height, 0, texformat.base(), ImageDataType.UBYTE.value(), (ByteBuffer) null);
 		}
-		// TODO BGRA more efficient?
-		GL11.glTexSubImage2D(tex.target.value(), 0, 0, 0, width, height, ImageFormat.RGBA.value(), ImageDataType.UBYTE.value(), ImageUtil.imageRGBAData(image));
-		tex.undobind();
 		return tex;
 	}
 	

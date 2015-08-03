@@ -6,7 +6,7 @@ import globj.core.RenderCommand;
 import globj.objects.arrays.VAO;
 import globj.objects.arrays.VBOFormat;
 import globj.objects.bufferobjects.DynamicFloatVBO;
-import globj.objects.bufferobjects.VBOTarget;
+import globj.objects.bufferobjects.values.VBOTarget;
 import globj.objects.framebuffers.FBO;
 import globj.objects.framebuffers.FBOs;
 import globj.objects.framebuffers.values.FBOAttachment;

@@ -1,11 +1,13 @@
 package globj.objects.bufferobjects;
 
-import globj.core.DataType;
-import globj.objects.bufferobjects.values.VBOUsage;
-
-import java.nio.ByteBuffer;
 
 import org.lwjgl.opengl.GL15;
+
+import globj.core.DataType;
+import globj.objects.bufferobjects.values.VBOTarget;
+import globj.objects.bufferobjects.values.VBOUsage;
+
+
 
 public abstract class DynamicVBO<T> extends VBO {
 	
@@ -15,16 +17,16 @@ public abstract class DynamicVBO<T> extends VBO {
 	public DynamicVBO(String name, DataType dataType, VBOTarget target) {
 		super(name, target, dataType, VBOUsage.DYNAMIC_DRAW);
 		bind();
-		GL15.glBufferData(target.value, 0, usage.value);
+		GL15.glBufferData(target().value(), 0, usage().value());
 		undobind();
 	}
 	
-	protected final void orphan(){
-		GL15.glBufferData(target.value, 0, usage.value);
+	protected final void orphan() {
+		GL15.glBufferData(target().value(), 0, usage().value());
 	}
-
+	
 	public abstract void write(T data);
 	
-	public abstract void update(T data, int off, int len, int start);
+	public abstract void update(T data, int off, int len, long start);
 	
 }

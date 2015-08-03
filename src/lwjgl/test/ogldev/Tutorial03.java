@@ -9,7 +9,7 @@ import globj.objects.arrays.VAO;
 import globj.objects.arrays.VBOFormat;
 import globj.objects.bufferobjects.StaticVBO;
 import globj.objects.bufferobjects.VBO;
-import globj.objects.bufferobjects.VBOTarget;
+import globj.objects.bufferobjects.values.VBOTarget;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.GL11;

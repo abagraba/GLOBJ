@@ -5,11 +5,8 @@ import globj.math.Matrix4x4f;
 import globj.math.Transform;
 import globj.math.UnitQuaternion;
 import globj.math.Vector3f;
-import globj.math.Vector4f;
 
 import java.awt.Color;
-
-import org.lwjgl.util.vector.Matrix4f;
 
 
 
@@ -44,7 +41,7 @@ public class OrthographicCamera extends Camera {
 	
 	@Override
 	public void finishRender() {
-	
+		//
 	}
 	
 	@Override

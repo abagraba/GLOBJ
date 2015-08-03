@@ -7,9 +7,9 @@ import globj.math.Vector3f;
 
 public class OrbitController extends CameraController {
 	
-	public float	distance;
-	public float	theta;
-	public float	phi;
+	private float	distance;
+	private float	theta;
+	private float	phi;
 	
 	public OrbitController(Camera camera) {
 		super(camera);

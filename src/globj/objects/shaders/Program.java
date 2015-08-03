@@ -1,31 +1,28 @@
 package globj.objects.shaders;
 
 
-import globj.core.Context;
-import globj.core.GL;
-import globj.math.Matrix4x4f;
-import globj.objects.BindTracker;
-import globj.objects.BindableGLObject;
-import globj.objects.GLObjectTracker;
-
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import lwjgl.debug.GLDebug;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL32;
 import org.lwjgl.opengl.GL42;
 import org.lwjgl.opengl.GL43;
-import org.lwjgl.util.vector.Matrix4f;
+
+import globj.core.Context;
+import globj.core.GL;
+import globj.math.Matrix4x4f;
+import globj.objects.BindTracker;
+import globj.objects.BindableGLObject;
+import globj.objects.GLObjectTracker;
+import lwjgl.debug.GLDebug;
 
 
 

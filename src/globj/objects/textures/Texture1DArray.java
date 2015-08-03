@@ -1,6 +1,18 @@
 package globj.objects.textures;
 
 
+import static lwjgl.debug.GLDebug.writef;
+
+import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL42;
+
 import globj.core.Context;
 import globj.core.GL;
 import globj.core.utils.ImageUtil;
@@ -11,18 +23,7 @@ import globj.objects.textures.values.ImageDataType;
 import globj.objects.textures.values.ImageFormat;
 import globj.objects.textures.values.TextureFormat;
 import globj.objects.textures.values.TextureTarget;
-
-import java.awt.image.BufferedImage;
-import java.nio.ByteBuffer;
-
 import lwjgl.debug.GLDebug;
-
-import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL42;
 
 
 
@@ -86,7 +87,8 @@ public final class Texture1DArray extends GLTexture1D implements FBOAttachable {
 			return null;
 		}
 		int maps = Math.max(1, Math.min(mipmaps, levels(tex.w)));
-		
+		if (mipmaps > maps)
+			writef("Mipmaps clamped to %d for Texture %s", maps, name);
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
 		int maxlayers = Context.intConst(GL30.GL_MAX_ARRAY_TEXTURE_LAYERS);
 		if (!checkBounds(new int[] { w, layers }, new int[] { max, maxlayers }, tex))

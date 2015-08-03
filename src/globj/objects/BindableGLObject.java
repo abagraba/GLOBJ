@@ -5,12 +5,12 @@ public abstract class BindableGLObject extends GLObject {
 	public BindableGLObject(String name, int id) {
 		super(name, id);
 	}
-
 	
 	protected abstract BindTracker bindingTracker();
-	protected abstract void bindOP(int id);
-	protected abstract void destroyOP();
 	
+	protected abstract void bindOP(int id);
+	
+	protected abstract void destroyOP();
 	
 	public void bind() {
 		bindingTracker().update(id);
@@ -35,6 +35,11 @@ public abstract class BindableGLObject extends GLObject {
 		if (bindingTracker().value() == id)
 			bindingTracker().clear();
 		destroyOP();
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("[%d] %s", name, id);
 	}
 	
 }

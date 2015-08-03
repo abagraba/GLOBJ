@@ -47,7 +47,7 @@ public class PerspectiveCamera extends Camera {
 	
 	@Override
 	public void finishRender() {
-	
+		//
 	}
 	
 	@Override

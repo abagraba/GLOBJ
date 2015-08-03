@@ -11,7 +11,6 @@ public class ShaderAttribute {
 	private final String	name;
 	private final int		location;
 	
-	
 	public ShaderAttribute(String name, int location) {
 		this.name = name;
 		this.location = location;

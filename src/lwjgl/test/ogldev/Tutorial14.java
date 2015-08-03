@@ -14,7 +14,7 @@ import globj.objects.arrays.VAO;
 import globj.objects.arrays.VBOFormat;
 import globj.objects.bufferobjects.StaticVBO;
 import globj.objects.bufferobjects.VBO;
-import globj.objects.bufferobjects.VBOTarget;
+import globj.objects.bufferobjects.values.VBOTarget;
 import globj.objects.shaders.Program;
 import globj.objects.shaders.Programs;
 import globj.objects.shaders.Shader;

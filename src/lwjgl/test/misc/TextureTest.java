@@ -8,7 +8,7 @@ import globj.objects.arrays.VAO;
 import globj.objects.arrays.VBOFormat;
 import globj.objects.bufferobjects.StaticVBO;
 import globj.objects.bufferobjects.VBO;
-import globj.objects.bufferobjects.VBOTarget;
+import globj.objects.bufferobjects.values.VBOTarget;
 import globj.objects.textures.Texture2D;
 import globj.objects.textures.Textures;
 import globj.objects.textures.values.MagnifyFilter;

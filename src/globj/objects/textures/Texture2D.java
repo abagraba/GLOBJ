@@ -1,6 +1,17 @@
 package globj.objects.textures;
 
 
+import static lwjgl.debug.GLDebug.writef;
+
+import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL42;
+
 import globj.core.Context;
 import globj.core.GL;
 import globj.core.utils.ImageUtil;
@@ -11,17 +22,7 @@ import globj.objects.textures.values.ImageDataType;
 import globj.objects.textures.values.ImageFormat;
 import globj.objects.textures.values.TextureFormat;
 import globj.objects.textures.values.TextureTarget;
-
-import java.awt.image.BufferedImage;
-import java.nio.ByteBuffer;
-
 import lwjgl.debug.GLDebug;
-
-import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL42;
 
 
 
@@ -84,9 +85,9 @@ public final class Texture2D extends GLTexture2D implements FBOAttachable {
 			GLDebug.glObjError(Texture2D.class, name, "Cannot create", "No ID could be allocated");
 			return null;
 		}
-		// TODO warn if clamped?
 		int maps = Math.max(1, Math.min(mipmaps, levels(Math.max(tex.w, tex.h)) + 1));
-		
+		if (mipmaps > maps)
+			writef("Mipmaps clamped to %d for Texture %s", maps, name);
 		int max = Context.intConst(GL11.GL_MAX_TEXTURE_SIZE);
 		if (!checkBounds(new int[] { tex.w, tex.h }, new int[] { max, max }, tex))
 			return null;
