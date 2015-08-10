@@ -1,10 +1,5 @@
 package lwjgl.test.set2;
 
-import globj.core.GL;
-import globj.core.RenderCommand;
-import globj.objects.bufferobjects.StaticVBO;
-import globj.objects.bufferobjects.VBO;
-import globj.objects.bufferobjects.values.VBOTarget;
 
 import java.nio.FloatBuffer;
 
@@ -14,18 +9,26 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
+import globj.core.GL;
+import globj.core.RenderCommand;
+import globj.objects.bufferobjects.StaticVBO;
+import globj.objects.bufferobjects.VBO;
+import globj.objects.bufferobjects.values.VBOTarget;
+import lwjgl.debug.GLDebug;
+
+
+
 /**
  * Test Target to test functionality of Vertex Buffer Objects. <br/>
  * <br/>
- * For more information, visit <a
- * href="http://www.ozone3d.net/tutorials/opengl_vbo.php"
- * >http://www.ozone3d.net/tutorials/opengl_vbo.php</a>
+ * For more information, visit
+ * <a href="http://www.ozone3d.net/tutorials/opengl_vbo.php" >http://www.ozone3d.net/tutorials/opengl_vbo.php</a>
  *
  */
 public class VertexArrayVBOTestTarget extends RenderCommand {
 	
-	private static float theta = 0;
-	private static float rps = (float) (2 * Math.PI) / 6;
+	private static float	theta	= 0;
+	private static float	rps		= (float) (2 * Math.PI) / 6;
 	
 	private VBO vertices;
 	
@@ -38,9 +41,9 @@ public class VertexArrayVBOTestTarget extends RenderCommand {
 		FloatBuffer v = BufferUtils.createFloatBuffer(15 * numTri);
 		
 		for (int i = 0; i < numTri; i++) {
-			v.put(new float[] { (float) Math.cos(theta + i * 2 * dt), (float) Math.sin(theta + i * 2 * dt), 0, 0, 1, (float) Math.cos(theta + i * 2 * dt + dt),
-					(float) Math.sin(theta + i * 2 * dt + dt), 0, 1, 0, (float) (0.1f * Math.cos(theta + i * 2 * dt + dt * 0.5f)),
-					(float) (0.1f * Math.sin(theta + i * 2 * dt + dt * 0.5f)), 1, 0, 0 });
+			v.put(new float[] {	(float) Math.cos(theta + i * 2 * dt), (float) Math.sin(theta + i * 2 * dt), 0, 0, 1, (float) Math.cos(theta + i * 2 * dt + dt),
+								(float) Math.sin(theta + i * 2 * dt + dt), 0, 1, 0, (float) (0.1f * Math.cos(theta + i * 2 * dt + dt * 0.5f)),
+								(float) (0.1f * Math.sin(theta + i * 2 * dt + dt * 0.5f)), 1, 0, 0 });
 		}
 		v.flip();
 		vertices = StaticVBO.create("Vertex Data", VBOTarget.ARRAY, v);
@@ -77,8 +80,9 @@ public class VertexArrayVBOTestTarget extends RenderCommand {
 		GL.setTarget(new VertexArrayVBOTestTarget());
 		try {
 			GL.startGL();
-		} catch (LWJGLException e) {
-			e.printStackTrace();
+		}
+		catch (LWJGLException e) {
+			GLDebug.logException(e);
 		}
 	}
 	

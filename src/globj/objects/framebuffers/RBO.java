@@ -1,18 +1,27 @@
 package globj.objects.framebuffers;
 
 
-import globj.core.Context;
-import globj.objects.GLObject;
-import globj.objects.framebuffers.values.FBOAttachment;
-import globj.objects.textures.values.TextureFormat;
-
-import static lwjgl.debug.GLDebug.*;
+import static lwjgl.debug.GLDebug.ATTRIB;
+import static lwjgl.debug.GLDebug.ATTRIB_INT;
+import static lwjgl.debug.GLDebug.ATTRIB_STRING;
+import static lwjgl.debug.GLDebug.flushErrors;
+import static lwjgl.debug.GLDebug.glError;
+import static lwjgl.debug.GLDebug.glWarning;
+import static lwjgl.debug.GLDebug.indent;
+import static lwjgl.debug.GLDebug.nextError;
+import static lwjgl.debug.GLDebug.unindent;
+import static lwjgl.debug.GLDebug.writef;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
+
+import globj.core.Context;
+import globj.objects.GLObject;
+import globj.objects.framebuffers.values.FBOAttachment;
+import globj.objects.textures.values.TextureFormat;
 
 
 
@@ -139,6 +148,10 @@ public class RBO extends GLObject implements FBOAttachable {
 	}
 	
 	/**************************************************/
+	@Override
+	public void debug() {
+		writef(ATTRIB_STRING, "RBO:", name);
+	}
 	
 	@Override
 	public void debugQuery() {

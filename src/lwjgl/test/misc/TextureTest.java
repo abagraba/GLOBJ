@@ -1,19 +1,6 @@
 package lwjgl.test.misc;
 
 
-import globj .core.DataType;
-import globj.core.GL;
-import globj.core.RenderCommand;
-import globj.objects.arrays.VAO;
-import globj.objects.arrays.VBOFormat;
-import globj.objects.bufferobjects.StaticVBO;
-import globj.objects.bufferobjects.VBO;
-import globj.objects.bufferobjects.values.VBOTarget;
-import globj.objects.textures.Texture2D;
-import globj.objects.textures.Textures;
-import globj.objects.textures.values.MagnifyFilter;
-import globj.objects.textures.values.MinifyFilter;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +12,18 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
 import control.ControlManager;
+import globj.core.DataType;
+import globj.core.GL;
+import globj.core.RenderCommand;
+import globj.objects.arrays.VAO;
+import globj.objects.arrays.VBOFormat;
+import globj.objects.bufferobjects.StaticVBO;
+import globj.objects.bufferobjects.VBO;
+import globj.objects.bufferobjects.values.VBOTarget;
+import globj.objects.textures.Texture2D;
+import globj.objects.textures.Textures;
+import globj.objects.textures.values.MagnifyFilter;
+import globj.objects.textures.values.MinifyFilter;
 import lwjgl.debug.GLDebug;
 import lwjgl.debug.Timer;
 
@@ -33,8 +32,8 @@ import lwjgl.debug.Timer;
 /**
  * Test Target to test functionality of Vertex Buffer Objects. <br/>
  * <br/>
- * For more information, visit <a href="http://www.ozone3d.net/tutorials/opengl_vbo.php"
- * >http://www.ozone3d.net/tutorials/opengl_vbo.php</a>
+ * For more information, visit
+ * <a href="http://www.ozone3d.net/tutorials/opengl_vbo.php" >http://www.ozone3d.net/tutorials/opengl_vbo.php</a>
  *
  */
 public class TextureTest extends RenderCommand {
@@ -42,10 +41,9 @@ public class TextureTest extends RenderCommand {
 	private static float	theta	= 0;
 	private static float	phi		= 0;
 	
-	private static float	rps		= (float) (2 * Math.PI) / 6;
+	private static float rps = (float) (2 * Math.PI) / 6;
 	
-	private VBO				vertices, tcoords;
-	
+	private VBO vertices, tcoords;
 	
 	@Override
 	public void init() {
@@ -56,10 +54,10 @@ public class TextureTest extends RenderCommand {
 		Texture2D tex = null;
 		try {
 			BufferedImage img = ImageIO.read(new File("src/lwjgl/test/misc/Untitled.png"));
-			Timer.debug.mark();
+			Timer.DEBUG.mark();
 			tex = Textures.createTexture2D("Test", img, 1);
 			tex.setFilter(MinifyFilter.NEAREST, MagnifyFilter.NEAREST);
-			Timer.debug.measure("Load Texture:");
+			Timer.DEBUG.measure("Load Texture:");
 			GLDebug.debug(tex);
 		}
 		catch (IOException e) {

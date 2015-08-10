@@ -25,7 +25,6 @@ public enum TextureComparison {
 	private final int mode;
 	private final int func;
 	
-	
 	private TextureComparison(String name, int mode, int func) {
 		this.name = name;
 		this.mode = mode;
@@ -33,14 +32,16 @@ public enum TextureComparison {
 	}
 	
 	/**
-	 * @param glInt
-	 *            the GLint representing a texture comparison function
-	 * @return the TextureComparison object represented by glInt
+	 * @param glIntMode
+	 *            the GLint representing a texture comparison mode
+	 * @param glIntFunc
+	 *            the GLint representing a texture comparison mode
+	 * @return the TextureComparison object represented by the glInts
 	 */
 	@Nullable
-	public static TextureComparison get(int glInt) {
+	public static TextureComparison get(int glIntMode, int glIntFunc) {
 		for (TextureComparison target : values())
-			if (target.func == glInt)
+			if (target.func == glIntFunc && target.mode == glIntMode)
 				return target;
 		return null;
 	}

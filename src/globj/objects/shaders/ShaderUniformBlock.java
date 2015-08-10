@@ -49,8 +49,6 @@ public class ShaderUniformBlock extends GLObject {
 		minimumSize = res.get();
 	}
 	
-	// TODO GL_BUFFER_BINDING GL_BUFFER_DATA_SIZE
-	
 	/**************************************************/
 	
 	public static ShaderUniformBlock buildUniformBlock(int program, int index) {
@@ -122,6 +120,11 @@ public class ShaderUniformBlock extends GLObject {
 	/**************************************************
 	 ********************** Debug *********************
 	 **************************************************/
+	
+	@Override
+	public void debug() {
+		GLDebug.write(this);
+	}
 	
 	@Override
 	public void debugQuery() {

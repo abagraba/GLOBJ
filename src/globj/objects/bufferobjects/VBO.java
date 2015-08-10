@@ -87,6 +87,11 @@ public abstract class VBO extends BindableGLObject {
 	/**************************************************/
 	
 	@Override
+	public void debug() {
+		writef(toString());
+	}
+	
+	@Override
 	public void debugQuery() {
 		writef(toString());
 	}

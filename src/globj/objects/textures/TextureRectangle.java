@@ -1,6 +1,15 @@
 package globj.objects.textures;
 
 
+import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL42;
+
 import globj.core.Context;
 import globj.core.GL;
 import globj.core.utils.ImageUtil;
@@ -11,17 +20,7 @@ import globj.objects.textures.values.ImageDataType;
 import globj.objects.textures.values.ImageFormat;
 import globj.objects.textures.values.TextureFormat;
 import globj.objects.textures.values.TextureTarget;
-
-import java.awt.image.BufferedImage;
-import java.nio.ByteBuffer;
-
 import lwjgl.debug.GLDebug;
-
-import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL42;
 
 
 
@@ -82,17 +81,6 @@ public final class TextureRectangle extends GLTexture2D implements FBOAttachable
 		return tex;
 	}
 	
-	/**************************************************
-	 ********************** Bind **********************
-	 **************************************************/
-	
-	private static final BindTracker bindTracker = new BindTracker();
-	
-	@Override
-	protected BindTracker bindingTracker() {
-		return bindTracker;
-	}
-	
 	/**************************************************/
 	
 	/**
@@ -104,6 +92,17 @@ public final class TextureRectangle extends GLTexture2D implements FBOAttachable
 		bind();
 		GL11.glTexSubImage2D(target.value(), 0, x, y, w, h, format.value(), type.value(), data);
 		undobind();
+	}
+	
+	/**************************************************
+	 ********************** Bind **********************
+	 **************************************************/
+	
+	private static final BindTracker bindTracker = new BindTracker();
+	
+	@Override
+	protected BindTracker bindingTracker() {
+		return bindTracker;
 	}
 	
 	/**************************************************
@@ -123,23 +122,28 @@ public final class TextureRectangle extends GLTexture2D implements FBOAttachable
 	/**************************************************
 	 ********************** Debug *********************
 	 **************************************************/
+	@Override
+	public void debug() {
+		GLDebug.writef(GLDebug.ATTRIB_STRING + "\t(%d x %d)", target + ":", name, w, h);
+		//#formatter:off
+		GLDebug.indent();
+			GLDebug.writef(GLDebug.ATTRIB_STRING, "Texture Format:", texformat);
+			super.debug();
+		GLDebug.unindent();
+		//#formatter:on
+	}
 	
 	@Override
 	public void debugQuery() {
 		GLDebug.flushErrors();
-		
-		GLDebug.writef(GLDebug.ATTRIB_STRING + "\t(%d x %d)", target, name, w, h);
+		GLDebug.writef(GLDebug.ATTRIB_STRING+ "\t(%d x %d)", target + ":", name, GL11.glGetTexLevelParameteri(target.value(), 0, GL11.GL_TEXTURE_WIDTH),
+						GL11.glGetTexParameteri(target.value(), GL11.GL_TEXTURE_HEIGHT));
+		//#formatter:off
 		GLDebug.indent();
-		
-		GLDebug.writef(GLDebug.ATTRIB_STRING, "Texture Format", texformat);
-		
-		GLDebug.writef(GLDebug.ATTRIB_STRING, "Wrapping Mode [S]", sWrap);
-		GLDebug.writef(GLDebug.ATTRIB_STRING, "Wrapping Mode [T]", tWrap);
-		
-		super.debugQuery();
-		
+			GLDebug.writef(GLDebug.ATTRIB_STRING, "Texture Format:", TextureFormat.get(GL11.glGetTexLevelParameteri(target.value(), 0, GL11.GL_TEXTURE_INTERNAL_FORMAT)));
+			super.debugQuery();
 		GLDebug.unindent();
-		
+		//#formatter:on
 		GLDebug.flushErrors();
 	}
 	

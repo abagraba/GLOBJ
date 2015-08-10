@@ -16,7 +16,6 @@ public class GLObjectTracker<T extends GLObject> implements Iterable<T> {
 	private final Map<String, T>	name	= new HashMap<String, T>();
 	private final Map<Integer, T>	id		= new HashMap<Integer, T>();
 	
-	
 	public void add(T t) {
 		name.put(t.name, t);
 		id.put(t.id, t);
@@ -45,7 +44,6 @@ public class GLObjectTracker<T extends GLObject> implements Iterable<T> {
 		return this.id.containsKey(id);
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public Iterator<T> iterator() {
 		return id.values().iterator();

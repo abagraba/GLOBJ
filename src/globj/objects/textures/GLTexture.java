@@ -1,6 +1,19 @@
 package globj.objects.textures;
 
 
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL14;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL33;
+import org.lwjgl.opengl.GL43;
+
+import annotations.GLVersion;
 import globj.core.GL;
 import globj.math.Vector4f;
 import globj.objects.BindableGLObject;
@@ -11,18 +24,7 @@ import globj.objects.textures.values.Swizzle;
 import globj.objects.textures.values.TextureComparison;
 import globj.objects.textures.values.TextureFormat;
 import globj.objects.textures.values.TextureTarget;
-
-import java.nio.IntBuffer;
-
 import lwjgl.debug.GLDebug;
-
-import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-import org.lwjgl.opengl.GL14;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL43;
 
 
 
@@ -113,11 +115,12 @@ public abstract class GLTexture extends BindableGLObject {
 	 * @param a
 	 *            the fourth component.
 	 */
+	@GLVersion({ 3, 3 })
 	public void setSwizzle(Swizzle r, Swizzle g, Swizzle b, Swizzle a) {
 		bind();
 		IntBuffer swizzle = BufferUtils.createIntBuffer(4);
 		swizzle.put(new int[] { (swizzleR = r).value(), (swizzleG = g).value(), (swizzleB = b).value(), (swizzleA = a).value() }).flip();
-		GL11.glTexParameter(target.value(), GL11.GL_TEXTURE_BORDER_COLOR, swizzle);
+		GL11.glTexParameter(target.value(), GL33.GL_TEXTURE_SWIZZLE_RGBA, swizzle);
 		undobind();
 	}
 	
@@ -142,9 +145,10 @@ public abstract class GLTexture extends BindableGLObject {
 	/**
 	 * Sets the the depth/stencil mode.
 	 * 
-	 * @param func
+	 * @param mode
 	 *            depth/stencil mode.
 	 */
+	@GLVersion({ 4, 3 })
 	public void setDepthStencilMode(DepthStencilMode mode) {
 		if (GL.versionCheck(4, 3)) {
 			bind();
@@ -166,10 +170,9 @@ public abstract class GLTexture extends BindableGLObject {
 		undobind();
 	}
 	
-	/**************************************************/
-	
-	/********************** Bind **********************/
-	/**************************************************/
+	/**************************************************
+	 ********************** Bind **********************
+	 **************************************************/
 	
 	@Override
 	protected void bindOP(int id) {
@@ -185,10 +188,9 @@ public abstract class GLTexture extends BindableGLObject {
 		undobind();
 	}
 	
-	/**************************************************/
-	
-	/***************** Helper Methods *****************/
-	/**************************************************/
+	/**************************************************
+	 ***************** Helper Methods *****************
+	 **************************************************/
 	
 	protected static int levels(int level) {
 		int x = level;
@@ -245,23 +247,51 @@ public abstract class GLTexture extends BindableGLObject {
 		return s + ")";
 	}
 	
-	/**************************************************/
+	/**************************************************
+	 ********************** Debug *********************
+	 **************************************************/
 	
-	/********************** Debug *********************/
-	/**************************************************/
+	@Override
+	public void debug() {
+		GLDebug.writef(GLDebug.ATTRIB_STRING, "Minification Filter:", minFilter);
+		GLDebug.writef(GLDebug.ATTRIB_STRING, "Magnification Filter:", magFilter);
+		
+		GLDebug.writef(GLDebug.ATTRIB + "[%4f, %4f] + %4f", "LOD Range:", lodMin, lodMax, lodBias);
+		
+		if (GL.versionCheck(3, 3))
+			GLDebug.writef(GLDebug.ATTRIB_STRING + "\t%s\t%s\t%s", "Texture Swizzle:", swizzleR, swizzleG, swizzleB, swizzleA);
+			
+		GLDebug.writef(GLDebug.ATTRIB_STRING, "Border Color:", border);
+		
+		if (GL.versionCheck(4, 3))
+			GLDebug.writef(GLDebug.ATTRIB_STRING, "Depth Stencil Mode:", dsmode);
+		GLDebug.writef(GLDebug.ATTRIB_STRING, "Depth Comparison Mode:", comparison);
+	}
 	
 	@Override
 	public void debugQuery() {
-		GLDebug.writef(GLDebug.ATTRIB_STRING, "Minification Filter", minFilter);
-		GLDebug.writef(GLDebug.ATTRIB_STRING, "Magnification Filter", magFilter);
+		GLDebug.writef(GLDebug.ATTRIB_STRING, "Minification Filter:", MinifyFilter.get(GL11.glGetTexParameteri(target.value(), GL11.GL_TEXTURE_MIN_FILTER)));
+		GLDebug.writef(GLDebug.ATTRIB_STRING, "Magnification Filter:", MagnifyFilter.get(GL11.glGetTexParameteri(target.value(), GL11.GL_TEXTURE_MAG_FILTER)));
 		
-		GLDebug.writef(GLDebug.ATTRIB + "[%4f, %4f] + %4f", "LOD Range", lodMin, lodMax, lodBias);
+		GLDebug.writef(GLDebug.ATTRIB+ "[%4f, %4f] + %4f", "LOD Range:", GL11.glGetTexParameterf(target.value(), GL12.GL_TEXTURE_MIN_LOD),
+						GL11.glGetTexParameterf(target.value(), GL12.GL_TEXTURE_MAX_LOD), GL11.glGetTexParameterf(target.value(), GL14.GL_TEXTURE_LOD_BIAS));
+						
+		if (GL.versionCheck(3, 3)) {
+			IntBuffer ibuffer = BufferUtils.createIntBuffer(4);
+			GL11.glGetTexParameter(target.value(), GL33.GL_TEXTURE_SWIZZLE_RGBA, ibuffer);
+			GLDebug.writef(GLDebug.ATTRIB_STRING+ "\t%s\t%s\t%s", "Texture Swizzle:", Swizzle.get(ibuffer.get()), Swizzle.get(ibuffer.get()),
+							Swizzle.get(ibuffer.get()), Swizzle.get(ibuffer.get()));
+		}
 		
-		GLDebug.writef(GLDebug.ATTRIB_STRING + "\t%s\t%s\t%s", "Texture Swizzle", swizzleR, swizzleG, swizzleB, swizzleA);
+		FloatBuffer fbuffer = BufferUtils.createFloatBuffer(4);
+		GL11.glGetTexParameter(target.value(), GL11.GL_TEXTURE_BORDER_COLOR, fbuffer);
+		GLDebug.writef(GLDebug.ATTRIB_STRING, "Border Color:", Vector4f.fromBuffer(fbuffer));
 		
-		GLDebug.writef(GLDebug.ATTRIB_STRING, "Border Color", border);
-		
-		GLDebug.writef(GLDebug.ATTRIB_STRING, "Depth Stencil Mode", dsmode);
-		GLDebug.writef(GLDebug.ATTRIB_STRING, "Depth Comparison Mode", comparison);
+		if (GL.versionCheck(4, 3))
+			GLDebug.writef(	GLDebug.ATTRIB_STRING, "Depth Stencil Mode:",
+							DepthStencilMode.get(GL11.glGetTexParameteri(target.value(), GL43.GL_DEPTH_STENCIL_TEXTURE_MODE)));
+		GLDebug.writef(	GLDebug.ATTRIB_STRING, "Depth Comparison Mode:",
+						TextureComparison.get(	GL11.glGetTexParameteri(target.value(), GL14.GL_TEXTURE_COMPARE_MODE),
+												GL11.glGetTexParameteri(target.value(), GL14.GL_TEXTURE_COMPARE_FUNC)));
 	}
 }

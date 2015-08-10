@@ -131,8 +131,7 @@ public final class Texture1DArray extends GLTexture1D implements FBOAttachable {
 	/**************************************************/
 	
 	/**
-	 * Sets the texel data in specified rectangle of mipmap level. Texture needs to be initialized with
-	 * {@link #initializeTexture(int, int, int, TextureFormat)}. Rectangle must be within the bounds of the texture.
+	 * Sets the texel data in specified rectangle of mipmap level. Rectangle must be within the bounds of the texture.
 	 * [GL_TEXTURE_BASE_LEVEL + map].
 	 */
 	public void setData(int x, int w, int layeri, int layerf, int map, ImageFormat format, ImageDataType type, ByteBuffer data) {
@@ -161,25 +160,34 @@ public final class Texture1DArray extends GLTexture1D implements FBOAttachable {
 	 **************************************************/
 	
 	@Override
+	public void debug() {
+		GLDebug.writef(GLDebug.ATTRIB_STRING + "\t(%d) x %d", target + ":", name, w, layers);
+		//#formatter:off
+		GLDebug.indent();
+			GLDebug.writef(GLDebug.ATTRIB_STRING, "Texture Format:", texformat);
+			if (minFilter.mipmaps() && maxmap > 0)
+				GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range:", basemap, maxmap);
+			super.debug();
+		GLDebug.unindent();
+		//#formatter:on
+		
+	}
+	
+	@Override
 	public void debugQuery() {
 		GLDebug.flushErrors();
-		
-		GLDebug.writef(GLDebug.ATTRIB_STRING + "\t(%d) x %d", target, name, w, layers);
+		GLDebug.writef(GLDebug.ATTRIB_STRING+ "\t(%d) x %d", target + ":", name, GL11.glGetTexLevelParameteri(target.value(), 0, GL11.GL_TEXTURE_WIDTH),
+						GL11.glGetTexParameteri(target.value(), GL11.GL_TEXTURE_HEIGHT));
+		//#formatter:off
 		GLDebug.indent();
-		
-		GLDebug.writef(GLDebug.ATTRIB_STRING, "Texture Format", texformat);
-		
-		GLDebug.writef(GLDebug.ATTRIB_STRING, "Wrapping Mode", sWrap);
-		
-		if (minFilter.mipmaps() && maxmap > 0)
-			GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range", basemap, maxmap);
-			
-		super.debugQuery();
-		
+			GLDebug.writef(GLDebug.ATTRIB_STRING, "Texture Format:", TextureFormat.get(GL11.glGetTexLevelParameteri(target.value(), 0, GL11.GL_TEXTURE_INTERNAL_FORMAT)));
+			if (minFilter.mipmaps() && maxmap > 0)
+				GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range:", GL11.glGetTexParameteri(target.value(), GL12.GL_TEXTURE_BASE_LEVEL), 
+				               GL11.glGetTexParameteri(target.value(), GL12.GL_TEXTURE_MAX_LEVEL));
+			super.debugQuery();
 		GLDebug.unindent();
-		
+		//#formatter:on
 		GLDebug.flushErrors();
-		
 	}
 	
 }

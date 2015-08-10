@@ -13,12 +13,13 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lwjgl/jar/lwjgl_util.jar"/>
+	<classpathentry kind="lib" path="org.skx.logger.jar"/>
+	<classpathentry kind="lib" path="GLVersion.jar"/>
 	<classpathentry kind="src" path=".apt_generated">
 		<attributes>
 			<attribute name="optional" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/BindProcessor/bind.jar"/>
 	<classpathentry kind="lib" path="org.eclipse.jdt.annotation_1.1.0.v20140129-1625.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

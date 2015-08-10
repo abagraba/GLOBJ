@@ -11,6 +11,8 @@ import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL42;
 
+import annotations.GLVersion;
+
 
 
 @NonNullByDefault
@@ -30,14 +32,14 @@ public enum TextureFormat {
 	RG16("RG 16 bit depth: Unsigned normalized integer", GL30.GL_RG16, GL30.GL_RG),
 	RGB16("RGB 16 bit depth: Unsigned normalized integer", GL11.GL_RGB16, GL11.GL_RGB),
 	RGBA16("RGBA 16 bit depth: Unsigned normalized integer", GL11.GL_RGBA16, GL11.GL_RGBA),
-	R8_SNORM("R 8 bit depth: Signed normalized integer", GL31.GL_R8_SNORM, GL11.GL_RED),
-	RG8_SNORM("RG 8 bit depth: Signed normalized integer", GL31.GL_RG8_SNORM, GL30.GL_RG),
-	RGB8_SNORM("RGB 8 bit depth: Signed normalized integer", GL31.GL_RGB8_SNORM, GL11.GL_RGB),
-	RGBA8_SNORM("RGBA 8 bit depth: Signed normalized integer", GL31.GL_RGBA8_SNORM, GL11.GL_RGBA),
-	R16_SNORM("R 16 bit depth: Signed normalized integer", GL31.GL_R16_SNORM, GL11.GL_RED),
-	RG16_SNORM("RG 16 bit depth: Signed normalized integer", GL31.GL_RG16_SNORM, GL30.GL_RG),
-	RGB16_SNORM("RGB 16 bit depth: Signed normalized integer", GL31.GL_RGB16_SNORM, GL11.GL_RGB),
-	RGBA16_SNORM("RGBA 16 bit depth: Signed normalized integer", GL31.GL_RGBA16_SNORM, GL11.GL_RGBA),
+	@GLVersion({ 3, 1 }) R8_SNORM("R 8 bit depth: Signed normalized integer", GL31.GL_R8_SNORM, GL11.GL_RED),
+	@GLVersion({ 3, 1 }) RG8_SNORM("RG 8 bit depth: Signed normalized integer", GL31.GL_RG8_SNORM, GL30.GL_RG),
+	@GLVersion({ 3, 1 }) RGB8_SNORM("RGB 8 bit depth: Signed normalized integer", GL31.GL_RGB8_SNORM, GL11.GL_RGB),
+	@GLVersion({ 3, 1 }) RGBA8_SNORM("RGBA 8 bit depth: Signed normalized integer", GL31.GL_RGBA8_SNORM, GL11.GL_RGBA),
+	@GLVersion({ 3, 1 }) R16_SNORM("R 16 bit depth: Signed normalized integer", GL31.GL_R16_SNORM, GL11.GL_RED),
+	@GLVersion({ 3, 1 }) RG16_SNORM("RG 16 bit depth: Signed normalized integer", GL31.GL_RG16_SNORM, GL30.GL_RG),
+	@GLVersion({ 3, 1 }) RGB16_SNORM("RGB 16 bit depth: Signed normalized integer", GL31.GL_RGB16_SNORM, GL11.GL_RGB),
+	@GLVersion({ 3, 1 }) RGBA16_SNORM("RGBA 16 bit depth: Signed normalized integer", GL31.GL_RGBA16_SNORM, GL11.GL_RGBA),
 	R8_UI("R 8 bit depth: Unsigned integer", GL30.GL_R8UI, GL30.GL_RED_INTEGER),
 	RG8_UI("RG 8 bit depth: Unsigned integer", GL30.GL_RG8UI, GL30.GL_RG_INTEGER),
 	RGB8_UI("RGB 8 bit depth: Unsigned integer", GL30.GL_RGB8UI, GL30.GL_RGB_INTEGER),
@@ -84,10 +86,10 @@ public enum TextureFormat {
 	COMPRESSED_RGTC1_SIGNED("1 Component RGTC Compressed: Signed normalized integer", GL30.GL_COMPRESSED_SIGNED_RED_RGTC1, GL11.GL_RED),
 	COMPRESSED_RGTC2("2 Component RGTC Compressed: Unsigned normalized integer", GL30.GL_COMPRESSED_RG_RGTC2, GL30.GL_RG),
 	COMPRESSED_RGTC2_SIGNED("2 Component RGTC Compressed: Signed normalized integer", GL30.GL_COMPRESSED_SIGNED_RG_RGTC2, GL30.GL_RG),
-	COMPRESSED_RGBA_BTPC_UNORM("RGBA BPTC Compressed: Unsigned normalized integer", GL42.GL_COMPRESSED_RGBA_BPTC_UNORM, GL11.GL_RGBA),
-	COMPRESSED_SRGBA_BTPC_UNORM("sRGB BPTC Compressed: Unsigned normalized integer", GL42.GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM, GL11.GL_RGBA),
-	COMPRESSED_RGB_BTPC_F("RGB BPTC Compressed: Signed float", GL42.GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT, GL11.GL_RGB),
-	COMPRESSED_RGB_BTPC_F_UNSIGNED("RGB BPTC Compressed: Unsigned float", GL42.GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT, GL11.GL_RGB),
+	@GLVersion({ 4, 2 }) COMPRESSED_RGBA_BTPC_UNORM("RGBA BPTC Compressed: Unsigned normalized integer", GL42.GL_COMPRESSED_RGBA_BPTC_UNORM, GL11.GL_RGBA),
+	@GLVersion({ 4, 2 }) COMPRESSED_SRGBA_BTPC_UNORM("sRGB BPTC Compressed: Unsigned normalized integer", GL42.GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM, GL11.GL_RGBA),
+	@GLVersion({ 4, 2 }) COMPRESSED_RGB_BTPC_F("RGB BPTC Compressed: Signed float", GL42.GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT, GL11.GL_RGB),
+	@GLVersion({ 4, 2 }) COMPRESSED_RGB_BTPC_F_UNSIGNED("RGB BPTC Compressed: Unsigned float", GL42.GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT, GL11.GL_RGB),
 	
 	D16("16 bit Depth", GL14.GL_DEPTH_COMPONENT16, GL11.GL_DEPTH_COMPONENT, true, false),
 	D24("24 bit Depth", GL14.GL_DEPTH_COMPONENT24, GL11.GL_DEPTH_COMPONENT, true, false),
@@ -108,7 +110,6 @@ public enum TextureFormat {
 	private final int base;
 	private final boolean depth;
 	private final boolean stencil;
-	
 	
 	private TextureFormat(String name, int value, int base) {
 		this(name, value, base, false, false);

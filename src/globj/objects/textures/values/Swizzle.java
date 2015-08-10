@@ -5,16 +5,23 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.lwjgl.opengl.GL11;
 
+import annotations.GLVersion;
 
 
+
+@GLVersion({ 3, 3 })
 @NonNullByDefault
 public enum Swizzle {
 	
-	R("Red", GL11.GL_RED), G("Green", GL11.GL_GREEN), B("Blue", GL11.GL_BLUE), A("Alpha", GL11.GL_ALPHA), ZERO("Zero", GL11.GL_ZERO), ONE("One", GL11.GL_ONE);
+	@GLVersion({ 3, 3 }) R("Red", GL11.GL_RED),
+	@GLVersion({ 3, 3 }) G("Green", GL11.GL_GREEN),
+	@GLVersion({ 3, 3 }) B("Blue", GL11.GL_BLUE),
+	@GLVersion({ 3, 3 }) A("Alpha", GL11.GL_ALPHA),
+	@GLVersion({ 3, 3 }) ZERO("Zero", GL11.GL_ZERO),
+	@GLVersion({ 3, 3 }) ONE("One", GL11.GL_ONE);
 	
 	private final String name;
 	private final int value;
-	
 	
 	private Swizzle(String name, int value) {
 		this.name = name;

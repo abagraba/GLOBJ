@@ -1,24 +1,25 @@
 package globj.objects.shaders;
 
 
-import globj.objects.GLObject;
-import lwjgl.debug.GLDebug;
+import static lwjgl.debug.GLDebug.write;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
+import globj.objects.GLObject;
+import lwjgl.debug.GLDebug;
+
 
 
 @NonNullByDefault
 public class Shader extends GLObject {
 	
-	protected final ShaderType	type;
+	protected final ShaderType type;
 	
 	@Nullable
-	private String[]			errors;
-	
+	private String[] errors;
 	
 	private Shader(String name, ShaderType type) {
 		super(name, GL20.glCreateShader(type.value()));
@@ -56,8 +57,18 @@ public class Shader extends GLObject {
 	}
 	
 	/**************************************************
-	********************** Debug *********************
-	**************************************************/
+	 ********************** Debug *********************
+	 **************************************************/
+	@Override
+	public void debug() {
+		GLDebug.writef(GLDebug.ATTRIB_STRING, "Shader:", this);
+		
+		GLDebug.indent();
+		if (errors != null)
+			for (String error : errors)
+				GLDebug.write(error);
+		GLDebug.unindent();
+	}
 	
 	@Override
 	public void debugQuery() {
@@ -69,6 +80,8 @@ public class Shader extends GLObject {
 		if (errors != null)
 			for (String error : errors)
 				GLDebug.write(error);
+		if (GL20.glGetShaderi(id, GL20.GL_DELETE_STATUS) != GL11.GL_FALSE)
+			write("FLAGGED FOR DELETION");
 		GLDebug.unindent();
 		
 		GLDebug.flushErrors();
@@ -77,7 +90,7 @@ public class Shader extends GLObject {
 	@Override
 	@Nullable
 	public String toString() {
-		return String.format("%24s:\t\t%s", name, type);
+		return String.format(GLDebug.ATTRIB_STRING, name + ":", type);
 	}
 	
 }

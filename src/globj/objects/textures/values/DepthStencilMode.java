@@ -6,15 +6,20 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL43;
 
+import annotations.GLVersion;
+
 
 
 @NonNullByDefault
+
+@GLVersion({ 4, 3 })
 public enum DepthStencilMode {
-	DEPTH("Depth Mode", GL11.GL_DEPTH_COMPONENT), STENCIL("Stencil Mode", GL43.GL_STENCIL_COMPONENTS);
+	
+	@GLVersion({ 4, 3 }) DEPTH("Depth Mode", GL11.GL_DEPTH_COMPONENT),
+	@GLVersion({ 4, 3 }) STENCIL("Stencil Mode", GL43.GL_STENCIL_COMPONENTS);
 	
 	private final String name;
 	private final int value;
-	
 	
 	private DepthStencilMode(String name, int value) {
 		this.name = name;

@@ -1,6 +1,20 @@
 package globj.objects.framebuffers;
 
 
+import static lwjgl.debug.GLDebug.ATTRIB;
+import static lwjgl.debug.GLDebug.ATTRIB_INT;
+import static lwjgl.debug.GLDebug.ATTRIB_STRING;
+import static lwjgl.debug.GLDebug.flushErrors;
+import static lwjgl.debug.GLDebug.glError;
+import static lwjgl.debug.GLDebug.indent;
+import static lwjgl.debug.GLDebug.unindent;
+import static lwjgl.debug.GLDebug.write;
+import static lwjgl.debug.GLDebug.writef;
+
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL43;
+
 import globj.core.Context;
 import globj.core.GL;
 import globj.objects.BindTracker;
@@ -11,12 +25,6 @@ import globj.objects.textures.GLTexture;
 import globj.objects.textures.Textures;
 import globj.objects.textures.values.CubemapTarget;
 import globj.objects.textures.values.ImageDataType;
-
-import static lwjgl.debug.GLDebug.*;
-
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL43;
 
 
 
@@ -101,6 +109,10 @@ public class FBO extends BindableGLObject {
 	/**************************************************
 	 ********************** Debug *********************
 	 **************************************************/
+	@Override
+	public void debug() {
+		writef(ATTRIB_STRING, "FBO:", name);
+	}
 	
 	@Override
 	public void debugQuery() {

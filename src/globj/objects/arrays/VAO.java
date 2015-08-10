@@ -213,14 +213,15 @@ public class VAO extends BindableGLObject {
 	
 	// booleans to track which arrays are enabled.
 	
-	/**************************************************/
-	
-	/********************** Debug *********************/
-	/**************************************************/
+	/**************************************************
+	 ********************** Debug *********************
+	 **************************************************/
+	@Override
+	public void debug() {
+	}
 	
 	@Override
 	public void debugQuery() {
-		// TODO Auto-generated method stub
 	}
 	
 }

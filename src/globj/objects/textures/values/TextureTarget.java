@@ -10,6 +10,8 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.GL40;
 
+import annotations.GLVersion;
+
 
 
 @NonNullByDefault
@@ -19,13 +21,12 @@ public enum TextureTarget {
 	TEXTURE_3D("Texture 3D", GL12.GL_TEXTURE_3D),
 	TEXTURE_1D_ARRAY("Texture 1D Array", GL30.GL_TEXTURE_1D_ARRAY),
 	TEXTURE_2D_ARRAY("Texture 2D Array", GL30.GL_TEXTURE_2D_ARRAY),
-	TEXTURE_RECTANGLE("Texture Rectangle", GL31.GL_TEXTURE_RECTANGLE),
+	@GLVersion({ 3, 1 }) TEXTURE_RECTANGLE("Texture Rectangle", GL31.GL_TEXTURE_RECTANGLE),
 	TEXTURE_CUBEMAP("Texture Cubemap", GL13.GL_TEXTURE_CUBE_MAP),
-	TEXTURE_CUBEMAP_ARRAY("Texture Cubemap Array", GL40.GL_TEXTURE_CUBE_MAP_ARRAY),;
+	@GLVersion({ 4, 0 }) TEXTURE_CUBEMAP_ARRAY("Texture Cubemap Array", GL40.GL_TEXTURE_CUBE_MAP_ARRAY),;
 	
 	private final String name;
 	private final int value;
-	
 	
 	private TextureTarget(String name, int value) {
 		this.name = name;

@@ -1,6 +1,15 @@
 package lwjgl.test.misc;
 
 
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
+import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.GL11;
+
+import control.ControlManager;
 import globj.core.GL;
 import globj.core.RenderCommand;
 import globj.objects.arrays.VAO;
@@ -16,16 +25,6 @@ import globj.objects.textures.values.MagnifyFilter;
 import globj.objects.textures.values.MinifyFilter;
 import globj.objects.textures.values.TextureFormat;
 import globj.objects.textures.values.TextureWrapMode;
-
-import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
-
-import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.GL11;
-
-import control.ControlManager;
 import lwjgl.debug.GLDebug;
 
 
@@ -37,20 +36,19 @@ public class FBOTests extends RenderCommand {
 	FBO				fbo;
 	Texture2D		tex;
 	Texture2D		c0;
-	float[]			rect	= new float[] { 0, 0, 0, 1, //
-			0, 1, 0, 0, //
-			1, 1, 1, 0, //
-			1, 1, 1, 0, //
-			1, 0, 1, 1, //
-			0, 0, 0, 1		};
-	float[]			quad	= new float[] { 0, 0, 0, 0, //
-			0, 1, 0, 1, //
-			1, 1, 1, 1, //
-			1, 1, 1, 1, //
-			1, 0, 1, 0, //
-			0, 0, 0, 0		};
-	
-	
+	float[]			rect	= new float[] {	0, 0, 0, 1,		//
+											0, 1, 0, 0,		//
+											1, 1, 1, 0,		//
+											1, 1, 1, 0,		//
+											1, 0, 1, 1,		//
+											0, 0, 0, 1 };
+	float[]			quad	= new float[] {	0, 0, 0, 0,		//
+											0, 1, 0, 1,		//
+											1, 1, 1, 1,		//
+											1, 1, 1, 1,		//
+											1, 0, 1, 0,		//
+											0, 0, 0, 0 };
+											
 	@Override
 	public void init() {
 		ControlManager.select(new TestControlSet());

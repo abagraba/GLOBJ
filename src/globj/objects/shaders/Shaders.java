@@ -1,8 +1,6 @@
 package globj.objects.shaders;
 
 
-import globj.objects.GLObjectTracker;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +11,7 @@ import java.util.List;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
+import globj.objects.GLObjectTracker;
 import lwjgl.debug.GLDebug;
 
 
@@ -20,8 +19,7 @@ import lwjgl.debug.GLDebug;
 @NonNullByDefault
 public class Shaders {
 	
-	private static final GLObjectTracker<Shader>	tracker	= new GLObjectTracker<Shader>();
-	
+	private static final GLObjectTracker<Shader> tracker = new GLObjectTracker<Shader>();
 	
 	private Shaders() {
 	}
@@ -55,6 +53,11 @@ public class Shaders {
 			s.setShaderData(data.toArray(new String[data.size()]));
 		}
 		return s;
+	}
+	
+	@Nullable
+	protected static Shader getShader(int id) {
+		return tracker.get(id);
 	}
 	
 	@Nullable

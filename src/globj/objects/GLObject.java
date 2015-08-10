@@ -24,6 +24,8 @@ public abstract class GLObject {
 		return id;
 	}
 	
+	public abstract void debug();
+	
 	public abstract void debugQuery();
 	
 	@Override

@@ -114,7 +114,7 @@ public class Vector4f {
 	 **************************************************/
 	
 	/**
-	 * Quick convenience method for quickly filling FloatBuffer.
+	 * Quick convenience method for quickly filling FloatBuffer from the Vector4f.
 	 * 
 	 * @return a FloatBuffer filled with the vector.
 	 */
@@ -126,6 +126,17 @@ public class Vector4f {
 		buffer.put(w);
 		buffer.flip();
 		return buffer;
+	}
+	
+	/**
+	 * Quick convenience method for quickly filling the Vector4f from a FloatBuffer.
+	 * 
+	 * @return a Vector4f filled from a FloatBuffer.
+	 */
+	public static Vector4f fromBuffer(FloatBuffer fb) {
+		if (fb.remaining() < 4)
+			throw new IndexOutOfBoundsException("Not enough elements in FloatBuffer.");
+		return new Vector4f(fb.get(), fb.get(), fb.get(), fb.get());
 	}
 	
 	@Override

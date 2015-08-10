@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL42;
 
@@ -169,24 +170,34 @@ public final class Texture2D extends GLTexture2D implements FBOAttachable {
 	 **************************************************/
 	
 	@Override
+	public void debug() {
+		GLDebug.writef(GLDebug.ATTRIB_STRING + "\t(%d) x %d", target + ":", name, w, h);
+		//#formatter:off
+		GLDebug.indent();
+			GLDebug.writef(GLDebug.ATTRIB_STRING, "Texture Format:", texformat);
+			if (minFilter.mipmaps() && maxmap > 0)
+				GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range:", basemap, maxmap);
+			super.debug();
+		GLDebug.unindent();
+		//#formatter:on
+		
+	}
+	
+	@Override
 	public void debugQuery() {
 		GLDebug.flushErrors();
-		
-		GLDebug.writef(GLDebug.ATTRIB_STRING + "\t(%d x %d)", target, name, w, h);
+		GLDebug.writef(GLDebug.ATTRIB_STRING+ "\t(%d x %d)", target + ":", name, GL11.glGetTexLevelParameteri(target.value(), 0, GL11.GL_TEXTURE_WIDTH),
+						GL11.glGetTexParameteri(target.value(), GL11.GL_TEXTURE_HEIGHT));
+		//#formatter:off
 		GLDebug.indent();
-		
-		GLDebug.writef(GLDebug.ATTRIB_STRING, "Texture Format", texformat);
-		
-		GLDebug.writef(GLDebug.ATTRIB_STRING, "Wrapping Mode [S]", sWrap);
-		GLDebug.writef(GLDebug.ATTRIB_STRING, "Wrapping Mode [T]", tWrap);
-		
-		if (minFilter.mipmaps() && maxmap > 0)
-			GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range", basemap, maxmap);
-			
-		super.debugQuery();
-		
+			GLDebug.writef(GLDebug.ATTRIB_STRING, "Texture Format:", TextureFormat.get(GL11.glGetTexLevelParameteri(target.value(), 0, GL11.GL_TEXTURE_INTERNAL_FORMAT)));
+			if (minFilter.mipmaps() && maxmap > 0)
+				GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range:", GL11.glGetTexParameteri(target.value(), GL12.GL_TEXTURE_BASE_LEVEL), 
+				               GL11.glGetTexParameteri(target.value(), GL12.GL_TEXTURE_MAX_LEVEL));
+			super.debugQuery();
 		GLDebug.unindent();
-		
+		//#formatter:on
 		GLDebug.flushErrors();
 	}
+	
 }

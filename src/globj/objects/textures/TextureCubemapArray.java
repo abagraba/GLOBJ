@@ -1,20 +1,7 @@
 package globj.objects.textures;
 
 
-import globj.core.Context;
-import globj.core.GL;
-import globj.objects.BindTracker;
-import globj.objects.framebuffers.FBOAttachable;
-import globj.objects.framebuffers.values.FBOAttachment;
-import globj.objects.textures.values.CubemapTarget;
-import globj.objects.textures.values.ImageDataType;
-import globj.objects.textures.values.ImageFormat;
-import globj.objects.textures.values.TextureFormat;
-import globj.objects.textures.values.TextureTarget;
-
 import java.nio.ByteBuffer;
-
-import lwjgl.debug.GLDebug;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -25,12 +12,26 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL32;
 import org.lwjgl.opengl.GL42;
 
+import annotations.GLVersion;
+import globj.core.Context;
+import globj.core.GL;
+import globj.objects.BindTracker;
+import globj.objects.framebuffers.FBOAttachable;
+import globj.objects.framebuffers.values.FBOAttachment;
+import globj.objects.textures.values.CubemapTarget;
+import globj.objects.textures.values.ImageDataType;
+import globj.objects.textures.values.ImageFormat;
+import globj.objects.textures.values.TextureFormat;
+import globj.objects.textures.values.TextureTarget;
+import lwjgl.debug.GLDebug;
+
 
 
 @NonNullByDefault
 public final class TextureCubemapArray extends GLTexture2D implements FBOAttachable {
 	
-	private int s, layers, basemap, maxmap;
+	private int		s, layers, basemap, maxmap;
+	private boolean	seamless;
 	
 	private TextureCubemapArray(String name, TextureFormat texformat) {
 		super(name, texformat, TextureTarget.TEXTURE_CUBEMAP_ARRAY);
@@ -84,6 +85,7 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 	
 	@Override
 	protected BindTracker bindingTracker() {
+		makeSeamless(false);
 		return bindTracker;
 	}
 	
@@ -92,10 +94,11 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 	/*
 	 * XXX When is this core? Latest 4.4?
 	 */
+	@GLVersion({ 4, 3 })
 	public void makeSeamless(boolean seamless) {
 		if (GL.versionCheck(4, 4)) {
 			bind();
-			GL11.glTexParameteri(target.value(), GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS, seamless ? 1 : 0);
+			GL11.glTexParameteri(target.value(), GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS, (this.seamless = seamless) ? 1 : 0);
 			undobind();
 		}
 		else
@@ -132,26 +135,39 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 	/**************************************************
 	 ********************** Debug *********************
 	 **************************************************/
-	// TODO log state of seamless!!!
+	
+	@Override
+	public void debug() {
+		GLDebug.writef(GLDebug.ATTRIB_STRING + "\t(%d x %d) x %d", target + ":", name, s, s, layers);
+		//#formatter:off
+		GLDebug.indent();
+			GLDebug.writef(GLDebug.ATTRIB_STRING, "Texture Format:", texformat);
+			if (GL.versionCheck(4, 4))
+				GLDebug.writef(GLDebug.ATTRIB_STRING, "Seamless Cubemap:", seamless);
+			if (minFilter.mipmaps() && maxmap > 0)
+				GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range:", basemap, maxmap);
+			super.debug();
+		GLDebug.unindent();
+		//#formatter:on
+	}
+	
 	@Override
 	public void debugQuery() {
 		GLDebug.flushErrors();
-		
-		GLDebug.writef(GLDebug.ATTRIB_STRING + "\t(%d x %d) x %d", target, name, s, s, layers);
+		GLDebug.writef(GLDebug.ATTRIB_STRING+ "\t(%d x %d) x %d", target + ":", name, GL11.glGetTexLevelParameteri(target.value(), 0, GL11.GL_TEXTURE_WIDTH),
+						GL11.glGetTexParameteri(target.value(), GL11.GL_TEXTURE_HEIGHT), GL11.glGetTexParameteri(target.value(), GL12.GL_TEXTURE_DEPTH));
+		//#formatter:off
 		GLDebug.indent();
-		
-		GLDebug.writef(GLDebug.ATTRIB_STRING, "Texture Format", texformat);
-		
-		GLDebug.writef(GLDebug.ATTRIB_STRING, "Wrapping Mode [S]", sWrap);
-		GLDebug.writef(GLDebug.ATTRIB_STRING, "Wrapping Mode [T]", tWrap);
-		
-		if (minFilter.mipmaps() && maxmap > 0)
-			GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range", basemap, maxmap);
-			
-		super.debugQuery();
-		
+			GLDebug.writef(GLDebug.ATTRIB_STRING, "Texture Format:", TextureFormat.get(GL11.glGetTexLevelParameteri(target.value(), 0, GL11.GL_TEXTURE_INTERNAL_FORMAT)));
+			if (GL.versionCheck(4, 4))
+				GLDebug.writef(GLDebug.ATTRIB_STRING, "Seamless Cubemap:", GL11.glGetTexParameteri(target.value(), GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS));
+			if (minFilter.mipmaps() && maxmap > 0)
+				GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range:", GL11.glGetTexParameteri(target.value(), GL12.GL_TEXTURE_BASE_LEVEL), 
+				               GL11.glGetTexParameteri(target.value(), GL12.GL_TEXTURE_MAX_LEVEL));
+			super.debugQuery();
 		GLDebug.unindent();
-		
+		//#formatter:on
 		GLDebug.flushErrors();
 	}
+	
 }

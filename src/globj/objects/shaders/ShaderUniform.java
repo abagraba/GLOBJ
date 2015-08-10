@@ -128,6 +128,11 @@ public class ShaderUniform extends GLObject {
 	 ********************** Debug *********************
 	 **************************************************/
 	@Override
+	public void debug() {
+		GLDebug.write(this);
+	}
+	
+	@Override
 	public void debugQuery() {
 		GLDebug.write(this);
 	}

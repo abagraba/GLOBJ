@@ -1,15 +1,14 @@
 package lwjgl.test.misc;
 
 
-import globj.core.GL;
-import globj.core.RenderCommand;
-import globj.objects.textures.Textures;
-import globj.objects.textures.values.TextureFormat;
-
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.GL11;
 
 import control.ControlManager;
+import globj.core.GL;
+import globj.core.RenderCommand;
+import globj.objects.textures.Textures;
+import globj.objects.textures.values.TextureFormat;
 import lwjgl.debug.GLDebug;
 import lwjgl.debug.Timer;
 
@@ -18,8 +17,8 @@ import lwjgl.debug.Timer;
 /**
  * Test Target to test functionality of Vertex Buffer Objects. <br/>
  * <br/>
- * For more information, visit <a href="http://www.ozone3d.net/tutorials/opengl_vbo.php"
- * >http://www.ozone3d.net/tutorials/opengl_vbo.php</a>
+ * For more information, visit
+ * <a href="http://www.ozone3d.net/tutorials/opengl_vbo.php" >http://www.ozone3d.net/tutorials/opengl_vbo.php</a>
  *
  */
 public class TextureFormatTest extends RenderCommand {
@@ -41,10 +40,10 @@ public class TextureFormatTest extends RenderCommand {
 			int j = -1024;
 			for (; j < 0; j++)
 				Textures.createTexture2D("Test" + j + format, format, 256, 256, 1);
-			Timer.debug.mark();
+			Timer.DEBUG.mark();
 			for (; j < 1024; j++)
 				Textures.createTexture2D("Test" + j + format, format, 256, 256, 1);
-			Timer.debug.measure("Loading Texture " + format + ":", 1024);
+			Timer.DEBUG.measure("Loading Texture " + format + ":", 1024);
 			GLDebug.write("\n");
 			for (j = -1024; j < 1024; j++)
 				Textures.destroyTexture2D("Test" + j + format);

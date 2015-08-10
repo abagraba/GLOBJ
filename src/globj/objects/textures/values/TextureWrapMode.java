@@ -9,6 +9,8 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GL44;
 
+import annotations.GLVersion;
+
 
 
 @NonNullByDefault
@@ -17,11 +19,10 @@ public enum TextureWrapMode {
 	CLAMP_BORDER("Clamp to Border", GL13.GL_CLAMP_TO_BORDER),
 	REPEAT("Repeat", GL11.GL_REPEAT),
 	MIRRORED_REPEAT("Mirrored Repeat", GL14.GL_MIRRORED_REPEAT),
-	MIRRORED_CLAMP_TO_EDGE("Mirrored Clamp to Edge", GL44.GL_MIRROR_CLAMP_TO_EDGE);
+	@GLVersion({ 4, 4 }) MIRRORED_CLAMP_TO_EDGE("Mirrored Clamp to Edge", GL44.GL_MIRROR_CLAMP_TO_EDGE);
 	
 	private final String name;
 	private final int value;
-	
 	
 	private TextureWrapMode(String name, int value) {
 		this.name = name;

@@ -1,6 +1,15 @@
 package globj.objects.textures;
 
 
+import java.nio.ByteBuffer;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL42;
+
 import globj.core.Context;
 import globj.core.GL;
 import globj.objects.BindTracker;
@@ -10,16 +19,7 @@ import globj.objects.textures.values.ImageDataType;
 import globj.objects.textures.values.ImageFormat;
 import globj.objects.textures.values.TextureFormat;
 import globj.objects.textures.values.TextureTarget;
-
-import java.nio.ByteBuffer;
-
 import lwjgl.debug.GLDebug;
-
-import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL42;
 
 
 
@@ -83,8 +83,7 @@ public final class Texture1D extends GLTexture1D implements FBOAttachable {
 	/**************************************************/
 	
 	/**
-	 * Sets the texel data in specified rectangle of mipmap level. Texture needs to be initialized with
-	 * {@link #initializeTexture(int, int, int, TextureFormat)}. Rectangle must be within the bounds of the texture.
+	 * Sets the texel data in specified rectangle of mipmap level. Rectangle must be within the bounds of the texture.
 	 * [GL_TEXTURE_BASE_LEVEL + map].
 	 */
 	public void setData(int x, int w, int map, ImageFormat format, ImageDataType type, ByteBuffer data) {
@@ -113,23 +112,32 @@ public final class Texture1D extends GLTexture1D implements FBOAttachable {
 	 **************************************************/
 	
 	@Override
+	public void debug() {
+		GLDebug.writef(GLDebug.ATTRIB_STRING + "\t(%d)", target + ":", name, w);
+		//#formatter:off
+		GLDebug.indent();
+			GLDebug.writef(GLDebug.ATTRIB_STRING, "Texture Format:", texformat);
+			if (minFilter.mipmaps() && maxmap > 0)
+				GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range:", basemap, maxmap);
+			super.debug();
+		GLDebug.unindent();
+		//#formatter:on
+	}
+	
+	@Override
 	public void debugQuery() {
 		GLDebug.flushErrors();
-		
-		GLDebug.writef(GLDebug.ATTRIB_STRING + "\t(%d)", target, name, w);
+		GLDebug.writef(GLDebug.ATTRIB_STRING + "\t(%d)", target + ":", name, GL11.glGetTexLevelParameteri(target.value(), 0, GL11.GL_TEXTURE_WIDTH));
+		//#formatter:off
 		GLDebug.indent();
-		
-		GLDebug.writef(GLDebug.ATTRIB_STRING, "Texture Format", texformat);
-		
-		GLDebug.writef(GLDebug.ATTRIB_STRING, "Wrapping Mode", sWrap);
-		
+		GLDebug.writef(GLDebug.ATTRIB_STRING, "Texture Format:", TextureFormat.get(GL11.glGetTexLevelParameteri(target.value(), 0, GL11.GL_TEXTURE_INTERNAL_FORMAT)));
 		if (minFilter.mipmaps() && maxmap > 0)
-			GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range", basemap, maxmap);
-			
-		super.debugQuery();
-		
+				GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range:", GL11.glGetTexParameteri(target.value(), GL12.GL_TEXTURE_BASE_LEVEL), 
+				               GL11.glGetTexParameteri(target.value(), GL12.GL_TEXTURE_MAX_LEVEL));
+			super.debugQuery();
 		GLDebug.unindent();
-		
+		//#formatter:on
 		GLDebug.flushErrors();
 	}
+	
 }

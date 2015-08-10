@@ -1,20 +1,20 @@
 package globj.objects.textures;
 
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.lwjgl.opengl.GL11;
+
 import globj.objects.textures.values.TextureFormat;
 import globj.objects.textures.values.TextureTarget;
 import globj.objects.textures.values.TextureWrapMode;
-
-import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.lwjgl.opengl.GL11;
+import lwjgl.debug.GLDebug;
 
 
 
 @NonNullByDefault
 public abstract class GLTexture1D extends GLTexture {
 	
-	protected TextureWrapMode	sWrap	= TextureWrapMode.REPEAT;
-	
+	protected TextureWrapMode sWrap = TextureWrapMode.REPEAT;
 	
 	protected GLTexture1D(String name, TextureFormat texformat, TextureTarget target) {
 		super(name, texformat, target);
@@ -32,4 +32,15 @@ public abstract class GLTexture1D extends GLTexture {
 		undobind();
 	}
 	
+	@Override
+	public void debug() {
+		GLDebug.writef(GLDebug.ATTRIB_STRING, "Wrapping Mode:", sWrap);
+		super.debug();
+	}
+	
+	@Override
+	public void debugQuery() {
+		GLDebug.writef(GLDebug.ATTRIB_STRING, "Wrapping Mode:", TextureWrapMode.get(GL11.glGetTexParameteri(target.value(), GL11.GL_TEXTURE_WRAP_S)));
+		super.debugQuery();
+	}
 }
