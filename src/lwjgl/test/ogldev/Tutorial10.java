@@ -96,7 +96,7 @@ public class Tutorial10 extends RenderCommand {
 		Window w = new Window();
 		w.setTarget(new Tutorial10());
 		w.start();
-		ControlManager.select(w, new TutorialControlSet());
+		ControlManager.attach(w, new TutorialControlSet());
 		
 	}
 	

@@ -4,6 +4,8 @@ package control;
 import java.util.ArrayList;
 import java.util.List;
 
+import globj.core.Window;
+
 
 
 public class ControlSet {
@@ -22,7 +24,7 @@ public class ControlSet {
 		return controls;
 	}
 	
-	public void setWindow(long window) {
+	public void setWindow(Window window) {
 		for (Control control : controls) {
 			control.setWindow(window);
 		}

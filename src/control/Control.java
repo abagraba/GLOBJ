@@ -1,10 +1,12 @@
 package control;
 
+import globj.core.Window;
+
 public interface Control {
 	
 	public String name();
 	
 	public void update();
 	
-	public void setWindow(long window);
+	public void setWindow(Window window);
 }

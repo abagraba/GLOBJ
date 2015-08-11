@@ -37,7 +37,6 @@ public class Window {
 	private static volatile boolean	display		= false;
 	
 	private static Object			targetLock		= new Object();
-	private static RenderCommand	target;
 	private static RenderCommand	current;
 	private static long				lastRender		= System.nanoTime();
 	private static long				currentRender	= System.nanoTime();
@@ -52,6 +51,8 @@ public class Window {
 	private int		width;
 	private int		height;
 	private boolean	decorated;
+	
+	private RenderCommand target;
 	
 	public Window() {
 		this("LWJGL Window", 800, 600);
@@ -97,20 +98,9 @@ public class Window {
 		return height == 0 ? (w.get() == 0 ? 0 : Float.MAX_VALUE) : (float) w.get() / height;
 	}
 	
-	public static void setTarget(RenderCommand target) {
+	public void setTarget(RenderCommand target) {
 		synchronized (targetLock) {
-			Window.target = target;
-		}
-	}
-	
-	public static void waitForStart() {
-		while (!display) {
-			try {
-				Thread.sleep(16);
-			}
-			catch (InterruptedException e) {
-				GLDebug.logException(e);
-			}
+			this.target = target;
 		}
 	}
 	
@@ -121,11 +111,11 @@ public class Window {
 			public void run() {
 				construct();
 				GLFW.glfwMakeContextCurrent(window);
-				GLFW.glfwSwapInterval(1);
-				GLFW.glfwShowWindow(window);
-				
 				GLContext.createFromCurrent();
 				GL.createCapabilities(false);
+				
+				GLFW.glfwSwapInterval(1);
+				GLFW.glfwShowWindow(window);
 				
 				while (GLFW.glfwWindowShouldClose(window) == GL11.GL_FALSE) {
 					lastRender = currentRender;
@@ -143,7 +133,7 @@ public class Window {
 		}.start();
 	}
 	
-	private static void renderLoop() {
+	private void renderLoop() {
 		// Display.sync(fps);
 		RenderCommand next;
 		synchronized (targetLock) {
@@ -168,6 +158,7 @@ public class Window {
 		// Display.setFullscreen(!Display.isFullscreen());
 	}
 	
+	// TODO ThreadLocal?
 	public static float deltaTime() {
 		return (currentRender - lastRender) * 0.000001f;
 	}

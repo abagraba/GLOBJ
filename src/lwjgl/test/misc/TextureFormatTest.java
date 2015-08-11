@@ -53,7 +53,7 @@ public class TextureFormatTest extends RenderCommand {
 		Window w = new Window();
 		w.setTarget(new TextureFormatTest());
 		w.start();
-		ControlManager.select(w, new TestControlSet());
+		ControlManager.attach(w, new TestControlSet());
 	}
 	
 	@Override

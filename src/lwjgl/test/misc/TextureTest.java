@@ -102,7 +102,7 @@ public class TextureTest extends RenderCommand {
 		w = new Window();
 		w.setTarget(new TextureTest());
 		w.start();
-		ControlManager.select(w, new TestControlSet());
+		ControlManager.attach(w, new TestControlSet());
 		
 	}
 	

@@ -77,7 +77,7 @@ public class ShaderTest extends RenderCommand {
 		Window w = new Window();
 		w.setTarget(new ShaderTest());
 		w.start();
-		ControlManager.select(w, new TestControlSet());
+		ControlManager.attach(w, new TestControlSet());
 	}
 	
 	@Override

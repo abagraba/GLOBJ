@@ -173,7 +173,7 @@ public class FBOTest extends RenderCommand {
 		Window w = new Window("Not visible", 800, 600, false);
 		w.setTarget(new FBOTest());
 		w.start();
-		ControlManager.select(w, new TestControlSet());
+		ControlManager.attach(w, new TestControlSet());
 	}
 	
 }

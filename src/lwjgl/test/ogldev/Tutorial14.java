@@ -120,7 +120,7 @@ public class Tutorial14 extends SceneCommand {
 		Window w = new Window();
 		w.setTarget(new Tutorial14());
 		w.start();
-		ControlManager.select(w, new TutorialControlSet());
+		ControlManager.attach(w, new TutorialControlSet());
 		
 	}
 	

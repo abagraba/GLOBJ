@@ -12,9 +12,9 @@ public class ControlManager {
 	private ControlManager() {
 	}
 	
-	public static void select(Window window, ControlSet controlSet) {
+	public static void attach(Window window, ControlSet controlSet) {
 		ControlManager.controlSet = controlSet;
-		controlSet.setWindow(window.window());
+		controlSet.setWindow(window);
 	}
 	
 	public static ControlSet current() {
