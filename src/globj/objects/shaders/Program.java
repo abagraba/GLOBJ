@@ -32,7 +32,7 @@ import org.lwjgl.opengl.GL42;
 import org.lwjgl.opengl.GL43;
 
 import globj.core.Context;
-import globj.core.GL;
+import globj.core.Window;
 import globj.math.Matrix4x4f;
 import globj.objects.BindTracker;
 import globj.objects.BindableGLObject;
@@ -127,7 +127,7 @@ public class Program extends BindableGLObject {
 			glObjError(this, "Could not set uniform for ", "Could not locate uniform [" + uniform + "]");
 			return;
 		}
-		GL20.glUniformMatrix4(uni, transpose, mat.toBuffer());
+		GL20.glUniformMatrix4fv(uni, transpose, mat.toBuffer());
 	}
 	
 	public void setUniform(String uniform, FloatBuffer mat, boolean transpose) {
@@ -139,7 +139,7 @@ public class Program extends BindableGLObject {
 		if (mat.remaining() < 16)
 			write("Could not set Uniform to data in buffer. Buffer does not contain 16 values.");
 		else
-			GL20.glUniformMatrix4(uni, transpose, mat);
+			GL20.glUniformMatrix4fv(uni, transpose, mat);
 	}
 	
 	public int uniformLocation(String uniform) {
@@ -154,7 +154,7 @@ public class Program extends BindableGLObject {
 	
 	private void fillAttributes() {
 		int activeAttributes;
-		if (GL.versionCheck(4, 3))
+		if (Window.versionCheck(4, 3))
 			activeAttributes = GL43.glGetProgramInterfacei(id, GL43.GL_PROGRAM_INPUT, GL43.GL_ACTIVE_RESOURCES);
 		else
 			activeAttributes = GL20.glGetProgrami(id, GL20.GL_ACTIVE_ATTRIBUTES);
@@ -164,7 +164,7 @@ public class Program extends BindableGLObject {
 	
 	private void fillUniforms() {
 		int activeUniforms;
-		if (GL.versionCheck(4, 3))
+		if (Window.versionCheck(4, 3))
 			activeUniforms = GL43.glGetProgramInterfacei(id, GL43.GL_UNIFORM, GL43.GL_ACTIVE_RESOURCES);
 		else
 			activeUniforms = GL20.glGetProgrami(id, GL20.GL_ACTIVE_UNIFORMS);
@@ -200,7 +200,7 @@ public class Program extends BindableGLObject {
 			write("");
 			debugAttributes();
 			
-			if (!GL.versionCheck(4, 3))
+			if (!Window.versionCheck(4, 3))
 			write("May be inaccurate due to OpenGL version below 4.3");
 			
 			debugUniforms();
@@ -264,12 +264,12 @@ public class Program extends BindableGLObject {
 			debugQueryAttributes();
 
 			
-			if (!GL.versionCheck(4, 3))
+			if (!Window.versionCheck(4, 3))
 			write("May be inaccurate due to OpenGL version below 4.3");
 			
 			debugQueryUniforms();
 			
-			if (GL.versionCheck(4, 2))
+			if (Window.versionCheck(4, 2))
 			writef(ATTRIB_INT, "Atomic Counter Buffers:", GL20.glGetProgrami(id, GL42.GL_ACTIVE_ATOMIC_COUNTER_BUFFERS));
 
 			writef(ATTRIB_INT, "Transform Feedback Mode:", GL20.glGetProgrami(id, GL30.GL_TRANSFORM_FEEDBACK_BUFFER_MODE));

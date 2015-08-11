@@ -1,18 +1,19 @@
 package control;
 
 
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL11;
 
 
 
 public class KeyboardPress implements ControlState {
 	
-	private boolean			lastValue;
-	private boolean			changed;
+	private boolean	lastValue;
+	private boolean	changed;
 	
 	private final String	name;
 	private final int		key;
-	
+	private long			window;
 	
 	public KeyboardPress(String name, int key) {
 		this.name = name;
@@ -31,9 +32,14 @@ public class KeyboardPress implements ControlState {
 	
 	@Override
 	public void update() {
-		boolean down = Keyboard.isKeyDown(key);
+		boolean down = GLFW.glfwGetKey(window, key) != GL11.GL_FALSE;
 		changed = down && !lastValue;
 		lastValue = down;
+	}
+	
+	@Override
+	public void setWindow(long window) {
+		this.window = window;
 	}
 	
 }

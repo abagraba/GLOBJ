@@ -6,12 +6,11 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.GL11;
 
 import control.ControlManager;
-import globj.core.GL;
 import globj.core.RenderCommand;
+import globj.core.Window;
 import globj.objects.arrays.VAO;
 import globj.objects.arrays.VBOFormat;
 import globj.objects.bufferobjects.DynamicFloatVBO;
@@ -29,7 +28,7 @@ import lwjgl.debug.GLDebug;
 
 
 
-public class FBOTests extends RenderCommand {
+public class FBOTest extends RenderCommand {
 	
 	DynamicFloatVBO	rectvbo;
 	DynamicFloatVBO	quadvbo;
@@ -51,7 +50,6 @@ public class FBOTests extends RenderCommand {
 											
 	@Override
 	public void init() {
-		ControlManager.select(new TestControlSet());
 		
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		
@@ -108,9 +106,9 @@ public class FBOTests extends RenderCommand {
 	@Override
 	public void input() {
 		if (TestControlSet.ESC.state())
-			GL.close();
+			Window.close();
 		if (TestControlSet.F11.state())
-			GL.toggleFS();
+			Window.toggleFS();
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -172,14 +170,10 @@ public class FBOTests extends RenderCommand {
 	}
 	
 	public static void main(String[] args) {
-		System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
-		GL.setTarget(new FBOTests());
-		try {
-			GL.startGL();
-		}
-		catch (LWJGLException e) {
-			GLDebug.logException(e);
-		}
+		Window w = new Window("Not visible", 800, 600, false);
+		w.setTarget(new FBOTest());
+		w.start();
+		ControlManager.select(w, new TestControlSet());
 	}
 	
 }

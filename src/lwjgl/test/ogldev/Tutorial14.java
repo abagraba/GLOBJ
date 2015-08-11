@@ -1,11 +1,17 @@
 package lwjgl.test.ogldev;
 
 
+import java.io.IOException;
+
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
+
+import control.ControlManager;
 import globj.camera.PerspectiveCamera;
 import globj.camera.Screen;
 import globj.core.DataType;
-import globj.core.GL;
 import globj.core.SceneCommand;
+import globj.core.Window;
 import globj.math.Matrix4x4f;
 import globj.math.Transform;
 import globj.math.UnitQuaternion;
@@ -20,16 +26,7 @@ import globj.objects.shaders.Programs;
 import globj.objects.shaders.Shader;
 import globj.objects.shaders.ShaderType;
 import globj.objects.shaders.Shaders;
-
-import java.io.IOException;
-
 import lwjgl.debug.GLDebug;
-
-import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-
-import control.ControlManager;
 
 
 
@@ -47,7 +44,6 @@ public class Tutorial14 extends SceneCommand {
 	
 	@Override
 	public boolean load() {
-		ControlManager.select(new TutorialControlSet());
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		
 		float f = 0.707f;
@@ -115,19 +111,17 @@ public class Tutorial14 extends SceneCommand {
 		}
 		
 		if (TutorialControlSet.FULLSCR.state())
-			GL.toggleFS();
+			Window.toggleFS();
 		if (TutorialControlSet.ESC.state())
-			GL.close();
+			Window.close();
 	}
 	
 	public static void main(String[] args) {
-		GL.setTarget(new Tutorial14());
-		try {
-			GL.startGL();
-		}
-		catch (LWJGLException e) {
-			GLDebug.logException(e);
-		}
+		Window w = new Window();
+		w.setTarget(new Tutorial14());
+		w.start();
+		ControlManager.select(w, new TutorialControlSet());
+		
 	}
 	
 }

@@ -1,9 +1,15 @@
 package lwjgl.test.ogldev;
 
 
+import java.io.IOException;
+
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
+
+import control.ControlManager;
 import globj.core.DataType;
-import globj.core.GL;
 import globj.core.RenderCommand;
+import globj.core.Window;
 import globj.math.Transform;
 import globj.math.UnitQuaternion;
 import globj.math.Vector3f;
@@ -17,16 +23,7 @@ import globj.objects.shaders.Programs;
 import globj.objects.shaders.Shader;
 import globj.objects.shaders.ShaderType;
 import globj.objects.shaders.Shaders;
-
-import java.io.IOException;
-
 import lwjgl.debug.GLDebug;
-
-import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-
-import control.ControlManager;
 
 
 
@@ -45,7 +42,6 @@ public class Tutorial11 extends RenderCommand {
 		float[] vertices = new float[] { -0.6122f, -0.707f, -0.3535f, 0, -0.707f, 0.707f, 0.6122f, -0.707f, -0.3535f, 0, 1, 0 };
 		int[] indices = new int[] { 0, 3, 1, 1, 3, 2, 2, 3, 0, 0, 1, 2 };
 		
-		ControlManager.select(new TutorialControlSet());
 		vbo = StaticVBO.create("Test VBO", VBOTarget.ARRAY, vertices);
 		ibo = StaticVBO.create("Test IBO", VBOTarget.ELEMENT_ARRAY, indices);
 		
@@ -93,13 +89,11 @@ public class Tutorial11 extends RenderCommand {
 	}
 	
 	public static void main(String[] args) {
-		GL.setTarget(new Tutorial11());
-		try {
-			GL.startGL();
-		}
-		catch (LWJGLException e) {
-			GLDebug.logException(e);
-		}
+		Window w = new Window();
+		w.setTarget(new Tutorial11());
+		w.start();
+		ControlManager.select(w, new TutorialControlSet());
+		
 	}
 	
 	@Override
@@ -107,9 +101,9 @@ public class Tutorial11 extends RenderCommand {
 		trans.translateBy(new Vector3f(TutorialControlSet.AD.position(), TutorialControlSet.WS.position(), 0));
 		trans.rotateBy(UnitQuaternion.rotation(new Vector3f(0, 0, 1), -TutorialControlSet.QE.position()));
 		if (TutorialControlSet.FULLSCR.state())
-			GL.toggleFS();
+			Window.toggleFS();
 		if (TutorialControlSet.ESC.state())
-			GL.close();
+			Window.close();
 	}
 	
 }

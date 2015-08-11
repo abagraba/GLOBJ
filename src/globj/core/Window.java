@@ -1,32 +1,39 @@
 package globj.core;
 
 
-import lwjgl.debug.GLDebug;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
-import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.ContextAttribs;
-import org.lwjgl.opengl.Display;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.glfw.Callbacks;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWKeyCallback;
+import org.lwjgl.glfw.GLFWvidmode;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL43;
-import org.lwjgl.opengl.PixelFormat;
+import org.lwjgl.system.MemoryUtil;
+
 import control.Control;
 import control.ControlManager;
+import lwjgl.debug.GLDebug;
 
 
 
-public class GL {
+public class Window {
 	
-	private static boolean			logFPS			= false;
+	private static boolean logFPS = false;
 	
-	private static long				renderTime		= 0;
-	private static int				fps				= 60;
+	private static long	renderTime	= 0;
+	private static int	fps			= 60;
 	
-	private static volatile boolean	stop			= false;
+	private static volatile boolean stop = false;
 	
-	private static Object			displayLock		= new Object();
-	private static volatile boolean	display			= false;
+	private static Object			displayLock	= new Object();
+	private static volatile boolean	display		= false;
 	
 	private static Object			targetLock		= new Object();
 	private static RenderCommand	target;
@@ -34,13 +41,64 @@ public class GL {
 	private static long				lastRender		= System.nanoTime();
 	private static long				currentRender	= System.nanoTime();
 	
+	private GLFWErrorCallback	errorCallback;
+	private GLFWKeyCallback		keyCallback;
 	
-	private GL() {
+	private long	window;
+	private long	monitor;
+	
+	private String	title;
+	private int		width;
+	private int		height;
+	private boolean	decorated;
+	
+	public Window() {
+		this("LWJGL Window", 800, 600);
+	}
+	
+	public Window(String title, int width, int height) {
+		this(title, width, height, true);
+	}
+	
+	public Window(String title, int width, int height, boolean decorated) {
+		this.title = title;
+		this.width = width;
+		this.height = height;
+		this.decorated = decorated;
+	}
+	
+	private void construct() {
+		GLFW.glfwSetErrorCallback(errorCallback = Callbacks.errorCallbackPrint(System.err));
+		if (GLFW.glfwInit() != GL11.GL_TRUE)
+			throw new IllegalStateException("Unable to initialize GLFW");
+		GLFW.glfwWindowHint(GLFW.GLFW_DECORATED, decorated ? GL11.GL_TRUE : GL11.GL_FALSE);
+		window = GLFW.glfwCreateWindow(width, height, title, MemoryUtil.NULL, MemoryUtil.NULL);
+		if (window == MemoryUtil.NULL)
+			throw new RuntimeException("Failed to create the GLFW window");
+			
+		GLFW.glfwSetKeyCallback(window, keyCallback = new GLFWKeyCallback() {
+			@Override
+			public void invoke(long window, int key, int scancode, int action, int mods) {
+				if (key == GLFW.GLFW_KEY_ESCAPE && action == GLFW.GLFW_RELEASE)
+					GLFW.glfwSetWindowShouldClose(window, GL11.GL_TRUE); // We will detect this in our rendering loop
+			}
+		});
+		monitor = GLFW.glfwGetPrimaryMonitor();
+		ByteBuffer vidmode = GLFW.glfwGetVideoMode(monitor);
+		GLFW.glfwSetWindowPos(window, (GLFWvidmode.width(vidmode) - width) / 2, (GLFWvidmode.height(vidmode) - height) / 2);
+	}
+	
+	public float aspectRatio() {
+		IntBuffer w = BufferUtils.createIntBuffer(1);
+		IntBuffer h = BufferUtils.createIntBuffer(1);
+		GLFW.glfwGetWindowSize(window, w, h);
+		int height = h.get();
+		return height == 0 ? (w.get() == 0 ? 0 : Float.MAX_VALUE) : (float) w.get() / height;
 	}
 	
 	public static void setTarget(RenderCommand target) {
 		synchronized (targetLock) {
-			GL.target = target;
+			Window.target = target;
 		}
 	}
 	
@@ -55,54 +113,35 @@ public class GL {
 		}
 	}
 	
-	public static void startGL() throws LWJGLException {
-		startGL(new PixelFormat(), new ContextAttribs());
-	}
-	
-	public static void startGL(final PixelFormat pf, final ContextAttribs attribs) throws LWJGLException {
+	public void start() {
+		
 		new Thread("LWJGL Render Thread") {
 			@Override
 			public void run() {
-				initDisplay(pf, attribs);
-				while (!Display.isCloseRequested() && !stop) {
+				construct();
+				GLFW.glfwMakeContextCurrent(window);
+				GLFW.glfwSwapInterval(1);
+				GLFW.glfwShowWindow(window);
+				GL.createCapabilities(false);
+				System.out.println(GL.getCurrent());
+				while (GLFW.glfwWindowShouldClose(window) == GL11.GL_FALSE) {
 					lastRender = currentRender;
 					currentRender = System.nanoTime();
 					renderLoop();
 					renderTime = System.nanoTime() - currentRender;
 					if (logFPS)
 						GLDebug.write(1000000000f / renderTime + " fps");
+					GLFW.glfwSwapBuffers(window);
+					GLFW.glfwPollEvents();
 				}
-				destroyDisplay();
+				GLFW.glfwDestroyWindow(window);
+				keyCallback.release();
 			}
 		}.start();
 	}
 	
-	private static void initDisplay(final PixelFormat pf, final ContextAttribs attribs) {
-		synchronized (displayLock) {
-			if (display) {
-				GLDebug.glError("LWJGL Display cannot be initiated: Already Running.");
-				return;
-			}
-			try {
-				Display.create(pf, attribs);
-			}
-			catch (LWJGLException e) {
-				GLDebug.logException(e);
-			}
-			display = true;
-		}
-	}
-	
-	protected static void destroyDisplay() {
-		synchronized (displayLock) {
-			Display.destroy();
-			display = false;
-			stop = false;
-		}
-	}
-	
 	private static void renderLoop() {
-		Display.sync(fps);
+		// Display.sync(fps);
 		RenderCommand next;
 		synchronized (targetLock) {
 			next = target;
@@ -120,16 +159,10 @@ public class GL {
 		current.input();
 		current.render();
 		GLDebug.flushErrors();
-		Display.update();
 	}
 	
 	public static void toggleFS() {
-		try {
-			Display.setFullscreen(!Display.isFullscreen());
-		}
-		catch (LWJGLException e) {
-			GLDebug.logException(e);
-		}
+		// Display.setFullscreen(!Display.isFullscreen());
 	}
 	
 	public static float deltaTime() {
@@ -176,5 +209,9 @@ public class GL {
 		GLDebug.unindent(2);
 		GLDebug.flushErrors();
 	}
-
+	
+	public long window() {
+		return window;
+	}
+	
 }

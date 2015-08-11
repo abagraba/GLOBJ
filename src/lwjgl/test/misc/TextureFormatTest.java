@@ -1,12 +1,11 @@
 package lwjgl.test.misc;
 
 
-import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.GL11;
 
 import control.ControlManager;
-import globj.core.GL;
 import globj.core.RenderCommand;
+import globj.core.Window;
 import globj.objects.textures.Textures;
 import globj.objects.textures.values.TextureFormat;
 import lwjgl.debug.GLDebug;
@@ -25,8 +24,6 @@ public class TextureFormatTest extends RenderCommand {
 	
 	@Override
 	public void init() {
-		ControlManager.select(new TestControlSet());
-		
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		
 		for (int i = -1024; i < 1024; i++) {
@@ -53,21 +50,18 @@ public class TextureFormatTest extends RenderCommand {
 	}
 	
 	public static void main(String[] args) {
-		GL.setTarget(new TextureFormatTest());
-		try {
-			GL.startGL();
-		}
-		catch (LWJGLException e) {
-			GLDebug.logException(e);
-		}
+		Window w = new Window();
+		w.setTarget(new TextureFormatTest());
+		w.start();
+		ControlManager.select(w, new TestControlSet());
 	}
 	
 	@Override
 	public void input() {
 		if (TestControlSet.ESC.state())
-			GL.close();
+			Window.close();
 		if (TestControlSet.F11.state())
-			GL.toggleFS();
+			Window.toggleFS();
 	}
 	
 	@Override

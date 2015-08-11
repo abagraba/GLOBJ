@@ -11,7 +11,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL43;
 
-import globj.core.GL;
+import globj.core.Window;
 import globj.objects.GLObject;
 import lwjgl.debug.GLDebug;
 
@@ -29,13 +29,16 @@ public class ShaderInput extends GLObject {
 	private ShaderInput(int program, int index, boolean legacy) {
 		super(name31(program, index), index);
 		this.location = GL20.glGetAttribLocation(program, name);
-		this.arraySize = GL20.glGetActiveAttribSize(program, index);
-		ShaderUniformType uniformtype = ShaderUniformType.get(GL20.glGetActiveAttribType(program, index));
+		IntBuffer size = BufferUtils.createIntBuffer(1);
+		IntBuffer type = BufferUtils.createIntBuffer(1);
+		GL20.glGetActiveAttrib(program, index, 0, size, type);
+		this.arraySize = size.get();
+		ShaderUniformType uniformtype = ShaderUniformType.get(type.get());
 		if (uniformtype == null) {
 			GLDebug.write("Invalid ShaderUniformType.");
 			uniformtype = ShaderUniformType.FLOAT_VEC4;
 		}
-		type = uniformtype;
+		this.type = uniformtype;
 		if (legacy)
 			GLDebug.write("Using legacy ShaderInput.");
 	}
@@ -56,7 +59,7 @@ public class ShaderInput extends GLObject {
 	/**************************************************/
 	
 	public static ShaderInput buildInput(int program, int index) {
-		if (GL.versionCheck(4, 3))
+		if (Window.versionCheck(4, 3))
 			return new ShaderInput(program, index);
 		else
 			return new ShaderInput(program, index, true);
@@ -71,7 +74,7 @@ public class ShaderInput extends GLObject {
 		IntBuffer req = BufferUtils.createIntBuffer(args.length);
 		IntBuffer res = BufferUtils.createIntBuffer(results);
 		req.put(args).flip();
-		GL43.glGetProgramResource(program, GL43.GL_PROGRAM_INPUT, index, req, null, res);
+		GL43.glGetProgramResourceiv(program, GL43.GL_PROGRAM_INPUT, index, req, null, res);
 		return res;
 	}
 	
@@ -81,8 +84,7 @@ public class ShaderInput extends GLObject {
 	
 	@SuppressWarnings("all")
 	private static String name31(int program, int index) {
-		int inputNameSize = GL20.glGetProgrami(index, GL20.GL_ACTIVE_ATTRIBUTE_MAX_LENGTH);
-		return GL20.glGetActiveAttrib(program, index, inputNameSize);
+		return GL20.glGetActiveAttrib(program, index, null, null);
 	}
 	
 	@SuppressWarnings("all")

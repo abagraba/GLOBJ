@@ -1,9 +1,15 @@
 package lwjgl.test.misc;
 
 
+import java.io.IOException;
+
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
+
+import control.ControlManager;
 import globj.core.DataType;
-import globj.core.GL;
 import globj.core.RenderCommand;
+import globj.core.Window;
 import globj.objects.arrays.VAO;
 import globj.objects.arrays.VBOFormat;
 import globj.objects.bufferobjects.StaticVBO;
@@ -14,16 +20,7 @@ import globj.objects.shaders.Programs;
 import globj.objects.shaders.Shader;
 import globj.objects.shaders.ShaderType;
 import globj.objects.shaders.Shaders;
-
-import java.io.IOException;
-
 import lwjgl.debug.GLDebug;
-
-import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-
-import control.ControlManager;
 
 
 
@@ -32,12 +29,9 @@ public class ShaderTest extends RenderCommand {
 	private VBO		vbo;
 	private Program	prog;
 	
-	
 	@SuppressWarnings("null")
 	@Override
 	public void init() {
-		ControlManager.select(new TestControlSet());
-		
 		float[] vertices = new float[] { -1, -1, 0, 1, -1, 0, 0, 1, 0 };
 		vbo = StaticVBO.create("Test VBO", VBOTarget.ARRAY, vertices);
 		
@@ -80,21 +74,18 @@ public class ShaderTest extends RenderCommand {
 	}
 	
 	public static void main(String[] args) {
-		GL.setTarget(new ShaderTest());
-		try {
-			GL.startGL();
-		}
-		catch (LWJGLException e) {
-			GLDebug.logException(e);
-		}
+		Window w = new Window();
+		w.setTarget(new ShaderTest());
+		w.start();
+		ControlManager.select(w, new TestControlSet());
 	}
 	
 	@Override
 	public void input() {
 		if (TestControlSet.ESC.state())
-			GL.close();
+			Window.close();
 		if (TestControlSet.F11.state())
-			GL.toggleFS();
+			Window.toggleFS();
 	}
 	
 }

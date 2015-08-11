@@ -14,7 +14,7 @@ import org.lwjgl.opengl.GL42;
 
 import annotations.GLVersion;
 import globj.core.Context;
-import globj.core.GL;
+import globj.core.Window;
 import globj.objects.BindTracker;
 import globj.objects.framebuffers.FBOAttachable;
 import globj.objects.framebuffers.values.FBOAttachment;
@@ -62,7 +62,7 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 		
 		tex.bind();
 		setMipmaps(tex.target, tex.basemap, tex.maxmap);
-		if (GL.versionCheck(4, 2)) {
+		if (Window.versionCheck(4, 2)) {
 			GL42.glTexStorage3D(tex.target.value(), tex.maxmap + 1, texformat.value(), size, size, cubemaps * 6);
 		}
 		else {
@@ -96,7 +96,7 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 	 */
 	@GLVersion({ 4, 3 })
 	public void makeSeamless(boolean seamless) {
-		if (GL.versionCheck(4, 4)) {
+		if (Window.versionCheck(4, 4)) {
 			bind();
 			GL11.glTexParameteri(target.value(), GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS, (this.seamless = seamless) ? 1 : 0);
 			undobind();
@@ -142,7 +142,7 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 		//#formatter:off
 		GLDebug.indent();
 			GLDebug.writef(GLDebug.ATTRIB_STRING, "Texture Format:", texformat);
-			if (GL.versionCheck(4, 4))
+			if (Window.versionCheck(4, 4))
 				GLDebug.writef(GLDebug.ATTRIB_STRING, "Seamless Cubemap:", seamless);
 			if (minFilter.mipmaps() && maxmap > 0)
 				GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range:", basemap, maxmap);
@@ -159,7 +159,7 @@ public final class TextureCubemapArray extends GLTexture2D implements FBOAttacha
 		//#formatter:off
 		GLDebug.indent();
 			GLDebug.writef(GLDebug.ATTRIB_STRING, "Texture Format:", TextureFormat.get(GL11.glGetTexLevelParameteri(target.value(), 0, GL11.GL_TEXTURE_INTERNAL_FORMAT)));
-			if (GL.versionCheck(4, 4))
+			if (Window.versionCheck(4, 4))
 				GLDebug.writef(GLDebug.ATTRIB_STRING, "Seamless Cubemap:", GL11.glGetTexParameteri(target.value(), GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS));
 			if (minFilter.mipmaps() && maxmap > 0)
 				GLDebug.writef(GLDebug.ATTRIB + "[%d, %d]", "Mipmap Range:", GL11.glGetTexParameteri(target.value(), GL12.GL_TEXTURE_BASE_LEVEL), 

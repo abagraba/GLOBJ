@@ -6,4 +6,5 @@ public interface Control {
 	
 	public void update();
 	
+	public void setWindow(long window);
 }

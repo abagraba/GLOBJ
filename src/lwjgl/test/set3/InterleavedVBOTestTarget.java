@@ -4,16 +4,12 @@ package lwjgl.test.set3;
 import java.nio.FloatBuffer;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
-import globj.core.GL;
 import globj.core.RenderCommand;
+import globj.core.Window;
 import globj.objects.bufferobjects.DynamicFloatVBO;
 import globj.objects.bufferobjects.values.VBOTarget;
-import lwjgl.debug.GLDebug;
 
 
 
@@ -84,13 +80,10 @@ public class InterleavedVBOTestTarget extends RenderCommand {
 	}
 	
 	public static void main(String[] args) {
-		GL.setTarget(new InterleavedVBOTestTarget());
-		try {
-			GL.startGL();
-		}
-		catch (LWJGLException e) {
-			GLDebug.logException(e);
-		}
+		Window w = new Window();
+		w.setTarget(new InterleavedVBOTestTarget());
+		w.start();
+		
 	}
 	
 	private boolean l, r;
@@ -106,15 +99,15 @@ public class InterleavedVBOTestTarget extends RenderCommand {
 					r = Keyboard.getEventKeyState();
 					break;
 				case Keyboard.KEY_ESCAPE:
-					GL.close();
+					Window.close();
 					break;
 			}
 		}
 		
 		if (l)
-			theta += rps * 0.001f * GL.deltaTime();
+			theta += rps * 0.001f * Window.deltaTime();
 		if (r)
-			theta -= rps * 0.001f * GL.deltaTime();
+			theta -= rps * 0.001f * Window.deltaTime();
 	}
 	
 }

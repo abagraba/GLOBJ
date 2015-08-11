@@ -22,4 +22,10 @@ public class ControlSet {
 		return controls;
 	}
 	
+	public void setWindow(long window) {
+		for (Control control : controls) {
+			control.setWindow(window);
+		}
+	}
+	
 }

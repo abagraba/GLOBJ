@@ -12,7 +12,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.GL43;
 
-import globj.core.GL;
+import globj.core.Window;
 import globj.objects.GLObject;
 import globj.objects.GLObjectTracker;
 import lwjgl.debug.GLDebug;
@@ -52,7 +52,7 @@ public class ShaderUniformBlock extends GLObject {
 	/**************************************************/
 	
 	public static ShaderUniformBlock buildUniformBlock(int program, int index) {
-		if (GL.versionCheck(4, 3))
+		if (Window.versionCheck(4, 3))
 			return new ShaderUniformBlock(program, index);
 		else
 			return new ShaderUniformBlock(program, index, false);
@@ -74,7 +74,7 @@ public class ShaderUniformBlock extends GLObject {
 		IntBuffer req = BufferUtils.createIntBuffer(args.length);
 		IntBuffer res = BufferUtils.createIntBuffer(results);
 		req.put(args).flip();
-		GL43.glGetProgramResource(program, GL43.GL_UNIFORM_BLOCK, index, req, null, res);
+		GL43.glGetProgramResourceiv(program, GL43.GL_UNIFORM_BLOCK, index, req, null, res);
 		return res;
 	}
 	

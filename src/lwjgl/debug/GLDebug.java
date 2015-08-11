@@ -2,7 +2,6 @@ package lwjgl.debug;
 
 
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.glu.GLU;
 import org.skx.logger.AbstractLogger;
 
 import globj.core.GLException;
@@ -147,7 +146,7 @@ public class GLDebug {
 		int err = GL11.glGetError();
 		while (err != GL11.GL_NO_ERROR) {
 			if (DEBUG)
-				write(GLU.gluErrorString(err));
+				write("Error: " + err);
 			err = GL11.glGetError();
 		}
 	}
@@ -158,7 +157,7 @@ public class GLDebug {
 			write("No Error");
 		while (err != GL11.GL_NO_ERROR) {
 			if (DEBUG)
-				write(GLU.gluErrorString(err));
+				write("Error: " + err);
 			err = GL11.glGetError();
 		}
 	}

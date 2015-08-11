@@ -1,30 +1,23 @@
 package lwjgl.test.misc;
 
 
-import globj.core.GL;
-import globj.core.RenderCommand;
-import globj.objects.framebuffers.RBO;
-
-import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.GL11;
 
+import globj.core.RenderCommand;
+import globj.core.Window;
+import globj.objects.framebuffers.RBO;
 import lwjgl.debug.GLDebug;
 
 
 
-public class RBOTests extends RenderCommand {
+public class RBOTest extends RenderCommand {
 	
-	boolean	r	= true;
-	
+	boolean r = true;
 	
 	public static void main(String[] args) {
-		GL.setTarget(new RBOTests());
-		try {
-			GL.startGL();
-		}
-		catch (LWJGLException e) {
-			GLDebug.logException(e);
-		}
+		Window w = new Window();
+		w.setTarget(new RBOTest());
+		w.start();
 	}
 	
 	@Override

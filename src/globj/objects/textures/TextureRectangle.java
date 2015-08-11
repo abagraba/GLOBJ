@@ -11,7 +11,7 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL42;
 
 import globj.core.Context;
-import globj.core.GL;
+import globj.core.Window;
 import globj.core.utils.ImageUtil;
 import globj.objects.BindTracker;
 import globj.objects.framebuffers.FBOAttachable;
@@ -72,7 +72,7 @@ public final class TextureRectangle extends GLTexture2D implements FBOAttachable
 		tex.h = height;
 		
 		tex.bind();
-		if (GL.versionCheck(4, 2)) {
+		if (Window.versionCheck(4, 2)) {
 			GL42.glTexStorage2D(tex.target.value(), 0, texformat.value(), width, height);
 		}
 		else {
