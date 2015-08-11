@@ -15,6 +15,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL43;
+import org.lwjgl.opengl.GLContext;
 import org.lwjgl.system.MemoryUtil;
 
 import control.Control;
@@ -122,8 +123,10 @@ public class Window {
 				GLFW.glfwMakeContextCurrent(window);
 				GLFW.glfwSwapInterval(1);
 				GLFW.glfwShowWindow(window);
+				
+				GLContext.createFromCurrent();
 				GL.createCapabilities(false);
-				System.out.println(GL.getCurrent());
+				
 				while (GLFW.glfwWindowShouldClose(window) == GL11.GL_FALSE) {
 					lastRender = currentRender;
 					currentRender = System.nanoTime();

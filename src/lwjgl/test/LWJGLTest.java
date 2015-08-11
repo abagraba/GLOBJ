@@ -11,6 +11,7 @@ import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWvidmode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GLContext;
 import org.lwjgl.system.MemoryUtil;
 
 
@@ -29,7 +30,6 @@ public class LWJGLTest {
 		try {
 			init();
 			loop();
-			
 			// Release window and window callbacks
 			GLFW.glfwDestroyWindow(window);
 			keyCallback.release();
@@ -91,6 +91,7 @@ public class LWJGLTest {
 		// LWJGL detects the context that is current in the current thread,
 		// creates the ContextCapabilities instance and makes the OpenGL
 		// bindings available for use.
+		GLContext.createFromCurrent();
 		GL.createCapabilities(false);
 		
 		// Set the clear color
