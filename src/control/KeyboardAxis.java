@@ -1,7 +1,10 @@
 package control;
 
 
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL11;
+
+import globj.core.Window;
 
 
 
@@ -15,6 +18,7 @@ public class KeyboardAxis implements ControlAxis {
 	private float			sensitivity	= 1;
 	private float			position	= 0;
 	
+	private Window window;
 	
 	public KeyboardAxis(String name, int lowKey, int highKey, float sensitivity) {
 		this.name = name;
@@ -61,12 +65,16 @@ public class KeyboardAxis implements ControlAxis {
 	
 	@Override
 	public void update() {
-		boolean low = Keyboard.isKeyDown(lowKey);
-		boolean high = Keyboard.isKeyDown(highKey);
+		boolean low = GLFW.glfwGetKey(window.window(), lowKey) != GL11.GL_FALSE;
+		boolean high = GLFW.glfwGetKey(window.window(), highKey) != GL11.GL_FALSE;
 		if (low)
 			position = high ? mid : min;
 		else
 			position = high ? max : mid;
 	}
 	
+	@Override
+	public void setWindow(Window window) {
+		this.window = window;
+	}
 }

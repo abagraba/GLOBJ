@@ -81,8 +81,8 @@ public enum ShaderUniformType {
 	SAMPLER_2D_SHADOW_ARRAY("2D Shadow Texture Array Sampler", GL30.GL_SAMPLER_2D_ARRAY_SHADOW),
 	
 	@GLVersion({ 3, 1 }) SAMPLER_RECTANGLE("Rectangle Texture Sampler", GL31.GL_SAMPLER_2D_RECT),
-	SAMPLER_RECTANGLE_INT("Rectangle Texture Sampler [Integer]", GL30.GL_INT_SAMPLER_2D_RECT),
-	SAMPLER_RECTANGLE_UINT("Rectangle Texture Sampler [Unsigned Integer]", GL30.GL_UNSIGNED_INT_SAMPLER_2D_RECT),
+	@GLVersion({ 3, 1 }) SAMPLER_RECTANGLE_INT("Rectangle Texture Sampler [Integer]", GL31.GL_INT_SAMPLER_2D_RECT),
+	@GLVersion({ 3, 1 }) SAMPLER_RECTANGLE_UINT("Rectangle Texture Sampler [Unsigned Integer]", GL31.GL_UNSIGNED_INT_SAMPLER_2D_RECT),
 	@GLVersion({ 3, 1 }) SAMPLER_RECTANGLE_SHADOW("Rectangle Shadow Texture Sampler", GL31.GL_SAMPLER_2D_RECT_SHADOW),
 	
 	SAMPLER_CUBE("Cubemap Texture Sampler", GL20.GL_SAMPLER_CUBE),
@@ -98,9 +98,9 @@ public enum ShaderUniformType {
 	@GLVersion({ 3, 2 }) SAMPLER_2D_MULTISAMPLE_ARRAY_INT("2D Multisample Texture Array Sampler [Integer]", GL32.GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY),
 	@GLVersion({ 3, 2 }) SAMPLER_2D_MULTISAMPLE_ARRAY_UINT("2D Multisample Texture Array Sampler [Unsigned Integer]", GL32.GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY),
 	
-	SAMPLER_BUFFER("Buffer Texture Sampler", GL30.GL_SAMPLER_BUFFER),
-	SAMPLER_BUFFER_INT("Buffer Texture Sampler [Integer]", GL30.GL_INT_SAMPLER_BUFFER),
-	SAMPLER_BUFFER_UINT("Buffer Texture Sampler [Unsigned Integer]", GL30.GL_UNSIGNED_INT_SAMPLER_BUFFER);
+	@GLVersion({ 3, 1 }) SAMPLER_BUFFER("Buffer Texture Sampler", GL31.GL_SAMPLER_BUFFER),
+	@GLVersion({ 3, 1 }) SAMPLER_BUFFER_INT("Buffer Texture Sampler [Integer]", GL31.GL_INT_SAMPLER_BUFFER),
+	@GLVersion({ 3, 1 }) SAMPLER_BUFFER_UINT("Buffer Texture Sampler [Unsigned Integer]", GL31.GL_UNSIGNED_INT_SAMPLER_BUFFER);
 	
 	private final String name;
 	private final int value;

@@ -12,7 +12,7 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.GL43;
 
-import globj.core.GL;
+import globj.core.Window;
 import globj.objects.GLObject;
 import lwjgl.debug.GLDebug;
 
@@ -59,7 +59,7 @@ public class ShaderUniform extends GLObject {
 	/**************************************************/
 	
 	public static ShaderUniform buildUniform(int program, int index) {
-		if (GL.versionCheck(4, 3))
+		if (Window.versionCheck(4, 3))
 			return new ShaderUniform(program, index);
 		else
 			return new ShaderUniform(program, index, false);
@@ -74,7 +74,7 @@ public class ShaderUniform extends GLObject {
 		IntBuffer req = BufferUtils.createIntBuffer(args.length);
 		IntBuffer res = BufferUtils.createIntBuffer(results);
 		req.put(args).flip();
-		GL43.glGetProgramResource(program, GL43.GL_UNIFORM, index, req, null, res);
+		GL43.glGetProgramResourceiv(program, GL43.GL_UNIFORM, index, req, null, res);
 		return res;
 	}
 	

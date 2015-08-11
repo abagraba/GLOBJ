@@ -4,17 +4,15 @@ package lwjgl.test.set2;
 import java.nio.FloatBuffer;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
-import globj.core.GL;
+import control.ControlManager;
 import globj.core.RenderCommand;
+import globj.core.Window;
 import globj.objects.bufferobjects.StaticVBO;
 import globj.objects.bufferobjects.VBO;
 import globj.objects.bufferobjects.values.VBOTarget;
-import lwjgl.debug.GLDebug;
+import lwjgl.test.misc.TestControlSet;
 
 
 
@@ -32,7 +30,8 @@ public class VertexArrayVBOTestTarget extends RenderCommand {
 	
 	private VBO vertices;
 	
-	private int numTri = 100;
+	private int				numTri	= 100;
+	private static Window	w;
 	
 	@Override
 	public void init() {
@@ -53,7 +52,7 @@ public class VertexArrayVBOTestTarget extends RenderCommand {
 		
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
-		float aspect = 2 * (float) Display.getWidth() / Display.getHeight();
+		float aspect = 2 * w.aspectRatio();
 		GL11.glOrtho(-aspect, aspect, -2, 2, -1, 1);
 		
 	}
@@ -77,37 +76,18 @@ public class VertexArrayVBOTestTarget extends RenderCommand {
 	}
 	
 	public static void main(String[] args) {
-		GL.setTarget(new VertexArrayVBOTestTarget());
-		try {
-			GL.startGL();
-		}
-		catch (LWJGLException e) {
-			GLDebug.logException(e);
-		}
+		w = new Window();
+		w.setTarget(new VertexArrayVBOTestTarget());
+		w.start();
+		
+		ControlManager.attach(w, new TestControlSet());
 	}
-	
-	private boolean l, r;
 	
 	@Override
 	public void input() {
-		while (Keyboard.next()) {
-			switch (Keyboard.getEventKey()) {
-				case Keyboard.KEY_LEFT:
-					l = Keyboard.getEventKeyState();
-					break;
-				case Keyboard.KEY_RIGHT:
-					r = Keyboard.getEventKeyState();
-					break;
-				case Keyboard.KEY_ESCAPE:
-					GL.close();
-					break;
-			}
-		}
-		
-		if (l)
-			theta += rps * 0.001f * GL.deltaTime();
-		if (r)
-			theta -= rps * 0.001f * GL.deltaTime();
+		theta += rps * TestControlSet.LR.position() * Window.deltaTime();
+		if (TestControlSet.ESC.state())
+			Window.close();
 	}
 	
 }

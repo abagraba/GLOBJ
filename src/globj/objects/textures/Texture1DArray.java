@@ -14,7 +14,7 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL42;
 
 import globj.core.Context;
-import globj.core.GL;
+import globj.core.Window;
 import globj.core.utils.ImageUtil;
 import globj.objects.BindTracker;
 import globj.objects.framebuffers.FBOAttachable;
@@ -62,7 +62,7 @@ public final class Texture1DArray extends GLTexture1D implements FBOAttachable {
 		tex.bind();
 		setMipmaps(tex.target, tex.basemap, tex.maxmap);
 		
-		if (GL.versionCheck(4, 2)) {
+		if (Window.versionCheck(4, 2)) {
 			GL42.glTexStorage2D(tex.target.value(), tex.maxmap + 1, texformat.value(), width, layers);
 		}
 		else {
@@ -101,7 +101,7 @@ public final class Texture1DArray extends GLTexture1D implements FBOAttachable {
 		
 		tex.bind();
 		GL11.glTexParameteri(tex.target.value(), GL12.GL_TEXTURE_MAX_LEVEL, maps - 1);
-		if (GL.versionCheck(4, 2)) {
+		if (Window.versionCheck(4, 2)) {
 			GL42.glTexStorage2D(tex.target.value(), maps, texformat.value(), w, layers);
 		}
 		else {

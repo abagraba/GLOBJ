@@ -1,34 +1,29 @@
 package lwjgl.test.ogldev;
 
 
-import lwjgl.debug.GLDebug;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
+
+import control.ControlManager;
 import globj.core.DataType;
-import globj.core.GL;
 import globj.core.RenderCommand;
+import globj.core.Window;
 import globj.objects.arrays.VAO;
 import globj.objects.arrays.VBOFormat;
 import globj.objects.bufferobjects.StaticVBO;
 import globj.objects.bufferobjects.VBO;
 import globj.objects.bufferobjects.values.VBOTarget;
 
-import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-
-import control.ControlManager;
-
 
 
 public class Tutorial03 extends RenderCommand {
 	
-	private VBO	vbo;
-	
+	private VBO vbo;
 	
 	@Override
 	public void init() {
 		float[] vertices = new float[] { -1, -1, 0, 1, -1, 0, 0, 1, 0 };
 		
-		ControlManager.select(new TutorialControlSet());
 		vbo = StaticVBO.create("Test VBO", VBOTarget.ARRAY, vertices);
 	}
 	
@@ -50,21 +45,19 @@ public class Tutorial03 extends RenderCommand {
 	}
 	
 	public static void main(String[] args) {
-		GL.setTarget(new Tutorial03());
-		try {
-			GL.startGL();
-		}
-		catch (LWJGLException e) {
-			GLDebug.logException(e);
-		}
+		Window w = new Window();
+		w.setTarget(new Tutorial03());
+		w.start();
+		ControlManager.attach(w, new TutorialControlSet());
+		
 	}
 	
 	@Override
 	public void input() {
 		if (TutorialControlSet.FULLSCR.state())
-			GL.toggleFS();
+			Window.toggleFS();
 		if (TutorialControlSet.ESC.state())
-			GL.close();
+			Window.close();
 	}
 	
 }

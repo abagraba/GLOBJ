@@ -1,13 +1,9 @@
 package lwjgl.test.ogldev;
 
 
-import lwjgl.debug.GLDebug;
-import globj.core.GL;
-import globj.core.RenderCommand;
-
-import org.lwjgl.LWJGLException;
-
 import control.ControlManager;
+import globj.core.RenderCommand;
+import globj.core.Window;
 
 
 
@@ -15,7 +11,7 @@ public class Tutorial01 extends RenderCommand {
 	
 	@Override
 	public void init() {
-		ControlManager.select(new TutorialControlSet());
+		//
 	}
 	
 	@Override
@@ -29,21 +25,18 @@ public class Tutorial01 extends RenderCommand {
 	}
 	
 	public static void main(String[] args) {
-		GL.setTarget(new Tutorial01());
-		try {
-			GL.startGL();
-		}
-		catch (LWJGLException e) {
-			GLDebug.logException(e);
-		}
+		Window w = new Window();
+		w.setTarget(new Tutorial01());
+		w.start();
+		ControlManager.attach(w, new TutorialControlSet());
 	}
 	
 	@Override
 	public void input() {
 		if (TutorialControlSet.FULLSCR.state())
-			GL.toggleFS();
+			Window.toggleFS();
 		if (TutorialControlSet.ESC.state())
-			GL.close();
+			Window.close();
 	}
 	
 }

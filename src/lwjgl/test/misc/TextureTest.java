@@ -7,14 +7,12 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
 import control.ControlManager;
 import globj.core.DataType;
-import globj.core.GL;
 import globj.core.RenderCommand;
+import globj.core.Window;
 import globj.objects.arrays.VAO;
 import globj.objects.arrays.VBOFormat;
 import globj.objects.bufferobjects.StaticVBO;
@@ -43,12 +41,11 @@ public class TextureTest extends RenderCommand {
 	
 	private static float rps = (float) (2 * Math.PI) / 6;
 	
-	private VBO vertices, tcoords;
+	private VBO				vertices, tcoords;
+	private static Window	w;
 	
 	@Override
 	public void init() {
-		ControlManager.select(new TestControlSet());
-		
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		
 		Texture2D tex = null;
@@ -72,7 +69,7 @@ public class TextureTest extends RenderCommand {
 		
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
-		float aspect = 2 * (float) Display.getWidth() / Display.getHeight();
+		float aspect = 2 * w.aspectRatio();
 		GL11.glOrtho(-aspect, aspect, -2, 2, -1, 1);
 	}
 	
@@ -102,24 +99,22 @@ public class TextureTest extends RenderCommand {
 	}
 	
 	public static void main(String[] args) {
-		GL.setTarget(new TextureTest());
-		try {
-			GL.startGL();
-		}
-		catch (LWJGLException e) {
-			GLDebug.logException(e);
-		}
+		w = new Window();
+		w.setTarget(new TextureTest());
+		w.start();
+		ControlManager.attach(w, new TestControlSet());
+		
 	}
 	
 	@Override
 	public void input() {
-		theta += rps * GL.deltaTime() * TestControlSet.LR.position();
-		phi += rps * GL.deltaTime() * TestControlSet.UD.position();
+		theta += rps * Window.deltaTime() * TestControlSet.LR.position();
+		phi += rps * Window.deltaTime() * TestControlSet.UD.position();
 		
 		if (TestControlSet.ESC.state())
-			GL.close();
+			Window.close();
 		if (TestControlSet.F11.state())
-			GL.toggleFS();
+			Window.toggleFS();
 	}
 	
 }

@@ -1,7 +1,7 @@
 package lwjgl.test.misc;
 
 
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
 
 import control.ControlSet;
 import control.KeyboardAxis;
@@ -11,14 +11,13 @@ import control.KeyboardToggle;
 
 
 public class TestControlSet extends ControlSet {
-	public static final KeyboardAxis	UD		= new KeyboardAxis("Up-Down Axis", Keyboard.KEY_DOWN, Keyboard.KEY_UP, 0.001f);
-	public static final KeyboardAxis	LR		= new KeyboardAxis("Left-Right Axis", Keyboard.KEY_LEFT, Keyboard.KEY_RIGHT, 0.001f);
+	public static final KeyboardAxis	UD	= new KeyboardAxis("Up-Down Axis", GLFW.GLFW_KEY_DOWN, GLFW.GLFW_KEY_UP, 0.001f);
+	public static final KeyboardAxis	LR	= new KeyboardAxis("Left-Right Axis", GLFW.GLFW_KEY_LEFT, GLFW.GLFW_KEY_RIGHT, 0.001f);
 	
-	public static final KeyboardToggle	SPACE	= new KeyboardToggle("Space", Keyboard.KEY_SPACE);
+	public static final KeyboardToggle SPACE = new KeyboardToggle("Space", GLFW.GLFW_KEY_SPACE);
 	
-	public static final KeyboardPress	ESC		= new KeyboardPress("Escape", Keyboard.KEY_ESCAPE);
-	public static final KeyboardPress	F11		= new KeyboardPress("Fullscreen", Keyboard.KEY_F11);
-	
+	public static final KeyboardPress	ESC	= new KeyboardPress("Escape", GLFW.GLFW_KEY_ESCAPE);
+	public static final KeyboardPress	F11	= new KeyboardPress("Fullscreen", GLFW.GLFW_KEY_F11);
 	
 	public TestControlSet() {
 		register(UD);

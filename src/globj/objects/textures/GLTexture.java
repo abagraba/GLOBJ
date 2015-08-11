@@ -14,7 +14,7 @@ import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL43;
 
 import annotations.GLVersion;
-import globj.core.GL;
+import globj.core.Window;
 import globj.math.Vector4f;
 import globj.objects.BindableGLObject;
 import globj.objects.textures.values.DepthStencilMode;
@@ -120,7 +120,7 @@ public abstract class GLTexture extends BindableGLObject {
 		bind();
 		IntBuffer swizzle = BufferUtils.createIntBuffer(4);
 		swizzle.put(new int[] { (swizzleR = r).value(), (swizzleG = g).value(), (swizzleB = b).value(), (swizzleA = a).value() }).flip();
-		GL11.glTexParameter(target.value(), GL33.GL_TEXTURE_SWIZZLE_RGBA, swizzle);
+		GL11.glTexParameteriv(target.value(), GL33.GL_TEXTURE_SWIZZLE_RGBA, swizzle);
 		undobind();
 	}
 	
@@ -138,7 +138,7 @@ public abstract class GLTexture extends BindableGLObject {
 	 */
 	public void setBorderColor(float r, float g, float b, float a) {
 		bind();
-		GL11.glTexParameter(target.value(), GL11.GL_TEXTURE_BORDER_COLOR, (border = new Vector4f(r, g, b, a)).toBuffer());
+		GL11.glTexParameterfv(target.value(), GL11.GL_TEXTURE_BORDER_COLOR, (border = new Vector4f(r, g, b, a)).toBuffer());
 		undobind();
 	}
 	
@@ -150,7 +150,7 @@ public abstract class GLTexture extends BindableGLObject {
 	 */
 	@GLVersion({ 4, 3 })
 	public void setDepthStencilMode(DepthStencilMode mode) {
-		if (GL.versionCheck(4, 3)) {
+		if (Window.versionCheck(4, 3)) {
 			bind();
 			GL11.glTexParameteri(target.value(), GL43.GL_DEPTH_STENCIL_TEXTURE_MODE, (dsmode = mode).value());
 			undobind();
@@ -258,12 +258,12 @@ public abstract class GLTexture extends BindableGLObject {
 		
 		GLDebug.writef(GLDebug.ATTRIB + "[%4f, %4f] + %4f", "LOD Range:", lodMin, lodMax, lodBias);
 		
-		if (GL.versionCheck(3, 3))
+		if (Window.versionCheck(3, 3))
 			GLDebug.writef(GLDebug.ATTRIB_STRING + "\t%s\t%s\t%s", "Texture Swizzle:", swizzleR, swizzleG, swizzleB, swizzleA);
 			
 		GLDebug.writef(GLDebug.ATTRIB_STRING, "Border Color:", border);
 		
-		if (GL.versionCheck(4, 3))
+		if (Window.versionCheck(4, 3))
 			GLDebug.writef(GLDebug.ATTRIB_STRING, "Depth Stencil Mode:", dsmode);
 		GLDebug.writef(GLDebug.ATTRIB_STRING, "Depth Comparison Mode:", comparison);
 	}
@@ -276,18 +276,18 @@ public abstract class GLTexture extends BindableGLObject {
 		GLDebug.writef(GLDebug.ATTRIB+ "[%4f, %4f] + %4f", "LOD Range:", GL11.glGetTexParameterf(target.value(), GL12.GL_TEXTURE_MIN_LOD),
 						GL11.glGetTexParameterf(target.value(), GL12.GL_TEXTURE_MAX_LOD), GL11.glGetTexParameterf(target.value(), GL14.GL_TEXTURE_LOD_BIAS));
 						
-		if (GL.versionCheck(3, 3)) {
+		if (Window.versionCheck(3, 3)) {
 			IntBuffer ibuffer = BufferUtils.createIntBuffer(4);
-			GL11.glGetTexParameter(target.value(), GL33.GL_TEXTURE_SWIZZLE_RGBA, ibuffer);
+			GL11.glGetTexParameteriv(target.value(), GL33.GL_TEXTURE_SWIZZLE_RGBA, ibuffer);
 			GLDebug.writef(GLDebug.ATTRIB_STRING+ "\t%s\t%s\t%s", "Texture Swizzle:", Swizzle.get(ibuffer.get()), Swizzle.get(ibuffer.get()),
 							Swizzle.get(ibuffer.get()), Swizzle.get(ibuffer.get()));
 		}
 		
 		FloatBuffer fbuffer = BufferUtils.createFloatBuffer(4);
-		GL11.glGetTexParameter(target.value(), GL11.GL_TEXTURE_BORDER_COLOR, fbuffer);
+		GL11.glGetTexParameterfv(target.value(), GL11.GL_TEXTURE_BORDER_COLOR, fbuffer);
 		GLDebug.writef(GLDebug.ATTRIB_STRING, "Border Color:", Vector4f.fromBuffer(fbuffer));
 		
-		if (GL.versionCheck(4, 3))
+		if (Window.versionCheck(4, 3))
 			GLDebug.writef(	GLDebug.ATTRIB_STRING, "Depth Stencil Mode:",
 							DepthStencilMode.get(GL11.glGetTexParameteri(target.value(), GL43.GL_DEPTH_STENCIL_TEXTURE_MODE)));
 		GLDebug.writef(	GLDebug.ATTRIB_STRING, "Depth Comparison Mode:",

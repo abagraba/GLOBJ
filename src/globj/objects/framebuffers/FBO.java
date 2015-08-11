@@ -16,7 +16,7 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL43;
 
 import globj.core.Context;
-import globj.core.GL;
+import globj.core.Window;
 import globj.objects.BindTracker;
 import globj.objects.BindableGLObject;
 import globj.objects.framebuffers.values.FBOAttachment;
@@ -134,7 +134,7 @@ public class FBO extends BindableGLObject {
 				if (attach != FBOAttachment.DEPTH_STENCIL && debugBindingStatus(attach))
 						colorCount++;
 						
-			if (colorCount == 0 && GL.versionCheck(4, 3)) {
+			if (colorCount == 0 && Window.versionCheck(4, 3)) {
 			writef(ATTRIB_STRING + "(%d x %d) x %d", "Default Size:", name, GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER, GL43.GL_FRAMEBUFFER_DEFAULT_WIDTH), 
 			               																	GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER, GL43.GL_FRAMEBUFFER_DEFAULT_HEIGHT), 
 			               																	GL43.glGetFramebufferParameteri(GL30.GL_DRAW_FRAMEBUFFER, GL43.GL_FRAMEBUFFER_DEFAULT_LAYERS));

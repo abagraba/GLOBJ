@@ -1,8 +1,6 @@
 package globj.camera;
 
 
-import org.lwjgl.util.vector.Matrix4f;
-
 import globj.math.Matrix4x4f;
 
 

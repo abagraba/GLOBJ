@@ -11,7 +11,7 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL44;
 
 import globj.core.DataType;
-import globj.core.GL;
+import globj.core.Window;
 import globj.objects.bufferobjects.values.VBOTarget;
 import globj.objects.bufferobjects.values.VBOUsage;
 
@@ -30,7 +30,7 @@ public class StaticVBO extends VBO {
 	private StaticVBO(String name, VBOTarget target, FloatBuffer buffer) {
 		super(name, target, DataType.FLOAT, VBOUsage.STATIC_DRAW);
 		bind();
-		if (GL.versionCheck(4, 4))
+		if (Window.versionCheck(4, 4))
 			GL44.glBufferStorage(target.value(), buffer, 0);
 		else
 			GL15.glBufferData(target.value(), buffer, usage().value());
@@ -40,7 +40,7 @@ public class StaticVBO extends VBO {
 	private StaticVBO(String name, VBOTarget target, IntBuffer buffer) {
 		super(name, target, DataType.UINT, VBOUsage.STATIC_DRAW);
 		bind();
-		if (GL.versionCheck(4, 4))
+		if (Window.versionCheck(4, 4))
 			GL44.glBufferStorage(target.value(), buffer, 0);
 		else
 			GL15.glBufferData(target.value(), buffer, usage().value());
@@ -50,7 +50,7 @@ public class StaticVBO extends VBO {
 	private StaticVBO(String name, VBOTarget target, ShortBuffer buffer) {
 		super(name, target, DataType.USHORT, VBOUsage.STATIC_DRAW);
 		bind();
-		if (GL.versionCheck(4, 4))
+		if (Window.versionCheck(4, 4))
 			GL44.glBufferStorage(target.value(), buffer, 0);
 		else
 			GL15.glBufferData(target.value(), buffer, usage().value());
@@ -60,7 +60,7 @@ public class StaticVBO extends VBO {
 	private StaticVBO(String name, VBOTarget target, ByteBuffer buffer) {
 		super(name, target, DataType.UBYTE, VBOUsage.STATIC_DRAW);
 		bind();
-		if (GL.versionCheck(4, 4))
+		if (Window.versionCheck(4, 4))
 			GL44.glBufferStorage(target.value(), buffer, 0);
 		else
 			GL15.glBufferData(target.value(), buffer, usage().value());
