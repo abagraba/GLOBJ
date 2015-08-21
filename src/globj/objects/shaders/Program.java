@@ -8,12 +8,10 @@ import static lwjgl.debug.GLDebug.ATTRIB_STRING;
 import static lwjgl.debug.GLDebug.flushErrors;
 import static lwjgl.debug.GLDebug.glObjError;
 import static lwjgl.debug.GLDebug.indent;
-import static lwjgl.debug.GLDebug.separator;
 import static lwjgl.debug.GLDebug.unindent;
 import static lwjgl.debug.GLDebug.write;
 import static lwjgl.debug.GLDebug.writef;
 
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -210,7 +208,7 @@ public class Program extends BindableGLObject {
 	}
 	
 	private void debugShaders() {
-		writef(ATTRIB_INT, "%s attached shaders.", shaders.size());
+		writef("%d attached shaders", shaders.size());
 		indent();
 		for (Shader shader : this.shaders)
 			write(shader);
@@ -288,7 +286,7 @@ public class Program extends BindableGLObject {
 	
 	private void debugQueryShaders() {
 		int shadernum = GL20.glGetProgrami(id, GL20.GL_ATTACHED_SHADERS);
-		writef(ATTRIB_INT, "%s attached shaders.", shadernum);
+		writef("%d attached shaders", shadernum);
 		IntBuffer shaders = BufferUtils.createIntBuffer(shadernum);
 		GL20.glGetAttachedShaders(id, null, shaders);
 		indent();
@@ -305,15 +303,14 @@ public class Program extends BindableGLObject {
 		writef(ATTRIB_STRING, "Max Attributes:", Context.intConst(GL20.GL_MAX_VERTEX_ATTRIBS));
 		int maxLength = GL20.glGetProgrami(id, GL20.GL_ACTIVE_ATTRIBUTE_MAX_LENGTH);
 		int attribs = GL20.glGetProgrami(id, GL20.GL_ACTIVE_ATTRIBUTES);
-		IntBuffer length = BufferUtils.createIntBuffer(1);
 		IntBuffer size = BufferUtils.createIntBuffer(1);
 		IntBuffer typeID = BufferUtils.createIntBuffer(1);
-		ByteBuffer nameBuffer = BufferUtils.createByteBuffer(maxLength);
 		for (int i = 0; i < attribs; i++) {
-			GL20.glGetActiveAttrib(id, i, length, size, typeID, nameBuffer);
+			String name = GL20.glGetActiveAttrib(id, i, maxLength, size, typeID);
 			ShaderUniformType type = ShaderUniformType.get(typeID.get());
-			String name = new String(nameBuffer.array(), 0, length.get());
 			writef(ATTRIB_STRING + " (%d bytes)", type == null ? "Unrecognized type:" : type + ":", name, size.get());
+			size.flip();
+			typeID.flip();
 		}
 		unindent();
 	}
@@ -326,15 +323,14 @@ public class Program extends BindableGLObject {
 		}
 		int maxLength = GL20.glGetProgrami(id, GL20.GL_ACTIVE_UNIFORM_MAX_LENGTH);
 		int unifs = GL20.glGetProgrami(id, GL20.GL_ACTIVE_UNIFORMS);
-		IntBuffer length = BufferUtils.createIntBuffer(1);
 		IntBuffer size = BufferUtils.createIntBuffer(1);
 		IntBuffer typeID = BufferUtils.createIntBuffer(1);
-		ByteBuffer nameBuffer = BufferUtils.createByteBuffer(maxLength);
 		for (int i = 0; i < unifs; i++) {
-			GL20.glGetActiveUniform(id, i, length, size, typeID, nameBuffer);
+			String name = GL20.glGetActiveUniform(id, i, maxLength, size, typeID);
 			ShaderUniformType type = ShaderUniformType.get(typeID.get());
-			String name = new String(nameBuffer.array(), 0, length.get());
-			writef(ATTRIB_STRING + " (%d bytes)", type == null ? "Unrecognized type:" : type + ":", name, size.get());
+			writef(ATTRIB_STRING, type == null ? "Unrecognized type:" : type + ":", array(name, size.get()));
+			size.flip();
+			typeID.flip();
 		}
 		
 		for (ShaderType type : types) {
@@ -345,7 +341,6 @@ public class Program extends BindableGLObject {
 			writef(ATTRIB_INT, "Max Uniforms:", Context.intConst(type.maxUniforms()));
 			// TODO Proper uniform queries
 			unindent(2);
-			separator();
 		}
 		unindent();
 	}
@@ -357,6 +352,12 @@ public class Program extends BindableGLObject {
 			writef(ATTRIB_INT, "Max Uniforms:", Context.intConst(type.maxUniforms()));
 			unindent();
 		}
+	}
+	
+	private static String array(String name, int size) {
+		if (size == 1)
+			return name;
+		return String.format("%s[%d]", name, size);
 	}
 	
 	private boolean debugErrors() {

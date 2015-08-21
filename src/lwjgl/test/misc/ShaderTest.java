@@ -49,6 +49,7 @@ public class ShaderTest extends RenderCommand {
 		}
 		
 		prog.debugQuery();
+		prog.debug();
 		
 	}
 	

@@ -12,12 +12,14 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.GL43;
 
+import annotations.GLVersion;
 import globj.core.Window;
 import globj.objects.GLObject;
 import lwjgl.debug.GLDebug;
 
 
 
+@GLVersion({ 3, 1 })
 @NonNullByDefault
 public class ShaderUniform extends GLObject {
 	
@@ -28,41 +30,37 @@ public class ShaderUniform extends GLObject {
 	
 	protected List<ShaderType> shaders = new ArrayList<ShaderType>();
 	
-	private ShaderUniform(int program, int index, boolean legacy) {
-		super(name31(program, index), index);
-		this.location = GL20.glGetUniformLocation(program, name);
-		this.block = GL31.glGetActiveUniformsi(program, index, GL31.GL_UNIFORM_BLOCK_INDEX);
-		ShaderUniformType uniformtype = ShaderUniformType.get(GL31.glGetActiveUniformsi(program, index, GL31.GL_UNIFORM_TYPE));
-		if (uniformtype == null) {
-			GLDebug.write("Invalid ShaderUniformType.");
-			uniformtype = ShaderUniformType.FLOAT_VEC4;
-		}
-		type = uniformtype;
-		if (legacy)
-			GLDebug.write("Using legacy ShaderUniform.");
-	}
-	
 	private ShaderUniform(int program, int index) {
-		super(name43(program, index), index);
-		IntBuffer res = getResource(program, new int[] { GL43.GL_BLOCK_INDEX, GL43.GL_LOCATION, GL43.GL_ARRAY_SIZE, GL43.GL_TYPE }, index, 4);
-		block = res.get();
-		location = res.get();
-		arraySize = res.get();
-		ShaderUniformType uniformtype = ShaderUniformType.get(res.get());
-		if (uniformtype == null) {
-			GLDebug.write("Invalid ShaderUniformType.");
-			uniformtype = ShaderUniformType.FLOAT_VEC4;
+		super(name(program, index), index);
+		if (Window.versionCheck(4, 3)) {
+			IntBuffer res = getResource(program, new int[] { GL43.GL_BLOCK_INDEX, GL43.GL_LOCATION, GL43.GL_ARRAY_SIZE, GL43.GL_TYPE }, index, 4);
+			block = res.get();
+			location = res.get();
+			arraySize = res.get();
+			ShaderUniformType uniformtype = ShaderUniformType.get(res.get());
+			if (uniformtype == null) {
+				GLDebug.write("Invalid ShaderUniformType.");
+				uniformtype = ShaderUniformType.FLOAT_VEC4;
+			}
+			type = uniformtype;
 		}
-		type = uniformtype;
+		else {
+			this.location = GL20.glGetUniformLocation(program, name);
+			this.block = GL31.glGetActiveUniformsi(program, index, GL31.GL_UNIFORM_BLOCK_INDEX);
+			ShaderUniformType uniformtype = ShaderUniformType.get(GL31.glGetActiveUniformsi(program, index, GL31.GL_UNIFORM_TYPE));
+			if (uniformtype == null) {
+				GLDebug.write("Invalid ShaderUniformType.");
+				uniformtype = ShaderUniformType.FLOAT_VEC4;
+			}
+			type = uniformtype;
+			GLDebug.write("Using legacy ShaderUniform.");
+		}
 	}
 	
 	/**************************************************/
 	
 	public static ShaderUniform buildUniform(int program, int index) {
-		if (Window.versionCheck(4, 3))
-			return new ShaderUniform(program, index);
-		else
-			return new ShaderUniform(program, index, false);
+		return new ShaderUniform(program, index);
 	}
 	
 	/**************************************************
@@ -82,14 +80,13 @@ public class ShaderUniform extends GLObject {
 		return getResource(program, args, index, 1).get();
 	}
 	
-	private static String name31(int program, int index) {
+	private static String name(int program, int index) {
+		if (Window.versionCheck(4, 3)) {
+			int length = getResource(program, new int[] { GL43.GL_NAME_LENGTH }, index);
+			return stripArray(GL43.glGetProgramResourceName(program, GL43.GL_UNIFORM, index, length));
+		}
 		int uniformNameSize = GL31.glGetActiveUniformsi(program, index, GL31.GL_UNIFORM_NAME_LENGTH);
 		return stripArray(GL31.glGetActiveUniformName(program, index, uniformNameSize));
-	}
-	
-	private static String name43(int program, int index) {
-		int length = getResource(program, new int[] { GL43.GL_NAME_LENGTH }, index);
-		return stripArray(GL43.glGetProgramResourceName(program, GL43.GL_UNIFORM, index, length));
 	}
 	
 	/**************************************************
@@ -155,9 +152,8 @@ public class ShaderUniform extends GLObject {
 	@Override
 	@Nullable
 	public String toString() {
-		if (location != -1)
-			return String.format("[%d]%24s\t%s", location, name, typeName());
-		return String.format("\t%s\t%s", name, typeName());
+		String loc = location == -1 ? "" : String.format("[%d]", location);
+		return String.format("%-8s%32s\t%s", loc, name, typeName());
 	}
 	
 }

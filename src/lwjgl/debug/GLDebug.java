@@ -2,6 +2,7 @@ package lwjgl.debug;
 
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GLContext;
 import org.skx.logger.AbstractLogger;
 
 import globj.core.GLException;
@@ -12,8 +13,6 @@ import globj.objects.GLObject;
 public class GLDebug {
 	
 	private static AbstractLogger logger = new AbstractLogger(System.out);
-	
-	private static final boolean DEBUG = true;
 	
 	public static final String ATTRIB = "%-24s\t";
 	
@@ -145,8 +144,7 @@ public class GLDebug {
 	public static void flushErrors() {
 		int err = GL11.glGetError();
 		while (err != GL11.GL_NO_ERROR) {
-			if (DEBUG)
-				write("Error: " + err);
+			write(GLContext.translateGLErrorString(err));
 			err = GL11.glGetError();
 		}
 	}
@@ -156,8 +154,7 @@ public class GLDebug {
 		if (err == GL11.GL_NO_ERROR)
 			write("No Error");
 		while (err != GL11.GL_NO_ERROR) {
-			if (DEBUG)
-				write("Error: " + err);
+			write(GLContext.translateGLErrorString(err));
 			err = GL11.glGetError();
 		}
 	}

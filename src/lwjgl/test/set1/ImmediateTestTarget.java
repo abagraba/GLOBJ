@@ -61,7 +61,7 @@ public class ImmediateTestTarget extends RenderCommand {
 	@Override
 	public void input() {
 		
-		theta += rps * TestControlSet.LR.position() * Window.deltaTime();
+		theta += rps * TestControlSet.LR.position() * w.deltaTime();
 		if (TestControlSet.ESC.state())
 			Window.close();
 	}

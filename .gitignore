@@ -8,6 +8,7 @@
 *.war
 *.ear
 
+.sonar/
 .settings/
 doc/
 bin/

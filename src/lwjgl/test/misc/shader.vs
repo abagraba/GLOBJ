@@ -3,22 +3,42 @@
 layout (location = 3) in vec3 Position;
 layout (location = 2) in vec4 Color;
 
-uniform sampleBlock {
-	float gScale;
-	vec2 hScale;
-	float iScale;
+struct Struct{
+	float f;
 };
+struct StructureOfArrays {
+	Struct SoA1[3];
+	vec2 SoA2[1];
+	float SoA3;
+} Unused;
+struct ArrayOfStructures {
+	Struct AoS1;
+	vec2 AoS2;
+	float AoS3;
+} NeitherThisNameOrTheArrayNotationAreUsed [3];
 
-layout (location = 10) uniform sampleBlockx {
-	float uScale[2];
-	vec3 vScale;
-	float nScale;
-} matx [3];
+uniform BlockName {
+	Struct innerArray[3];
+	Struct inner;
+} InstanceName[2];
 
-layout (location = 0) uniform vec2 i [2];
-layout (location = 3) uniform float y;
-layout (location = 9) uniform float t;
+uniform BlockA {
+	Struct inner;
+} A;
+uniform BlockB {
+	Struct inner;
+} B;
+uniform BlockC {
+	Struct inner;
+} C;
+
+uniform StructureOfArrays arrays;
+uniform ArrayOfStructures structs[2];
 
 void main() {
-    gl_Position = vec4(gScale * Position[1] + Color.xyz, 1.0 + i[1] * gScale + hScale + y * t * matx[0].uScale[1] * matx[2].vScale);
+	vec4 a = vec4(InstanceName[0].innerArray[0].f, InstanceName[0].innerArray[1].f, InstanceName[0].innerArray[2].f, InstanceName[0].inner.f);
+	vec4 b = vec4(InstanceName[1].innerArray[0].f, InstanceName[1].innerArray[1].f, InstanceName[1].innerArray[2].f, InstanceName[1].inner.f);
+	vec4 c = vec4(arrays.SoA1[0].f, arrays.SoA2[0], arrays.SoA3);
+    vec4 d = vec4(structs[0].AoS1.f, structs[0].AoS2, structs[0].AoS3);
+    gl_Position = a + b + c + d + vec4(A.inner.f, B.inner.f, C.inner.f, 0); 
 }

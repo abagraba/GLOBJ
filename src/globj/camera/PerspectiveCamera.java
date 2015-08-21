@@ -1,12 +1,10 @@
 package globj.camera;
 
 
-import globj.math.Matrix4x4f;
-import globj.math.Transform;
-
 import java.awt.Color;
 
-import org.lwjgl.opengl.Display;
+import globj.math.Matrix4x4f;
+import globj.math.Transform;
 
 
 
@@ -57,7 +55,8 @@ public class PerspectiveCamera extends Camera {
 	
 	@Override
 	public Matrix4x4f projectionMatrix() {
-		float ar = (float) Display.getWidth() / Display.getHeight();
+		float ar = 1;
+		// float ar = (float) Display.getWidth() / Display.getHeight();
 		float id = near == far ? 0 : (1 / (near - far));
 		Matrix4x4f projection = new Matrix4x4f();
 		projection.m00 = ifovtan / ar;
